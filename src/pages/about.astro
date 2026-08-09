@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="About & Philosophy" description="Learn about A11y Test Kitchen's non-simulator framing and role-based accessibility teaching philosophy.">
+  <article class="about-article">
+    <header class="about-header">
+      <h1 class="about-title">About A11y Test Kitchen</h1>
+      <p class="about-lead">
+        An interactive exhibit designed to judge the interface, never the person.
+      </p>
+    </header>
+
+    <section class="about-section">
+      <h2>The Framing Philosophy</h2>
+      <p>
+        Simulators such as blur goggles, shaky cursors, or input disablers are widely criticized by disabled advocates. A short filter cannot replicate anyone's lived experience, and it often creates pity instead of structural understanding.
+      </p>
+      <p>
+        <strong>A11y Test Kitchen rejects disability simulation.</strong> We frame every demonstration around interface barriers and code fixes:
+      </p>
+      <ul>
+        <li>We say <em>“broken interface,” “barrier,”</em> and <em>“the fix.”</em></li>
+        <li>We never say <em>“feel what disability feels like”</em> or <em>“experience what it's like to be blind.”</em></li>
+      </ul>
+    </section>
+
+    <section class="about-section">
+      <h2>Three Audience Perspectives</h2>
+      <p>
+        Every station includes explanations tailored for three distinct roles:
+      </p>
+      <dl class="roles-list">
+        <dt><strong>Advocate Mode:</strong></dt>
+        <dd>For managers, executives, and clients. Focuses on human and organizational impact, who is affected most, and clear decision takeaways with zero source code.</dd>
+
+        <dt><strong>Builder Mode:</strong></dt>
+        <dd>For developers and architects. Details exact WCAG success criteria, concrete implementation changes, practical snippets, and test instructions.</dd>
+
+        <dt><strong>Presenter Mode:</strong></dt>
+        <dd>For live demonstrators. Provides a timed 2-3 minute run sheet and three clear conclusions to land during presentations.</dd>
+      </dl>
+    </section>
+
+    <section class="about-section">
+      <h2>Site Accessibility Floor</h2>
+      <p>
+        Even though stations demonstrate broken interaction patterns, the host website follows a documented safety floor:
+      </p>
+      <ul>
+        <li>Every page starts with a skip link and keeps a native keyboard escape path.</li>
+        <li>Focus rings are authored for at least 3:1 contrast against their backgrounds.</li>
+        <li>Layouts use fluid rules; the release checklist requires reflow checks at documented zoom and viewport sizes.</li>
+        <li><code>prefers-reduced-motion</code> removes authored transitions and animations.</li>
+        <li>State indicators always combine <strong>Color + Word + Shape</strong> (Plum Diamond for Barrier, Slate Blue Circle for Fixed).</li>
+      </ul>
+    </section>
+
+    <section class="about-section">
+      <h2>Claims and limits</h2>
+      <p>
+        Barrier panels intentionally demonstrate narrow failures, so this site does not make a blanket WCAG conformance claim. Fixed examples are reviewed against named criteria, and the release checklist combines automation with keyboard, zoom, browser, and real assistive-technology checks. One passing tool does not prove full access.
+      </p>
+    </section>
+  </article>
+</Base>

@@ -1,0 +1,141 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'A public static teaching site comparing broken and fixed interfaces across roles.',
+} = Astro.props;
+const pathname = Astro.url.pathname;
+const stationsCurrent = pathname === '/' || pathname.startsWith('/stations/');
+---
+
+<!doctype html>
+<html lang="en" data-atk-mode="builder">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · A11y Test Kitchen</title>
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header class="masthead">
+      <div class="container masthead-inner">
+        <a href="/" class="brand-link">
+          <span>A11y Test Kitchen</span>
+          <span class="brand-badge">Exhibit</span>
+        </a>
+
+        <nav aria-label="Main navigation">
+          <ul class="nav-links">
+            <li><a href="/" class="nav-link" aria-current={stationsCurrent ? 'page' : undefined}>Stations</a></li>
+            <li>
+              <a
+                href="/about/"
+                class="nav-link"
+                aria-current={pathname === '/about/' ? 'page' : undefined}
+              >About &amp; philosophy</a>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="mode-switch">
+          <span class="visually-hidden" id="atk-mode-label">Choose explanation audience:</span>
+          <div class="mode-switch-group" role="group" aria-labelledby="atk-mode-label">
+            <button
+              type="button"
+              class="mode-btn"
+              data-mode="advocate"
+              data-atk-mode-button="advocate"
+              aria-pressed="false"
+            >Advocate</button>
+            <button
+              type="button"
+              class="mode-btn"
+              data-mode="builder"
+              data-atk-mode-button="builder"
+              aria-pressed="true"
+            >Builder</button>
+            <button
+              type="button"
+              class="mode-btn"
+              data-mode="presenter"
+              data-atk-mode-button="presenter"
+              aria-pressed="false"
+            >Presenter</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" tabindex="-1" class="container page-main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-copy">
+          <p><strong>A11y Test Kitchen</strong> · Judging the interface, never the person.</p>
+          <p class="footer-note">
+            A public static accessibility teaching exhibit. No analytics, tracking, or storage beyond the mode preference.
+          </p>
+        </div>
+        <p class="footer-baseline">WCAG 2.2 reference baseline</p>
+      </div>
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const modes = new Set(['advocate', 'builder', 'presenter']);
+        const root = document.documentElement;
+        if (root.dataset.atkModeBound === 'true') return;
+        root.dataset.atkModeBound = 'true';
+
+        const buttons = Array.from(document.querySelectorAll('[data-atk-mode-button]'));
+
+        const savedMode = () => {
+          try {
+            const saved = window.localStorage.getItem('atk-mode');
+            return modes.has(saved) ? saved : 'builder';
+          } catch {
+            return 'builder';
+          }
+        };
+
+        const applyMode = (requestedMode, persist = false) => {
+          const mode = modes.has(requestedMode) ? requestedMode : 'builder';
+          root.dataset.atkMode = mode;
+
+          buttons.forEach((button) => {
+            button.setAttribute('aria-pressed', String(button.dataset.atkModeButton === mode));
+          });
+
+          document.querySelectorAll('[data-atk-mode-panel]').forEach((panel) => {
+            panel.hidden = panel.dataset.atkModePanel !== mode;
+          });
+
+          if (persist) {
+            try {
+              window.localStorage.setItem('atk-mode', mode);
+            } catch {
+              // The in-page choice remains usable when storage is blocked.
+            }
+          }
+        };
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', () => applyMode(button.dataset.atkModeButton, true));
+        });
+
+        applyMode(savedMode());
+      })();
+    </script>
+  </body>
+</html>
