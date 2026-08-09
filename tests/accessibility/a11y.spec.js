@@ -1,0 +1,84 @@
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { stations } from '../../src/data/stations.js';
+import { intentionalFailures } from '../fixtures/intentional-failures.js';
+
+for (const route of ['/', '/about/']) {
+  test(`@a11y ${route} has no automated findings`, async ({ page }) => {
+    await page.goto(route);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations).toEqual([]);
+  });
+}
+
+// Only one explanation panel is visible at a time, and axe cannot see the
+// hidden ones, so every mode has to be scanned explicitly.
+const modes = ['Advocate', 'Builder', 'Presenter'];
+
+for (const station of stations) {
+  const route = `/stations/${station.slug}/`;
+
+  for (const mode of modes) {
+    test(`@a11y Station ${station.id} fixed view has no automated findings in ${mode} mode`, async ({ page }) => {
+      await page.goto(route);
+      await page.getByRole('radio', { name: 'Try the fix' }).check();
+      await page.getByRole('button', { name: mode }).click();
+      await expect(page.locator(`[data-atk-mode-panel="${mode.toLowerCase()}"]`)).toBeVisible();
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations).toEqual([]);
+    });
+  }
+
+  test(`@a11y Station ${station.id} compare view adds no findings beyond the barrier ledger`, async ({ page }) => {
+    await page.goto(route);
+    await page.getByRole('radio', { name: 'Compare side by side' }).check();
+    await expect(page.locator('[data-atk-panel="fixed"]')).toBeVisible();
+
+    const expectedRules = [...new Set(intentionalFailures
+      .filter((entry) => entry.station === station.id && entry.view === 'barrier')
+      .flatMap((entry) => (entry.toolRule ? [entry.toolRule] : [])))].sort();
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.map((violation) => violation.id).sort()).toEqual(expectedRules);
+  });
+
+  test(`@a11y Station ${station.id} barrier matches its exact exception ledger`, async ({ page }) => {
+    await page.goto(route);
+    const expected = intentionalFailures.filter((entry) => (
+      entry.station === station.id && entry.view === 'barrier'
+    ));
+    expect(expected.length).toBeGreaterThan(0);
+
+    const results = await new AxeBuilder({ page }).analyze();
+    const expectedRules = [...new Set(expected.flatMap((entry) => entry.toolRule ? [entry.toolRule] : []))].sort();
+    const actualRules = results.violations.map((violation) => violation.id).sort();
+    expect(actualRules).toEqual(expectedRules);
+
+    for (const violation of results.violations) {
+      const entriesForRule = expected.filter((entry) => entry.toolRule === violation.id);
+      expect(violation.nodes).toHaveLength(entriesForRule.length);
+    }
+
+    for (const entry of expected) {
+      await expect(page.locator(entry.selector)).toHaveCount(1);
+      if (entry.toolRule) {
+        const scoped = await new AxeBuilder({ page })
+          .include(entry.selector)
+          .withRules([entry.toolRule])
+          .analyze();
+        expect(scoped.violations).toHaveLength(1);
+        expect(scoped.violations[0].id).toBe(entry.toolRule);
+        expect(scoped.violations[0].impact).toBe(entry.expectedImpact);
+        expect(scoped.violations[0].nodes).toHaveLength(1);
+      }
+    }
+
+    if (station.id === '01') {
+      for (const entry of expected) {
+        const field = page.locator(entry.selector);
+        await expect(field).toHaveAttribute('placeholder', /\S+/);
+        const id = await field.getAttribute('id');
+        await expect(page.locator(`label[for="${id}"]`)).toHaveCount(0);
+      }
+    }
+  });
+}
