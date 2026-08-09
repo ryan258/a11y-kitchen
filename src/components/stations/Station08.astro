@@ -1,0 +1,144 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '08');
+if (!station) throw new Error('Station 08 metadata is missing.');
+
+const advocate = {
+  happened: 'The product replay moves through ticket choices without drawing a visible focus marker. Safe host controls and a text readout remain visible so the lesson itself is usable.',
+  matters: 'Without a focus marker, a keyboard visitor cannot tell which choice will activate. That uncertainty causes wrong purchases, repeated navigation, and abandonment.',
+  hardest: 'Keyboard-only users and people with low vision, limited attention, or magnification may lose their location after every key press.',
+  decision: 'Make visible focus a design-system requirement, test it on every component and background, and never remove the browser outline without a stronger replacement.',
+};
+
+const builder = {
+  criterionNotes: {
+    '2.4.7': 'Every keyboard-operable interface needs a mode where the focus indicator is visible. The barrier uses a static replay so the host site never creates an actually invisible focus path.',
+  },
+  moves: [
+    'Use :focus-visible for a consistent high-contrast indicator.',
+    'Keep the indicator outside clipping and test it against every adjacent background.',
+    'Retain native focus order and do not substitute selection styling for focus styling.',
+  ],
+  snippet: ':focus-visible {\n  outline: 3px solid var(--focus-ring);\n  outline-offset: 2px;\n}',
+  tests: [
+    'Keyboard: Tab and Shift+Tab through every ticket option and action without using a pointer.',
+    'Visual: verify the indicator remains visible in default, zoomed, and forced-color views.',
+    'Contrast: measure the indicator against the colors directly beside it, not only the page background.',
+  ],
+  boundary: 'The barrier is an inspection replay, not an interactive invisible-focus defect. The fixed panel is the production interaction to adapt.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '20s', text: 'Explain that an actual invisible keyboard path would violate the site floor, so the barrier is a safe product replay.' },
+    { label: 'Barrier run', time: '35s', text: 'Use Next product focus and watch the safety readout change while the product mock shows no marker.' },
+    { label: 'Fixed run', time: '40s', text: 'Tab through the real ticket radios, choose Balcony, and buy the fictional ticket.' },
+    { label: 'Debrief', time: '25s', text: 'Connect a visible location marker to accurate, confident keyboard choices.' },
+  ],
+  lines: [
+    'Keyboard focus is a location marker, not decoration.',
+    'If people cannot see where they are, they cannot predict what happens next.',
+    'Never remove an outline without a stronger replacement.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Use a safe focus-path replay, then buy a ticket with a strong visible focus indicator."
+  task={{
+    goal: 'Choose and buy the Balcony ticket with keyboard input.',
+    use: 'The replay starts on Standard; Balcony is the next product focus stop.',
+    done: 'The panel confirms a fictional Balcony ticket.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="A safe replay of missing product focus">
+    <p class="safety-note"><strong>Inspection mode:</strong> The ticket mock is not interactive. Host controls keep a visible focus ring and a text readout.</p>
+    <div class="ticket-choice-grid faux-ticket-grid" aria-label="Static product replay with no visual focus marker">
+      <div>Standard · $20</div>
+      <div>Balcony · $30</div>
+      <div>Premium · $45</div>
+    </div>
+    <p class="focus-readout" data-atk-08-readout aria-live="polite">Safety readout: product focus is Standard.</p>
+    <p class="status-msg" data-atk-08-barrier-status aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn btn--barrier" type="button" data-atk-08-next>Next product focus</button>
+      <button class="btn btn--secondary" type="button" data-atk-08-buy-current>Buy current option</button>
+      <button class="btn btn--secondary" type="button" data-atk-08-barrier-reset>Reset Barrier</button>
+    </div>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="Ticket choices with visible focus">
+    <form class="station-form choice-form" data-atk-08-fixed-form>
+      <fieldset>
+        <legend>Choose a ticket</legend>
+        <label><input type="radio" name="ticket" value="Standard" /> Standard · $20</label>
+        <label><input type="radio" name="ticket" value="Balcony" /> Balcony · $30</label>
+        <label><input type="radio" name="ticket" value="Premium" /> Premium · $45</label>
+      </fieldset>
+      <p class="status-msg" data-atk-08-fixed-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--fix" type="submit">Buy ticket</button>
+        <button class="btn btn--secondary" type="button" data-atk-08-fixed-reset>Reset Fixed</button>
+      </div>
+    </form>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="08"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+    const choices = ['Standard', 'Balcony', 'Premium'];
+
+    const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
+    const readout = barrierPanel?.querySelector('[data-atk-08-readout]');
+    const barrierStatus = barrierPanel?.querySelector('[data-atk-08-barrier-status]');
+    let current = 0;
+    const updateReadout = () => {
+      if (readout) readout.textContent = `Safety readout: product focus is ${choices[current]}.`;
+    };
+    barrierPanel?.querySelector('[data-atk-08-next]')?.addEventListener('click', () => {
+      current = (current + 1) % choices.length;
+      updateReadout();
+    });
+    barrierPanel?.querySelector('[data-atk-08-buy-current]')?.addEventListener('click', () => {
+      if (barrierStatus) {
+        barrierStatus.textContent = choices[current] === 'Balcony'
+          ? 'Balcony ticket purchased. No payment was made.'
+          : `The current option is ${choices[current]}. Move to Balcony and try again.`;
+      }
+    });
+    barrierPanel?.querySelector('[data-atk-08-barrier-reset]')?.addEventListener('click', () => {
+      current = 0;
+      updateReadout();
+      if (barrierStatus) barrierStatus.textContent = '';
+      barrierPanel.querySelector('.panel-heading')?.focus();
+    });
+
+    const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
+    const fixedForm = fixedPanel?.querySelector('[data-atk-08-fixed-form]');
+    const fixedStatus = fixedPanel?.querySelector('[data-atk-08-fixed-status]');
+    fixedForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const selected = fixedForm.querySelector('input[name="ticket"]:checked');
+      if (fixedStatus) {
+        fixedStatus.textContent = selected?.value === 'Balcony'
+          ? 'Balcony ticket purchased. No payment was made.'
+          : 'Choose the Balcony ticket before you buy.';
+      }
+    });
+    fixedPanel?.querySelector('[data-atk-08-fixed-reset]')?.addEventListener('click', () => {
+      fixedForm?.reset();
+      if (fixedStatus) fixedStatus.textContent = '';
+      fixedPanel.querySelector('.panel-heading')?.focus();
+    });
+  })();
+</script>

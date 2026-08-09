@@ -1,0 +1,36 @@
+---
+import StateChip from './StateChip.astro';
+
+interface Props {
+  stationId: string;
+  type: 'barrier' | 'fix';
+  heading: string;
+}
+
+const { stationId, type, heading } = Astro.props;
+const isBarrier = type === 'barrier';
+const panelKind = isBarrier ? 'barrier' : 'fixed';
+const panelId = isBarrier ? `panel-barrier-${stationId}` : `panel-fix-${stationId}`;
+const headingId = `atk-${stationId}-${panelKind}-heading`;
+const disclosureId = `atk-${stationId}-barrier-disclosure`;
+---
+
+<section
+  id={panelId}
+  class={`panel ${isBarrier ? 'panel--barrier' : 'panel--fix'}`}
+  data-atk-panel={panelKind}
+  aria-labelledby={headingId}
+  aria-describedby={isBarrier ? disclosureId : undefined}
+  hidden={!isBarrier}
+>
+  <div class="panel-header">
+    <StateChip type={type} label={isBarrier ? 'Barrier' : 'Fixed'} />
+    <h2 id={headingId} tabindex="-1" class="panel-heading">{heading}</h2>
+  </div>
+
+  {isBarrier && (
+    <p class="visually-hidden" id={disclosureId}>This version is broken on purpose.</p>
+  )}
+
+  <slot />
+</section>

@@ -1,0 +1,136 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '10');
+if (!station) throw new Error('Station 10 metadata is missing.');
+
+const advocate = {
+  happened: 'Each order shows status with a colored dot and nothing else. The visitor must distinguish two colors to find the failed order.',
+  matters: 'A color-only status can hide a failed payment, shipment, or task. People may act on the wrong row or miss the one that needs attention.',
+  hardest: 'People with color-vision differences, low vision, monochrome displays, forced-color settings, or poor lighting may not perceive the intended difference.',
+  decision: 'Require every important status to include a written label and a distinct shape in addition to color.',
+};
+
+const builder = {
+  criterionNotes: {
+    '1.4.1': 'Color cannot be the only visual means used to convey information, prompt a response, distinguish an element, or show a state.',
+  },
+  moves: [
+    'Write the status in each row instead of relying on a separate color legend.',
+    'Pair each word with a stable shape so the distinction survives monochrome output.',
+    'Preserve the text and shape in forced-color mode instead of forcing author colors.',
+  ],
+  snippet: '<span class="order-status order-status--failed">\n  <span class="order-shape" aria-hidden="true"></span>\n  Failed\n</span>',
+  tests: [
+    'Visual: inspect the list in grayscale and confirm Failed remains distinct from Complete.',
+    'Forced colors: verify text and shapes remain visible when author colors are replaced.',
+    'Assistive technology: confirm every order exposes its status in the row’s accessible text.',
+  ],
+  boundary: 'Color may still support the distinction. This example does not define every status in a production order system.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'Ask the audience to find the one failed fictional order. Do not frame color perception as a test of the person.' },
+    { label: 'Barrier run', time: '35s', text: 'Show the legend and color-only row dots, then select order ATK-511.' },
+    { label: 'Fixed run', time: '35s', text: 'Point out the word Failed and diamond shape before selecting the same order.' },
+    { label: 'Debrief', time: '25s', text: 'Connect redundant status cues to reliable decisions across displays and vision conditions.' },
+  ],
+  lines: [
+    'Color can support meaning, but it cannot carry meaning alone.',
+    'Use a color, a word, and a shape.',
+    'Important status should survive monochrome.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare color-only order status with status expressed by color, word, and shape."
+  task={{
+    goal: 'Select the failed order.',
+    use: 'Three fictional orders are shown. Exactly one failed.',
+    done: 'The panel confirms order ATK-511.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="Order status shown only by color">
+    <div class="status-legend" aria-label="Color legend">
+      <span><span class="status-dot status-dot--complete" aria-hidden="true"></span> Slate blue means complete</span>
+      <span><span class="status-dot status-dot--failed" aria-hidden="true"></span> Plum means failed</span>
+    </div>
+    <form class="station-form choice-form order-choice-form" data-atk-10-barrier-form>
+      <fieldset>
+        <legend>Select the failed order</legend>
+        <label><input type="radio" name="order" value="ATK-510" /> <span>ATK-510 · $28</span><span class="status-dot status-dot--complete" aria-hidden="true"></span></label>
+        <label><input type="radio" name="order" value="ATK-511" /> <span>ATK-511 · $42</span><span class="status-dot status-dot--failed" aria-hidden="true"></span></label>
+        <label><input type="radio" name="order" value="ATK-512" /> <span>ATK-512 · $16</span><span class="status-dot status-dot--complete" aria-hidden="true"></span></label>
+      </fieldset>
+      <p class="status-msg" data-atk-10-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--barrier" type="submit">Check order</button>
+        <button class="btn btn--secondary" type="button" data-atk-10-reset>Reset Barrier</button>
+      </div>
+    </form>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="Order status with color, word, and shape">
+    <form class="station-form choice-form order-choice-form" data-atk-10-fixed-form>
+      <fieldset>
+        <legend>Select the failed order</legend>
+        <label>
+          <input type="radio" name="order-fixed" value="ATK-510" />
+          <span>ATK-510 · $28</span>
+          <span class="order-status order-status--complete"><span class="order-shape" aria-hidden="true"></span>Complete</span>
+        </label>
+        <label>
+          <input type="radio" name="order-fixed" value="ATK-511" />
+          <span>ATK-511 · $42</span>
+          <span class="order-status order-status--failed"><span class="order-shape" aria-hidden="true"></span>Failed</span>
+        </label>
+        <label>
+          <input type="radio" name="order-fixed" value="ATK-512" />
+          <span>ATK-512 · $16</span>
+          <span class="order-status order-status--complete"><span class="order-shape" aria-hidden="true"></span>Complete</span>
+        </label>
+      </fieldset>
+      <p class="status-msg" data-atk-10-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--fix" type="submit">Check order</button>
+        <button class="btn btn--secondary" type="button" data-atk-10-reset>Reset Fixed</button>
+      </div>
+    </form>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="10"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+    root.querySelectorAll('[data-atk-10-barrier-form], [data-atk-10-fixed-form]').forEach((form) => {
+      const panel = form.closest('[data-atk-panel]');
+      const status = form.querySelector('[data-atk-10-status]');
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const selected = form.querySelector('input[type="radio"]:checked');
+        if (status) {
+          status.textContent = !selected
+            ? 'Choose an order first.'
+            : selected.value === 'ATK-511'
+              ? 'Correct. Order ATK-511 failed.'
+              : `${selected.value} is complete. Try again.`;
+        }
+      });
+      form.querySelector('[data-atk-10-reset]')?.addEventListener('click', () => {
+        form.reset();
+        if (status) status.textContent = '';
+        panel?.querySelector('.panel-heading')?.focus();
+      });
+    });
+  })();
+</script>

@@ -1,0 +1,15 @@
+---
+interface Props {
+  type: 'barrier' | 'fix';
+  label?: string;
+}
+
+const { type, label } = Astro.props;
+const isBarrier = type === 'barrier';
+const textLabel = label || (isBarrier ? 'Barrier' : 'Fixed');
+---
+
+<span class={`state-chip ${isBarrier ? 'state-chip--barrier' : 'state-chip--fix'}`}>
+  <span class="state-shape" aria-hidden="true"></span>
+  <span class="state-label">{textLabel}</span>
+</span>

@@ -1,0 +1,110 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '12');
+if (!station) throw new Error('Station 12 metadata is missing.');
+
+const advocate = {
+  happened: 'The phone-sized task packs twenty-pixel option buttons only two pixels apart. A small movement can activate the wrong choice.',
+  matters: 'Tiny, crowded targets create errors and repeated attempts. They also make ordinary mobile tasks slower and less trustworthy.',
+  hardest: 'People with limited dexterity, tremor, low vision, large fingers, or a moving device may have trouble landing on the intended option.',
+  decision: 'Set a minimum target-size and spacing rule in the design system, then test real touch layouts instead of only desktop screenshots.',
+};
+
+const builder = {
+  criterionNotes: {
+    '2.5.8': 'At Level AA, pointer targets are at least 24 by 24 CSS pixels or meet a listed spacing or other exception.',
+  },
+  moves: [
+    'Give each compact target at least a 24-by-24 CSS-pixel area; this fix uses 44 by 44.',
+    'Leave enough space so adjacent target areas do not overlap.',
+    'Keep the keyboard focus indicator visible and avoid changing the visual order at narrow widths.',
+  ],
+  snippet: '.option-target {\n  inline-size: 2.75rem;\n  block-size: 2.75rem;\n  margin: 0.25rem;\n}',
+  tests: [
+    'Measure: inspect the rendered CSS-pixel bounds and spacing, including at the phone breakpoint.',
+    'Touch: activate each option repeatedly without zooming and watch for adjacent activations.',
+    'Keyboard and zoom: verify focus, labels, and layout remain usable independently of pointer size.',
+  ],
+  boundary: 'WCAG includes exceptions and a 24-pixel minimum, not a universal 44-pixel rule. This station chooses 44 pixels as a more forgiving product target.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'Ask the audience to choose option B on a phone-sized row. The task tests the interface, not anyone’s motor skill.' },
+    { label: 'Barrier run', time: '30s', text: 'Show the measured twenty-pixel targets and two-pixel gaps. Select B once; do not make repeated misses into a game.' },
+    { label: 'Fixed run', time: '30s', text: 'Select the same option using the larger, spaced controls and show the same success result.' },
+    { label: 'Debrief', time: '25s', text: 'Connect target geometry to fewer errors on touch screens and in unstable conditions.' },
+  ],
+  lines: [
+    'Small controls turn tiny movements into wrong actions.',
+    'Target size and spacing are product decisions.',
+    'Test the layout with real touch, not only a mouse.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare crowded twenty-pixel targets with larger, well-spaced touch controls."
+  task={{
+    goal: 'Choose option B.',
+    use: 'The same A, B, and C options appear in both panels.',
+    done: 'The panel confirms Selected option B.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="Twenty-pixel targets with two-pixel gaps">
+    <div class="target-demo target-demo--small" role="group" aria-label="Crowded option buttons">
+      <button type="button" aria-pressed="false" data-atk-12-option="A">A</button>
+      <button type="button" aria-pressed="false" data-atk-12-option="B">B</button>
+      <button type="button" aria-pressed="false" data-atk-12-option="C">C</button>
+    </div>
+    <p class="status-msg" data-atk-12-status aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn btn--secondary" type="button" data-atk-12-reset>Reset Barrier</button>
+    </div>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="Large targets with clear spacing">
+    <div class="target-demo target-demo--large" role="group" aria-label="Spaced option buttons">
+      <button type="button" aria-pressed="false" data-atk-12-option="A">A</button>
+      <button type="button" aria-pressed="false" data-atk-12-option="B">B</button>
+      <button type="button" aria-pressed="false" data-atk-12-option="C">C</button>
+    </div>
+    <p class="status-msg" data-atk-12-status aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn btn--secondary" type="button" data-atk-12-reset>Reset Fixed</button>
+    </div>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="12"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+    root.querySelectorAll('[data-atk-panel]').forEach((panel) => {
+      const options = Array.from(panel.querySelectorAll('[data-atk-12-option]'));
+      const status = panel.querySelector('[data-atk-12-status]');
+      options.forEach((button) => button.addEventListener('click', () => {
+        options.forEach((option) => option.setAttribute('aria-pressed', String(option === button)));
+        const value = button.getAttribute('data-atk-12-option');
+        if (status) {
+          status.textContent = value === 'B'
+            ? 'Selected option B.'
+            : `Selected option ${value}. Choose B to finish.`;
+        }
+      }));
+      panel.querySelector('[data-atk-12-reset]')?.addEventListener('click', () => {
+        options.forEach((option) => option.setAttribute('aria-pressed', 'false'));
+        if (status) status.textContent = '';
+        panel.querySelector('.panel-heading')?.focus();
+      });
+    });
+  })();
+</script>

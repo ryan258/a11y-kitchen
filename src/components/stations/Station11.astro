@@ -1,0 +1,152 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+import videoUrl from '../../assets/station-11-instructions.mp4?url';
+import captionsUrl from '../../assets/station-11-captions.vtt?url';
+import posterUrl from '../../assets/station-11-poster.png?url';
+
+const station = stations.find((candidate) => candidate.id === '11');
+if (!station) throw new Error('Station 11 metadata is missing.');
+
+const advocate = {
+  happened: 'The instructional video speaks every step but provides no captions or transcript. The task depends on hearing the recording.',
+  matters: 'When instructions exist in only one form, people miss steps, replay the media, ask for help, or cannot complete the task at all.',
+  hardest: 'Deaf and hard-of-hearing visitors are directly excluded. Captions also help people in noisy or quiet places, language learners, and anyone who reads more easily than they hear.',
+  decision: 'Budget captions and a checked transcript as part of media production, with named ownership before the video is published.',
+};
+
+const builder = {
+  criterionNotes: {
+    '1.2.2': 'Prerecorded synchronized media needs captions for all meaningful audio unless it is a clearly labelled media alternative for text.',
+    '1.2.3': 'Prerecorded video needs an audio description or a full media alternative. Here, the audio states all meaningful visual information and the transcript provides the equivalent sequence.',
+  },
+  moves: [
+    'Author a WebVTT caption file that matches the spoken words and timing.',
+    'Attach it with a default captions track and publish an equivalent transcript nearby.',
+    'Review names, sounds, timing, reading speed, and meaningful visuals with the final media.',
+  ],
+  snippet: '<video controls>\n  <source src="instructions.mp4" type="video/mp4">\n  <track kind="captions" srclang="en" src="captions.vtt" label="English" default>\n</video>',
+  tests: [
+    'Captions: watch with audio muted and confirm every instruction and meaningful sound is available at the right time.',
+    'Transcript: complete the task using only the transcript and compare its meaning with the final video.',
+    'Keyboard and assistive technology: operate native media controls and discover the transcript relationship.',
+  ],
+  boundary: 'Captions and transcripts need human accuracy review. This original clip contains no meaningful visual information that is absent from its narration.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'Explain that the original eight-second clip and all task data are fictional and local to this project.' },
+    { label: 'Barrier run', time: '35s', text: 'Mute the video and try to identify the final instruction. Stop after the gap is clear; do not ask anyone to guess.' },
+    { label: 'Fixed run', time: '40s', text: 'Play the same clip with English captions, then open the transcript and answer Press Done.' },
+    { label: 'Debrief', time: '25s', text: 'Connect alternatives planned with the media to equal access and easier reuse.' },
+  ],
+  lines: [
+    'If the instruction matters, it cannot live only in audio.',
+    'Captions are part of the media, not a later favor.',
+    'A transcript gives the same information another durable path.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare spoken-only video instructions with synchronized captions and an equivalent transcript."
+  task={{
+    goal: 'Identify the final table-setup instruction.',
+    use: 'The same original eight-second video appears in both panels.',
+    done: 'The panel confirms that the final step is Press Done.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="Spoken instructions without alternatives">
+    <video class="instruction-video" controls preload="metadata" poster={posterUrl} aria-label="Table setup instructions" data-atk-11-video>
+      <source src={videoUrl} type="video/mp4" />
+    </video>
+    <form class="station-form choice-form" data-atk-11-form data-correct="done">
+      <fieldset>
+        <legend>What is the final step?</legend>
+        <label><input type="radio" name="final-step" value="card" /> Place the blue card</label>
+        <label><input type="radio" name="final-step" value="spoon" /> Put down the spoon</label>
+        <label><input type="radio" name="final-step" value="done" /> Press Done</label>
+      </fieldset>
+      <p class="status-msg" data-atk-11-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--barrier" type="submit">Check answer</button>
+        <button class="btn btn--secondary" type="button" data-atk-11-reset>Reset Barrier</button>
+      </div>
+    </form>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="The same video with captions and transcript">
+    <video
+      class="instruction-video"
+      controls
+      preload="metadata"
+      poster={posterUrl}
+      aria-label="Table setup instructions with English captions"
+      aria-describedby="atk-11-fixed-transcript"
+      data-atk-11-video
+    >
+      <source src={videoUrl} type="video/mp4" />
+      <track src={captionsUrl} kind="captions" srclang="en" label="English" default />
+    </video>
+    <details class="media-transcript" id="atk-11-fixed-transcript">
+      <summary>Read the transcript</summary>
+      <p><strong>Speaker:</strong> First, place the blue card in the center of the table. Next, put the metal spoon to the right of the card. Finally, press Done.</p>
+      <p>Visual note: The video shows the same blue card and spoon named in the narration. It adds no unspoken instruction.</p>
+    </details>
+    <form class="station-form choice-form" data-atk-11-form data-correct="done">
+      <fieldset>
+        <legend>What is the final step?</legend>
+        <label><input type="radio" name="final-step-fixed" value="card" /> Place the blue card</label>
+        <label><input type="radio" name="final-step-fixed" value="spoon" /> Put down the spoon</label>
+        <label><input type="radio" name="final-step-fixed" value="done" /> Press Done</label>
+      </fieldset>
+      <p class="status-msg" data-atk-11-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--fix" type="submit">Check answer</button>
+        <button class="btn btn--secondary" type="button" data-atk-11-reset>Reset Fixed</button>
+      </div>
+    </form>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="11"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+    root.querySelectorAll('[data-atk-11-form]').forEach((form) => {
+      const panel = form.closest('[data-atk-panel]');
+      const status = form.querySelector('[data-atk-11-status]');
+      const video = panel?.querySelector('[data-atk-11-video]');
+      const transcript = panel?.querySelector('.media-transcript');
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const selected = form.querySelector('input[type="radio"]:checked');
+        if (status) {
+          status.textContent = !selected
+            ? 'Choose an answer first.'
+            : selected.value === form.dataset.correct
+              ? 'Correct. The final step is Press Done.'
+              : 'That is not the final step. Review the media or available alternative and try again.';
+        }
+      });
+      form.querySelector('[data-atk-11-reset]')?.addEventListener('click', () => {
+        form.reset();
+        if (status) status.textContent = '';
+        video?.pause();
+        if (video) video.currentTime = 0;
+        transcript?.removeAttribute('open');
+        panel?.querySelector('.panel-heading')?.focus();
+      });
+      panel?.addEventListener('atk:panel-visibility', (event) => {
+        if (!event.detail.visible) video?.pause();
+      });
+    });
+  })();
+</script>

@@ -1,0 +1,365 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '01');
+if (!station) throw new Error('Station 01 metadata is missing.');
+
+const advocate = {
+  happened: 'A thirty-second timer ran down while the visitor filled in the cancellation form. The first submit erased both answers and replied only with “Invalid input.”',
+  matters: 'Cancelling a service is already a decision under pressure. A countdown plus destructive errors turns a two-field task into repeated attempts, support calls, and mistrust that outlasts the cancellation.',
+  hardest: 'People who need more time, use assistive technology, manage fatigue or pain, translate as they read, or get interrupted mid-task lose their work first and most often.',
+  decision: 'Support transparent cancellation. Time limits and form wipes cost brand reputation and support hours without improving retention.',
+};
+
+const builder = {
+  criterionNotes: {
+    '2.2.1': 'Let a visitor turn off, adjust, or extend a content-set limit unless a named exception applies.',
+    '3.3.1': 'Identify the field in error and describe the problem in text.',
+    '3.3.2': 'Provide clear, persistent labels instead of prompts that vanish as someone types.',
+    '3.3.3': 'Suggest the known correction, such as entering exactly six digits.',
+    '3.3.4': 'A real flow that changes or deletes user-controlled data needs reversible, checked, or review-and-confirm behavior. This local demo changes no stored data.',
+    '3.3.7': 'Do not require the same information again in one process when it can be kept, selected, or filled automatically.',
+  },
+  moves: [
+    'Remove the countdown entirely; nothing about a cancellation requires a content-set time limit.',
+    'Give every field a persistent visible label and keep the typed value when validation fails.',
+    'Split the flow into named steps with a review before the destructive confirm, moving focus to each new step heading.',
+  ],
+  snippet: "zip.setAttribute('aria-invalid', 'true');\n// The alert stays in the DOM; writing text into it announces once.\n// Do not also focus it: role=\"alert\" plus focus reads the error twice.\nerror.textContent = 'Member number: Enter exactly six digits.';\n\n// Advancing a step is a context change the visitor asked for,\n// so focus moves to the heading that names the new step.\nstep2.hidden = false;\nstep2Heading.focus();",
+  tests: [
+    'Keyboard: move through steps 1 to 3 and back, confirming focus lands on each step heading and no value is lost.',
+    'Assistive technology: submit an invalid member number and confirm the error is announced once, names the field, and states the correction.',
+    'Browser: test empty, short, long, non-digit, and valid member numbers, then confirm both answers appear in the review step.',
+  ],
+  boundary: 'This example covers the named form behaviors. It does not prove that a real cancellation policy, service, or full page conforms to every WCAG requirement.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'We are testing an interface decision, not recreating anyone’s life. Watch what the timer and the errors do to the person’s work.' },
+    { label: 'Barrier run', time: '45s', text: 'Focus a field and call out the thirty-second timer. Submit once to show the erased answers and the generic error. Use Reset Barrier or leave the view the moment anyone wants to stop.' },
+    { label: 'Fixed run', time: '45s', text: 'Switch to Try the fix. Show the labelled field, an error that keeps the typed value, and the review step before the confirm.' },
+    { label: 'Debrief', time: '25s', text: 'Accessibility here means preserving the person’s work and giving them control of the pace.' },
+  ],
+  lines: [
+    'High friction turns cancellation into frustration, not retention.',
+    'A good error message preserves the person’s work and points the way forward.',
+    'A review step protects the customer and the business from the same mistake.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare a timed, destructive cancellation form against an accessible, multi-step review process."
+  task={{
+    goal: 'Cancel the fictional membership.',
+    use: 'Member ID 482731, reason “Moving away”.',
+    done: 'The panel reaches a local cancellation confirmation.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="A timed, destructive cancellation form">
+    <div class="panel-status-area">
+      <div class="timer-badge">
+        <span data-atk-barrier-timer>Time left: 30 seconds.</span>
+      </div>
+      <div data-atk-barrier-status class="status-msg" aria-live="polite"></div>
+    </div>
+
+    <form class="station-form" data-atk-barrier-form data-atk-duration-seconds="30" novalidate>
+      <div class="form-group">
+        <!-- Intentionally NO associated label per ATK-EX-01-001 -->
+        <input
+          type="text"
+          id="atk-01-barrier-member-number"
+          name="memberId"
+          placeholder="Member number (e.g. 482731)"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-group">
+        <!-- Intentionally NO associated label per ATK-EX-01-002 -->
+        <input
+          type="text"
+          id="atk-01-barrier-reason"
+          name="reason"
+          placeholder="Reason for leaving (e.g. Moving away)"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn--barrier">Cancel membership</button>
+        <button type="button" data-atk-barrier-reset class="btn btn--secondary">Reset Barrier</button>
+      </div>
+    </form>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="An accessible multi-step cancellation">
+    <div data-atk-fixed-step="1" class="wizard-step">
+      <h3 id="atk-01-fixed-step-1-heading" tabindex="-1" class="step-heading">Step 1 of 3: Account verification</h3>
+      <form class="station-form" data-atk-fixed-form="1" novalidate>
+        <div class="form-group">
+          <label for="atk-01-fixed-member-number">Member number</label>
+          <input
+            type="text"
+            id="atk-01-fixed-member-number"
+            name="memberId"
+            placeholder="e.g. 482731"
+            aria-describedby="atk-01-fixed-member-hint atk-01-fixed-member-error"
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+            required
+          />
+          <span id="atk-01-fixed-member-hint" class="field-hint">Enter your 6-digit membership identifier.</span>
+          <p id="atk-01-fixed-member-error" class="error-alert" role="alert"></p>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn--fix">Continue</button>
+        </div>
+      </form>
+    </div>
+
+    <div data-atk-fixed-step="2" class="wizard-step" hidden>
+      <h3 id="atk-01-fixed-step-2-heading" tabindex="-1" class="step-heading">Step 2 of 3: Reason for leaving</h3>
+      <form class="station-form" data-atk-fixed-form="2" novalidate>
+        <div class="form-group">
+          <label for="atk-01-fixed-reason">Reason for cancellation</label>
+          <input
+            type="text"
+            id="atk-01-fixed-reason"
+            name="reason"
+            placeholder="e.g. Moving away"
+            aria-describedby="atk-01-fixed-reason-hint atk-01-fixed-reason-error"
+            required
+          />
+          <span id="atk-01-fixed-reason-hint" class="field-hint">A brief explanation for cancelling.</span>
+          <p id="atk-01-fixed-reason-error" class="error-alert" role="alert"></p>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" data-atk-fixed-back="1" class="btn btn--secondary">Go back</button>
+          <button type="submit" class="btn btn--fix">Review cancellation</button>
+        </div>
+      </form>
+    </div>
+
+    <div data-atk-fixed-step="3" class="wizard-step" hidden>
+      <h3 id="atk-01-fixed-step-3-heading" tabindex="-1" class="step-heading">Step 3 of 3: Review and confirm</h3>
+      <div class="review-box">
+        <p><strong>Member number:</strong> <span data-atk-fixed-review-member></span></p>
+        <p><strong>Reason:</strong> <span data-atk-fixed-review-reason></span></p>
+      </div>
+
+      <form class="station-form" data-atk-fixed-form="3">
+        <div class="form-actions">
+          <button type="button" data-atk-fixed-back="2" class="btn btn--secondary">Go back</button>
+          <button type="submit" class="btn btn--fix">Confirm cancellation</button>
+        </div>
+      </form>
+    </div>
+
+    <div data-atk-fixed-complete class="success-box" hidden>
+      <h3 id="atk-01-fixed-complete-heading" tabindex="-1">Cancellation confirmed</h3>
+      <p>Your membership cancellation request has been received. No data was sent or saved.</p>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" data-atk-fixed-reset class="btn btn--secondary">Reset Fixed</button>
+    </div>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="01"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+
+    const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
+    const barrierForm = barrierPanel?.querySelector('[data-atk-barrier-form]');
+    const timerDisplay = barrierPanel?.querySelector('[data-atk-barrier-timer]');
+    const barrierStatus = barrierPanel?.querySelector('[data-atk-barrier-status]');
+    const barrierMember = barrierPanel?.querySelector('#atk-01-barrier-member-number');
+    const barrierReason = barrierPanel?.querySelector('#atk-01-barrier-reason');
+
+    // Read on demand rather than once: the countdown is deliberately short in
+    // tests, which retune this attribute before starting the timer.
+    const duration = () => Number.parseInt(barrierForm?.dataset.atkDurationSeconds || '30', 10);
+
+    let ticker = null;
+    let timeLeft = duration();
+    let started = false;
+    let paused = false;
+    let submits = 0;
+
+    const showTime = (seconds) => {
+      if (timerDisplay) {
+        timerDisplay.textContent = `Time left: ${seconds} ${seconds === 1 ? 'second' : 'seconds'}.`;
+      }
+    };
+
+    const expire = () => {
+      window.clearInterval(ticker);
+      if (barrierMember) barrierMember.value = '';
+      if (barrierReason) barrierReason.value = '';
+      if (barrierStatus) barrierStatus.textContent = 'Session terminated. Please re-initiate.';
+      if (timerDisplay) timerDisplay.textContent = 'Time expired.';
+    };
+
+    const startTimer = () => {
+      if (started || timeLeft <= 0) return;
+      started = true;
+      paused = false;
+      ticker = window.setInterval(() => {
+        if (paused) return;
+        timeLeft -= 1;
+        showTime(timeLeft);
+        if (timeLeft <= 0) expire();
+      }, 1000);
+    };
+
+    [barrierMember, barrierReason].forEach((input) => {
+      input?.addEventListener('focus', () => {
+        if (!started) {
+          timeLeft = duration();
+          showTime(timeLeft);
+        }
+        startTimer();
+      });
+    });
+
+    barrierForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      submits += 1;
+      if (submits === 1) {
+        if (barrierMember) barrierMember.value = '';
+        if (barrierReason) barrierReason.value = '';
+        if (barrierStatus) barrierStatus.textContent = 'Invalid input.';
+        return;
+      }
+      window.clearInterval(ticker);
+      if (barrierStatus) barrierStatus.textContent = 'Membership canceled.';
+      if (timerDisplay) timerDisplay.textContent = 'Timer stopped.';
+    });
+
+    barrierPanel?.querySelector('[data-atk-barrier-reset]')?.addEventListener('click', () => {
+      window.clearInterval(ticker);
+      started = false;
+      paused = false;
+      submits = 0;
+      timeLeft = duration();
+      if (barrierMember) barrierMember.value = '';
+      if (barrierReason) barrierReason.value = '';
+      if (barrierStatus) barrierStatus.textContent = '';
+      showTime(timeLeft);
+      barrierPanel.querySelector('.panel-heading')?.focus();
+    });
+
+    // The view switch owns panel visibility and announces it; no observer needed.
+    barrierPanel?.addEventListener('atk:panel-visibility', (event) => {
+      if (!event.detail.visible) {
+        if (started && timeLeft > 0 && submits < 2) {
+          paused = true;
+          if (timerDisplay) timerDisplay.textContent = 'Paused while hidden.';
+        }
+        return;
+      }
+      if (paused) {
+        paused = false;
+        showTime(timeLeft);
+      }
+    });
+
+    const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
+    const step = (number) => fixedPanel?.querySelector(`[data-atk-fixed-step="${number}"]`);
+    const complete = fixedPanel?.querySelector('[data-atk-fixed-complete]');
+    const fixedMember = fixedPanel?.querySelector('#atk-01-fixed-member-number');
+    const fixedReason = fixedPanel?.querySelector('#atk-01-fixed-reason');
+    const memberError = fixedPanel?.querySelector('#atk-01-fixed-member-error');
+    const reasonError = fixedPanel?.querySelector('#atk-01-fixed-reason-error');
+
+    // Advancing is a context change the visitor asked for, so focus follows to
+    // the heading that names the new step.
+    const showStep = (number) => {
+      [1, 2, 3].forEach((candidate) => {
+        const element = step(candidate);
+        if (element) element.hidden = candidate !== number;
+      });
+      if (complete) complete.hidden = true;
+      fixedPanel?.querySelector(`#atk-01-fixed-step-${number}-heading`)?.focus();
+    };
+
+    // Writing into the live alert announces it once. Focus deliberately stays
+    // put: role="alert" plus focus would read the same sentence twice.
+    const reject = (input, error, message) => {
+      input?.setAttribute('aria-invalid', 'true');
+      if (error) error.textContent = message;
+    };
+
+    const accept = (input, error) => {
+      input?.removeAttribute('aria-invalid');
+      if (error) error.textContent = '';
+    };
+
+    fixedPanel?.querySelector('[data-atk-fixed-form="1"]')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!/^\d{6}$/.test(fixedMember?.value.trim() || '')) {
+        reject(fixedMember, memberError, 'Member number: Enter exactly six digits. Your value was kept so you can fix it.');
+        return;
+      }
+      accept(fixedMember, memberError);
+      showStep(2);
+    });
+
+    fixedPanel?.querySelector('[data-atk-fixed-form="2"]')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const reasonValue = fixedReason?.value.trim() || '';
+      if (reasonValue === '') {
+        reject(fixedReason, reasonError, 'Reason for cancellation: Enter a short reason before you continue.');
+        return;
+      }
+      accept(fixedReason, reasonError);
+      const reviewMember = fixedPanel.querySelector('[data-atk-fixed-review-member]');
+      const reviewReason = fixedPanel.querySelector('[data-atk-fixed-review-reason]');
+      if (reviewMember) reviewMember.textContent = fixedMember?.value.trim() || '';
+      if (reviewReason) reviewReason.textContent = reasonValue;
+      showStep(3);
+    });
+
+    fixedPanel?.querySelector('[data-atk-fixed-form="3"]')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const third = step(3);
+      if (third) third.hidden = true;
+      if (complete) complete.hidden = false;
+      fixedPanel.querySelector('#atk-01-fixed-complete-heading')?.focus();
+    });
+
+    fixedPanel?.querySelectorAll('[data-atk-fixed-back]').forEach((button) => {
+      button.addEventListener('click', () => showStep(Number(button.dataset.atkFixedBack)));
+    });
+
+    fixedMember?.addEventListener('input', () => accept(fixedMember, memberError));
+    fixedReason?.addEventListener('input', () => accept(fixedReason, reasonError));
+
+    fixedPanel?.querySelector('[data-atk-fixed-reset]')?.addEventListener('click', () => {
+      accept(fixedMember, memberError);
+      accept(fixedReason, reasonError);
+      if (fixedMember) fixedMember.value = '';
+      if (fixedReason) fixedReason.value = '';
+      [1, 2, 3].forEach((candidate) => {
+        const element = step(candidate);
+        if (element) element.hidden = candidate !== 1;
+      });
+      if (complete) complete.hidden = true;
+      fixedPanel.querySelector('.panel-heading')?.focus();
+    });
+  })();
+</script>

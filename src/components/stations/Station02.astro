@@ -1,0 +1,169 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '02');
+if (!station) throw new Error('Station 02 metadata is missing.');
+
+const advocate = {
+  happened: 'The payment form rejected an entry with only “Invalid input.” It did not say which field failed or what would make the entry valid.',
+  matters: 'A vague error turns a small correction into guessing. People retry, abandon the payment, or contact support because the interface withholds the next step.',
+  hardest: 'People using screen magnification, assistive technology, translation tools, or limited attention may not be able to scan the whole form and infer the problem.',
+  decision: 'Require every payment error to name the field, explain the problem, keep the person’s entry, and give a specific correction.',
+};
+
+const builder = {
+  criterionNotes: {
+    '3.3.1': 'Identify the field in error and describe the problem in text.',
+    '3.3.3': 'When the correction is known, tell the person how to fix the entry.',
+  },
+  moves: [
+    'Keep the submitted value so the person can edit it.',
+    'Connect the input to a field-specific error with aria-describedby.',
+    'Set aria-invalid only while the field is invalid, and let role="alert" announce without moving focus.',
+  ],
+  snippet: "zip.setAttribute('aria-invalid', 'true');\n// The alert stays in the DOM; writing text into it announces once.\n// Do not also focus it: role=\"alert\" plus focus reads the error twice.\nerror.textContent = 'Billing ZIP code: Enter the 5-digit ZIP shown with this card.';",
+  tests: [
+    'Keyboard: submit a wrong value, confirm focus stays where it was, then correct it without retyping unrelated data.',
+    'Assistive technology: confirm the field name, problem, and correction are announced together.',
+    'Browser and automation: test empty, short, long, non-digit, and valid ZIP values.',
+  ],
+  boundary: 'This example validates one fictional ZIP field. A production payment flow still needs secure processing, complete error handling, and a full-page accessibility review.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'Say that the ordinary task is correcting one rejected payment and that the interface, not the person, is being tested.' },
+    { label: 'Barrier run', time: '40s', text: 'Enter the supplied ZIP and submit once. Read the generic message and ask what useful next action it provides.' },
+    { label: 'Fixed run', time: '45s', text: 'Try a wrong ZIP, show the focused field-specific alert and preserved value, then enter 60614 and finish.' },
+    { label: 'Debrief', time: '25s', text: 'Connect specific recovery guidance to fewer abandoned payments and fewer support requests.' },
+  ],
+  lines: [
+    'An error without a next step is a dead end.',
+    'Keep the work, name the problem, and show the correction.',
+    'Useful errors help people finish the task.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare a vague payment error with a field-specific, recoverable error message."
+  task={{
+    goal: 'Update the rejected payment with the billing ZIP code.',
+    use: 'Billing ZIP code 60614.',
+    done: 'The page confirms that the payment details were updated.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="A dead-end payment error">
+    <form class="station-form" data-atk-02-barrier-form novalidate>
+      <div class="form-group">
+        <label for="atk-02-barrier-zip">Billing ZIP code</label>
+        <input id="atk-02-barrier-zip" name="zip" inputmode="numeric" autocomplete="postal-code" />
+      </div>
+      <p class="status-msg" data-atk-02-barrier-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--barrier" type="submit">Update payment</button>
+        <button class="btn btn--secondary" type="button" data-atk-02-barrier-reset>Reset Barrier</button>
+      </div>
+    </form>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="A specific, recoverable payment error">
+    <form class="station-form" data-atk-02-fixed-form novalidate>
+      <div class="form-group">
+        <label for="atk-02-fixed-zip">Billing ZIP code</label>
+        <input
+          id="atk-02-fixed-zip"
+          name="zip"
+          inputmode="numeric"
+          autocomplete="postal-code"
+          aria-describedby="atk-02-fixed-zip-hint atk-02-fixed-zip-error"
+        />
+        <span id="atk-02-fixed-zip-hint" class="field-hint">Enter the 5-digit ZIP shown with this card.</span>
+        <p id="atk-02-fixed-zip-error" class="error-alert" role="alert"></p>
+      </div>
+      <div data-atk-02-fixed-complete class="success-box" hidden>
+        <h3 id="atk-02-fixed-complete-heading" tabindex="-1">Payment details updated</h3>
+        <p>The fictional payment is ready to try again. No data was sent or saved.</p>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn--fix" type="submit">Update payment</button>
+        <button class="btn btn--secondary" type="button" data-atk-02-fixed-reset>Reset Fixed</button>
+      </div>
+    </form>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="02"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+
+    const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
+    const barrierForm = barrierPanel?.querySelector('[data-atk-02-barrier-form]');
+    const barrierStatus = barrierPanel?.querySelector('[data-atk-02-barrier-status]');
+    let attempts = 0;
+
+    barrierForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      attempts += 1;
+      if (attempts === 1) {
+        if (barrierStatus) barrierStatus.textContent = 'Invalid input.';
+      } else if (barrierStatus) {
+        barrierStatus.textContent = 'Payment details updated.';
+      }
+    });
+
+    barrierPanel?.querySelector('[data-atk-02-barrier-reset]')?.addEventListener('click', () => {
+      attempts = 0;
+      barrierForm?.reset();
+      if (barrierStatus) barrierStatus.textContent = '';
+      barrierPanel.querySelector('.panel-heading')?.focus();
+    });
+
+    const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
+    const fixedForm = fixedPanel?.querySelector('[data-atk-02-fixed-form]');
+    const fixedInput = fixedPanel?.querySelector('#atk-02-fixed-zip');
+    const fixedError = fixedPanel?.querySelector('#atk-02-fixed-zip-error');
+    const fixedComplete = fixedPanel?.querySelector('[data-atk-02-fixed-complete]');
+
+    fixedForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const value = fixedInput?.value.trim() || '';
+      if (value !== '60614') {
+        fixedInput?.setAttribute('aria-invalid', 'true');
+        // Writing into the live alert announces it. Focus stays put: moving it
+        // here would make assistive technology read the same text twice.
+        if (fixedError) {
+          fixedError.textContent = /^\d{5}$/.test(value)
+            ? 'Billing ZIP code: Enter 60614 for this fictional card. Your value was kept so you can fix it.'
+            : 'Billing ZIP code: Enter exactly five digits. Your value was kept so you can fix it.';
+        }
+        return;
+      }
+      fixedInput.removeAttribute('aria-invalid');
+      if (fixedError) fixedError.textContent = '';
+      if (fixedComplete) fixedComplete.hidden = false;
+      fixedPanel?.querySelector('#atk-02-fixed-complete-heading')?.focus();
+    });
+
+    fixedInput?.addEventListener('input', () => {
+      fixedInput.removeAttribute('aria-invalid');
+      if (fixedError) fixedError.textContent = '';
+    });
+
+    fixedPanel?.querySelector('[data-atk-02-fixed-reset]')?.addEventListener('click', () => {
+      fixedForm?.reset();
+      fixedInput?.removeAttribute('aria-invalid');
+      if (fixedError) fixedError.textContent = '';
+      if (fixedComplete) fixedComplete.hidden = true;
+      fixedPanel.querySelector('.panel-heading')?.focus();
+    });
+  })();
+</script>

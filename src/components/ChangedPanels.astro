@@ -1,0 +1,40 @@
+---
+interface Props {
+  stationId: string;
+}
+
+const { stationId } = Astro.props;
+---
+
+<section class="changed-panels-section" aria-labelledby={`what-changed-heading-${stationId}`}>
+  <h2 id={`what-changed-heading-${stationId}`} class="section-heading">What changed</h2>
+
+  <section
+    id={`panel-advocate-${stationId}`}
+    class="mode-panel mode-panel--advocate"
+    data-atk-mode-panel="advocate"
+    aria-label="Advocate explanation"
+    hidden
+  >
+    <div class="panel-content"><slot name="advocate" /></div>
+  </section>
+
+  <section
+    id={`panel-builder-${stationId}`}
+    class="mode-panel mode-panel--builder"
+    data-atk-mode-panel="builder"
+    aria-label="Builder explanation"
+  >
+    <div class="panel-content"><slot name="builder" /></div>
+  </section>
+
+  <section
+    id={`panel-presenter-${stationId}`}
+    class="mode-panel mode-panel--presenter"
+    data-atk-mode-panel="presenter"
+    aria-label="Presenter explanation"
+    hidden
+  >
+    <div class="panel-content"><slot name="presenter" /></div>
+  </section>
+</section>

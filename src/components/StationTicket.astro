@@ -1,0 +1,60 @@
+---
+type Station = (typeof import('../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
+const isBuilt = station.status === 'built';
+---
+
+<li class={`ticket ${isBuilt ? 'ticket--built' : 'ticket--unbuilt'}`}>
+  <div class="ticket-header">
+    <span class="ticket-id">Station {station.id}</span>
+    <span class="ticket-category">{station.category}</span>
+  </div>
+
+  <h3 class="ticket-title">
+    {isBuilt ? (
+      <a href={`/stations/${station.slug}/`} class="ticket-link">
+        {station.title}
+      </a>
+    ) : (
+      <span class="ticket-title-unbuilt">{station.title}</span>
+    )}
+  </h3>
+
+  <p class="ticket-task">
+    <strong>Task:</strong> {station.task}
+  </p>
+
+  <p class="ticket-pattern">
+    <strong>Barrier:</strong> {station.barrierPattern}
+  </p>
+
+  <div class="ticket-footer">
+    <div class="ticket-criteria">
+      {station.criteria.slice(0, 3).map((c) => (
+        <span class="criterion-tag">WCAG {c.id}</span>
+      ))}
+      {station.criteria.length > 3 && (
+        <span class="criterion-tag">+{station.criteria.length - 3} more</span>
+      )}
+    </div>
+
+    <div class="ticket-status-badge">
+      {isBuilt ? (
+        <span class="status-tag status-tag--built">
+          <span class="status-tag-shape" aria-hidden="true"></span>
+          Ready to try
+        </span>
+      ) : (
+        <span class="status-tag status-tag--unbuilt">
+          <span class="status-tag-shape" aria-hidden="true"></span>
+          Not built yet
+        </span>
+      )}
+    </div>
+  </div>
+</li>

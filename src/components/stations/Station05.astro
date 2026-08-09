@@ -1,0 +1,221 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '05');
+if (!station) throw new Error('Station 05 metadata is missing.');
+
+const advocate = {
+  happened: 'While the visitor fills out an appointment, an automatic availability update opens an interruption and moves focus away from the form.',
+  matters: 'Unexpected context changes break concentration and create doubt about whether entered details are still safe. Repeated interruptions also make a short task feel unreliable.',
+  hardest: 'People using screen readers, speech input, magnification, or careful step-by-step routines may lose their place when focus moves without a request.',
+  decision: 'Make updates user-initiated, keep focus where the person put it, and report new information without forcing a modal interruption.',
+};
+
+const builder = {
+  criterionNotes: {
+    '2.2.2': 'Auto-updating information needs a way to pause, stop, hide, or control the update unless it is essential.',
+    '2.4.3': 'Focus order must preserve meaning and operation instead of jumping to an unrelated interruption.',
+    '3.2.5': 'At Level AAA, changes of context occur only on request or through a mechanism that turns them off.',
+  },
+  moves: [
+    'Replace the automatic refresh with an explicit Check availability button.',
+    'Update a polite status region without moving focus.',
+    'Preserve every entered value and let the visitor decide when to continue.',
+  ],
+  snippet: "checkButton.addEventListener('click', async () => {\n  const result = await checkAvailability();\n  status.textContent = result.message; // polite live region\n  // Focus stays on the button the visitor used.\n});",
+  tests: [
+    'Keyboard: enter every field and confirm no focus change occurs until a control is activated.',
+    'Assistive technology: check that availability is announced once without opening a dialog.',
+    'State: switch views or reset while an update is pending and confirm no timer or message leaks.',
+  ],
+  boundary: 'This local example does not contact a scheduling service. Real asynchronous errors and stale availability still need complete handling.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'Explain that both panels book the same fictional appointment and save nothing.' },
+    { label: 'Barrier run', time: '45s', text: 'Start filling the form and wait for the automatic update to take focus. Close it with Escape or the visible button.' },
+    { label: 'Fixed run', time: '45s', text: 'Fill the same fields, choose Check availability, and point out that the result arrives without moving focus.' },
+    { label: 'Debrief', time: '25s', text: 'Connect user-controlled updates to predictable work and fewer abandoned bookings.' },
+  ],
+  lines: [
+    'An update should not take control of the task.',
+    'New information can arrive without moving focus.',
+    'Let the person choose when context changes.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare a focus-stealing automatic update with a user-requested appointment check."
+  task={{
+    goal: 'Book an appointment for Sam Lee.',
+    use: 'August 19, 2026 at 10:30 AM.',
+    done: 'The page confirms the fictional appointment.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="An update that interrupts the form">
+    <form class="station-form" data-atk-05-barrier-form data-atk-interrupt-delay="1200" novalidate>
+      <div class="form-group">
+        <label for="atk-05-barrier-name">Name</label>
+        <input id="atk-05-barrier-name" name="name" autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label for="atk-05-barrier-date">Date</label>
+        <input id="atk-05-barrier-date" name="date" type="date" />
+      </div>
+      <div class="form-group">
+        <label for="atk-05-barrier-time">Time</label>
+        <select id="atk-05-barrier-time" name="time">
+          <option value="">Choose a time</option>
+          <option value="10:30">10:30 AM</option>
+          <option value="14:00">2:00 PM</option>
+        </select>
+      </div>
+      <p class="status-msg" data-atk-05-barrier-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--barrier" type="submit">Book appointment</button>
+        <button class="btn btn--secondary" type="button" data-atk-05-barrier-reset>Reset Barrier</button>
+      </div>
+    </form>
+    <div
+      class="interrupt-card"
+      role="dialog"
+      aria-labelledby="atk-05-interrupt-heading"
+      data-atk-05-interrupt
+      hidden
+    >
+      <h3 id="atk-05-interrupt-heading">Availability refreshed</h3>
+      <p>The calendar updated while you were working.</p>
+      <button class="btn btn--secondary" type="button" data-atk-05-close-interrupt>Return to form</button>
+    </div>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="An update requested by the visitor">
+    <form class="station-form" data-atk-05-fixed-form novalidate>
+      <div class="form-group">
+        <label for="atk-05-fixed-name">Name</label>
+        <input id="atk-05-fixed-name" name="name" autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label for="atk-05-fixed-date">Date</label>
+        <input id="atk-05-fixed-date" name="date" type="date" />
+      </div>
+      <div class="form-group">
+        <label for="atk-05-fixed-time">Time</label>
+        <select id="atk-05-fixed-time" name="time">
+          <option value="">Choose a time</option>
+          <option value="10:30">10:30 AM</option>
+          <option value="14:00">2:00 PM</option>
+        </select>
+      </div>
+      <p class="status-msg" data-atk-05-fixed-status aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="btn btn--secondary" type="button" data-atk-05-check>Check availability</button>
+        <button class="btn btn--fix" type="submit">Book appointment</button>
+        <button class="btn btn--secondary" type="button" data-atk-05-fixed-reset>Reset Fixed</button>
+      </div>
+    </form>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="05"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+
+    const valid = (form) => (
+      form?.querySelector('[name="name"]')?.value.trim() === 'Sam Lee'
+      && form?.querySelector('[name="date"]')?.value === '2026-08-19'
+      && form?.querySelector('[name="time"]')?.value === '10:30'
+    );
+
+    const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
+    const barrierForm = barrierPanel?.querySelector('[data-atk-05-barrier-form]');
+    const barrierStatus = barrierPanel?.querySelector('[data-atk-05-barrier-status]');
+    const interrupt = barrierPanel?.querySelector('[data-atk-05-interrupt]');
+    const closeInterrupt = barrierPanel?.querySelector('[data-atk-05-close-interrupt]');
+    let interruptTimer = null;
+    let interruptStarted = false;
+    let returnFocus = null;
+
+    const cancelInterrupt = () => {
+      window.clearTimeout(interruptTimer);
+      interruptTimer = null;
+      if (interrupt) interrupt.hidden = true;
+    };
+    const dismissInterrupt = () => {
+      cancelInterrupt();
+      returnFocus?.focus();
+    };
+    const scheduleInterrupt = (event) => {
+      if (interruptStarted) return;
+      interruptStarted = true;
+      returnFocus = event.target;
+      const delay = Number.parseInt(barrierForm?.dataset.atkInterruptDelay || '1200', 10);
+      interruptTimer = window.setTimeout(() => {
+        if (!interrupt || barrierPanel?.hidden) return;
+        interrupt.hidden = false;
+        closeInterrupt?.focus();
+      }, delay);
+    };
+    barrierForm?.querySelectorAll('input, select').forEach((control) => {
+      control.addEventListener('input', scheduleInterrupt);
+    });
+    closeInterrupt?.addEventListener('click', dismissInterrupt);
+    interrupt?.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') dismissInterrupt();
+    });
+    barrierPanel?.addEventListener('atk:panel-visibility', (event) => {
+      if (!event.detail.visible) {
+        cancelInterrupt();
+        interruptStarted = false;
+        returnFocus = null;
+      }
+    });
+    barrierForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      cancelInterrupt();
+      if (barrierStatus) {
+        barrierStatus.textContent = valid(barrierForm)
+          ? 'Appointment booked for Sam Lee.'
+          : 'Enter Sam Lee, August 19, 2026, and 10:30 AM.';
+      }
+    });
+    barrierPanel?.querySelector('[data-atk-05-barrier-reset]')?.addEventListener('click', () => {
+      cancelInterrupt();
+      interruptStarted = false;
+      returnFocus = null;
+      barrierForm?.reset();
+      if (barrierStatus) barrierStatus.textContent = '';
+      barrierPanel.querySelector('.panel-heading')?.focus();
+    });
+
+    const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
+    const fixedForm = fixedPanel?.querySelector('[data-atk-05-fixed-form]');
+    const fixedStatus = fixedPanel?.querySelector('[data-atk-05-fixed-status]');
+    fixedPanel?.querySelector('[data-atk-05-check]')?.addEventListener('click', () => {
+      if (fixedStatus) fixedStatus.textContent = '10:30 AM is available. Your focus stayed on Check availability.';
+    });
+    fixedForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (fixedStatus) {
+        fixedStatus.textContent = valid(fixedForm)
+          ? 'Appointment booked for Sam Lee.'
+          : 'Enter Sam Lee, August 19, 2026, and 10:30 AM.';
+      }
+    });
+    fixedPanel?.querySelector('[data-atk-05-fixed-reset]')?.addEventListener('click', () => {
+      fixedForm?.reset();
+      if (fixedStatus) fixedStatus.textContent = '';
+      fixedPanel.querySelector('.panel-heading')?.focus();
+    });
+  })();
+</script>

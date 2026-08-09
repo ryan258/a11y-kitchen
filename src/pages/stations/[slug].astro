@@ -1,0 +1,43 @@
+---
+import Station01 from '../../components/stations/Station01.astro';
+import Station02 from '../../components/stations/Station02.astro';
+import Station03 from '../../components/stations/Station03.astro';
+import Station04 from '../../components/stations/Station04.astro';
+import Station05 from '../../components/stations/Station05.astro';
+import Station06 from '../../components/stations/Station06.astro';
+import Station07 from '../../components/stations/Station07.astro';
+import Station08 from '../../components/stations/Station08.astro';
+import Station09 from '../../components/stations/Station09.astro';
+import Station10 from '../../components/stations/Station10.astro';
+import Station11 from '../../components/stations/Station11.astro';
+import Station12 from '../../components/stations/Station12.astro';
+import { stations } from '../../data/stations.js';
+
+const components = {
+  '01': Station01,
+  '02': Station02,
+  '03': Station03,
+  '04': Station04,
+  '05': Station05,
+  '06': Station06,
+  '07': Station07,
+  '08': Station08,
+  '09': Station09,
+  '10': Station10,
+  '11': Station11,
+  '12': Station12,
+};
+
+export function getStaticPaths() {
+  return stations.map((station) => ({
+    params: { slug: station.slug },
+    props: { stationId: station.id },
+  }));
+}
+
+const { stationId } = Astro.props;
+const StationComponent = components[stationId as keyof typeof components];
+if (!StationComponent) throw new Error(`No station component exists for ${stationId}.`);
+---
+
+<StationComponent />

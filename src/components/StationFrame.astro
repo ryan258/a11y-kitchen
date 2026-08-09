@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+import ChangedPanels from './ChangedPanels.astro';
+import ViewSwitch from './ViewSwitch.astro';
+
+type Station = (typeof import('../data/stations.js').stations)[number];
+
+interface AdvocateContent {
+  happened: string;
+  matters: string;
+  hardest: string;
+  decision: string;
+}
+
+interface BuilderContent {
+  criterionNotes: Record<string, string>;
+  moves: string[];
+  snippet: string;
+  tests: string[];
+  boundary: string;
+}
+
+interface PresenterStep {
+  label: string;
+  time: string;
+  text: string;
+}
+
+interface PresenterContent {
+  steps: PresenterStep[];
+  lines: string[];
+}
+
+interface Props {
+  station: Station;
+  description: string;
+  task: {
+    goal: string;
+    use: string;
+    done: string;
+  };
+  advocate: AdvocateContent;
+  builder: BuilderContent;
+  presenter: PresenterContent;
+}
+
+const { station, description, task, advocate, builder, presenter } = Astro.props;
+
+for (const criterion of station.criteria) {
+  if (!builder.criterionNotes[criterion.id]) {
+    throw new Error(`Station ${station.id} is missing its Builder note for WCAG ${criterion.id}.`);
+  }
+}
+
+if (presenter.steps.length !== 4 || presenter.lines.length !== 3) {
+  throw new Error(`Station ${station.id} must provide four presenter steps and three closing lines.`);
+}
+---
+
+<Base title={`Station ${station.id}: ${station.title}`} description={description}>
+  <div class="station-page" data-atk-station={station.id} data-atk-view="barrier">
+    <p class="station-eyebrow">Station {station.id} · {station.category}</p>
+    <h1 class="station-title">{station.task}</h1>
+
+    <div class="task-bar" role="region" aria-label="Task instructions and supplied data">
+      <div class="task-bar-content">
+        <p><strong>Your task:</strong> {task.goal}</p>
+        <p><strong>Use:</strong> {task.use}</p>
+        <p><strong>You're done when:</strong> {task.done}</p>
+        <p class="task-bar-privacy">This demonstration sends and saves no data.</p>
+      </div>
+    </div>
+
+    <ViewSwitch stationId={station.id} />
+
+    <div class="station-panels-layout">
+      <slot name="barrier" />
+      <slot name="fixed" />
+    </div>
+
+    <ChangedPanels stationId={station.id}>
+      <div slot="advocate">
+        <h3 class="mode-panel-title">Advocate perspective: impact and decision</h3>
+        <p><strong>What happened:</strong> {advocate.happened}</p>
+        <p><strong>Why it matters:</strong> {advocate.matters}</p>
+        <p><strong>Who is hit hardest:</strong> {advocate.hardest}</p>
+        <p><strong>Decision:</strong> {advocate.decision}</p>
+      </div>
+
+      <div slot="builder">
+        <h3 class="mode-panel-title">Builder perspective: implementation and tests</h3>
+
+        <div class="wcag-list">
+          <h4>Verified WCAG 2.2 criteria</h4>
+          <ul>
+            {station.criteria.map((criterion) => (
+              <li>
+                <strong>
+                  <a href={criterion.source}>
+                    {criterion.id} {criterion.title} (Level {criterion.level})
+                  </a>:
+                </strong>{' '}
+                {builder.criterionNotes[criterion.id]}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <h4>Code moves</h4>
+        <ul>
+          {builder.moves.map((move) => <li>{move}</li>)}
+        </ul>
+
+        <h4>Focused example</h4>
+        <pre class="code-snippet"><code>{builder.snippet}</code></pre>
+
+        <h4>How to test</h4>
+        <ul>
+          {builder.tests.map((check) => <li>{check}</li>)}
+        </ul>
+
+        <h4>Boundary</h4>
+        <p>{builder.boundary}</p>
+      </div>
+
+      <div slot="presenter">
+        <h3 class="mode-panel-title">Presenter run sheet (2–3 minutes)</h3>
+        <ol class="presenter-steps">
+          {presenter.steps.map((step) => (
+            <li><strong>{step.label} ({step.time}):</strong> {step.text}</li>
+          ))}
+        </ol>
+
+        <div class="lines-that-land">
+          <h4>Three lines that land</h4>
+          {presenter.lines.map((line) => <blockquote>“{line}”</blockquote>)}
+        </div>
+      </div>
+    </ChangedPanels>
+  </div>
+</Base>

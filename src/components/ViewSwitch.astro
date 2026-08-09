@@ -1,0 +1,115 @@
+---
+interface Props {
+  stationId: string;
+}
+
+const { stationId } = Astro.props;
+const barrierPanelId = `panel-barrier-${stationId}`;
+const fixedPanelId = `panel-fix-${stationId}`;
+---
+
+<fieldset class="view-switch-fieldset" data-atk-view-switch data-station-id={stationId}>
+  <legend>Choose how to view this station</legend>
+  <div class="view-switch-radiogroup">
+    <label class="view-radio-label" for={`atk-${stationId}-view-barrier`}>
+      <input
+        id={`atk-${stationId}-view-barrier`}
+        type="radio"
+        name={`atk-view-${stationId}`}
+        value="barrier"
+        aria-controls={barrierPanelId}
+        data-atk-view-control
+        checked
+        class="view-radio"
+      />
+      <span class="shape-indicator shape-indicator--barrier" aria-hidden="true"></span>
+      <span>Try the barrier</span>
+    </label>
+
+    <label class="view-radio-label" for={`atk-${stationId}-view-fixed`}>
+      <input
+        id={`atk-${stationId}-view-fixed`}
+        type="radio"
+        name={`atk-view-${stationId}`}
+        value="fixed"
+        aria-controls={fixedPanelId}
+        data-atk-view-control
+        class="view-radio"
+      />
+      <span class="shape-indicator shape-indicator--fix" aria-hidden="true"></span>
+      <span>Try the fix</span>
+    </label>
+
+    <label class="view-radio-label" for={`atk-${stationId}-view-compare`}>
+      <input
+        id={`atk-${stationId}-view-compare`}
+        type="radio"
+        name={`atk-view-${stationId}`}
+        value="compare"
+        aria-controls={`${barrierPanelId} ${fixedPanelId}`}
+        data-atk-view-control
+        class="view-radio"
+      />
+      <span>Compare side by side</span>
+    </label>
+  </div>
+</fieldset>
+
+<script is:inline>
+  (() => {
+    const initialize = () => {
+      document.querySelectorAll('[data-atk-view-switch]').forEach((fieldset) => {
+        if (fieldset.dataset.atkViewBound === 'true') return;
+        fieldset.dataset.atkViewBound = 'true';
+
+        const station = fieldset.closest('[data-atk-station]');
+        const barrierPanel = station?.querySelector('[data-atk-panel="barrier"]');
+        const fixedPanel = station?.querySelector('[data-atk-panel="fixed"]');
+        const panelsLayout = station?.querySelector('.station-panels-layout');
+        const radios = Array.from(fieldset.querySelectorAll('[data-atk-view-control]'));
+        if (!station || !barrierPanel || !fixedPanel || radios.length !== 3) return;
+
+        const notify = (panel, visible) => {
+          panel.dispatchEvent(new CustomEvent('atk:panel-visibility', { detail: { visible } }));
+        };
+
+        const updateView = (requestedView) => {
+          const view = ['barrier', 'fixed', 'compare'].includes(requestedView)
+            ? requestedView
+            : 'barrier';
+          const selected = radios.find((radio) => radio.value === view) || radios[0];
+          const focused = document.activeElement;
+          const hidesFocusedPanel =
+            (barrierPanel.contains(focused) && view === 'fixed') ||
+            (fixedPanel.contains(focused) && view === 'barrier');
+
+          radios.forEach((radio) => { radio.checked = radio === selected; });
+          const barrierVisible = view !== 'fixed';
+          const fixedVisible = view !== 'barrier';
+          barrierPanel.hidden = !barrierVisible;
+          fixedPanel.hidden = !fixedVisible;
+          panelsLayout?.classList.toggle('panels-layout--compare', view === 'compare');
+          station.dataset.atkView = view;
+          notify(barrierPanel, barrierVisible);
+          notify(fixedPanel, fixedVisible);
+
+          if (hidesFocusedPanel) selected.focus();
+        };
+
+        radios.forEach((radio) => {
+          radio.addEventListener('change', () => {
+            if (radio.checked) updateView(radio.value);
+          });
+        });
+
+        updateView(radios.find((radio) => radio.checked)?.value || 'barrier');
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initialize, { once: true });
+    } else {
+      initialize();
+    }
+  })();
+</script>

@@ -1,0 +1,150 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '04');
+if (!station) throw new Error('Station 04 metadata is missing.');
+
+const advocate = {
+  happened: 'The account menu appears only while a pointer hovers over one small area, then disappears as the pointer moves toward Settings.',
+  matters: 'A destination that cannot be reached is not a shortcut. People lose time, repeat the motion, and may never find a path that works with their input method.',
+  hardest: 'Keyboard users cannot open the hover-only menu. People with tremor, low vision, magnification, or limited pointer precision may lose it while crossing the gap.',
+  decision: 'Require menus to open from a real button, stay available while used, support keyboard input, and close predictably with Escape.',
+};
+
+const builder = {
+  criterionNotes: {
+    '1.4.13': 'Hover or focus content must be dismissible, hoverable, and persistent unless an exception applies.',
+    '2.1.1': 'Every function must work from a keyboard, except a function whose path truly depends on pointer movement.',
+  },
+  moves: [
+    'Use a button with aria-expanded and aria-controls as the menu trigger.',
+    'Keep the menu open until the visitor selects an item, presses Escape, or deliberately closes it.',
+    'Return focus to the trigger after Escape and keep a logical DOM order.',
+  ],
+  snippet: "trigger.addEventListener('click', () => setOpen(!isOpen));\nmenu.addEventListener('keydown', event => {\n  if (event.key === 'Escape') { setOpen(false); trigger.focus(); }\n});",
+  tests: [
+    'Keyboard: open the menu, reach Settings, close with Escape, and confirm focus returns to the trigger.',
+    'Pointer: move from the trigger into the menu and confirm it does not vanish across the path.',
+    'Zoom and touch: verify the trigger and items wrap and remain usable without hover.',
+  ],
+  boundary: 'This example covers one disclosure menu. A production navigation system also needs route, focus-order, and responsive review.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'Name the task: reach Settings. State that this is an interface comparison, not a disability simulation.' },
+    { label: 'Barrier run', time: '40s', text: 'Hover over Account and move toward the menu. Then Tab through the page to show that the menu itself has no keyboard entry.' },
+    { label: 'Fixed run', time: '40s', text: 'Open the real Account button, reach Settings by keyboard, then reopen and press Escape.' },
+    { label: 'Debrief', time: '25s', text: 'Connect stable disclosure behavior to fewer navigation dead ends.' },
+  ],
+  lines: [
+    'A menu is not available if it vanishes on the way.',
+    'Hover can be an extra path, never the only path.',
+    'Open, use, and close should all be predictable.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare a disappearing hover-only menu with a persistent keyboard-ready disclosure menu."
+  task={{
+    goal: 'Open the account menu and reach Settings.',
+    use: 'Choose the Settings item. A host-owned backup remains available in the barrier panel.',
+    done: 'The panel confirms that Settings opened.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="A hover-only menu with a gap">
+    <div class="menu-demo menu-demo--barrier">
+      <span class="hover-only-trigger">Account</span>
+      <div class="hover-only-gap" aria-hidden="true"></div>
+      <div class="hover-only-menu">
+        <button type="button" data-atk-04-barrier-settings>Settings</button>
+      </div>
+    </div>
+    <p class="field-hint">The broken product menu is pointer-only. The backup below keeps this teaching panel escapable.</p>
+    <p class="status-msg" data-atk-04-barrier-status aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn btn--secondary" type="button" data-atk-04-backup>Open Settings with safe backup</button>
+      <button class="btn btn--secondary" type="button" data-atk-04-barrier-reset>Reset Barrier</button>
+    </div>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="A persistent disclosure menu">
+    <div class="menu-demo">
+      <button
+        id="atk-04-fixed-trigger"
+        class="btn btn--fix"
+        type="button"
+        aria-expanded="false"
+        aria-controls="atk-04-fixed-menu"
+        data-atk-04-fixed-trigger
+      >Account</button>
+      <div id="atk-04-fixed-menu" class="disclosure-menu" data-atk-04-fixed-menu hidden>
+        <button type="button" data-atk-04-fixed-settings>Settings</button>
+        <button type="button">Profile</button>
+      </div>
+    </div>
+    <p class="status-msg" data-atk-04-fixed-status aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn btn--secondary" type="button" data-atk-04-fixed-reset>Reset Fixed</button>
+    </div>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="04"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+
+    const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
+    const barrierStatus = barrierPanel?.querySelector('[data-atk-04-barrier-status]');
+    const openBarrierSettings = () => {
+      if (barrierStatus) barrierStatus.textContent = 'Settings opened.';
+    };
+    barrierPanel?.querySelector('[data-atk-04-barrier-settings]')?.addEventListener('click', openBarrierSettings);
+    barrierPanel?.querySelector('[data-atk-04-backup]')?.addEventListener('click', openBarrierSettings);
+    barrierPanel?.querySelector('[data-atk-04-barrier-reset]')?.addEventListener('click', () => {
+      if (barrierStatus) barrierStatus.textContent = '';
+      barrierPanel.querySelector('.panel-heading')?.focus();
+    });
+
+    const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
+    const trigger = fixedPanel?.querySelector('[data-atk-04-fixed-trigger]');
+    const menu = fixedPanel?.querySelector('[data-atk-04-fixed-menu]');
+    const fixedStatus = fixedPanel?.querySelector('[data-atk-04-fixed-status]');
+    const setOpen = (open) => {
+      if (!trigger || !menu) return;
+      trigger.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+    };
+
+    trigger?.addEventListener('click', () => {
+      const open = trigger.getAttribute('aria-expanded') !== 'true';
+      setOpen(open);
+      if (open) menu?.querySelector('button')?.focus();
+    });
+    menu?.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+        trigger?.focus();
+      }
+    });
+    fixedPanel?.querySelector('[data-atk-04-fixed-settings]')?.addEventListener('click', () => {
+      if (fixedStatus) fixedStatus.textContent = 'Settings opened.';
+      setOpen(false);
+      trigger?.focus();
+    });
+    fixedPanel?.querySelector('[data-atk-04-fixed-reset]')?.addEventListener('click', () => {
+      setOpen(false);
+      if (fixedStatus) fixedStatus.textContent = '';
+      fixedPanel.querySelector('.panel-heading')?.focus();
+    });
+  })();
+</script>

@@ -1,0 +1,117 @@
+---
+import StationFrame from '../StationFrame.astro';
+import StationPanel from '../StationPanel.astro';
+import { stations } from '../../data/stations.js';
+
+const station = stations.find((candidate) => candidate.id === '09');
+if (!station) throw new Error('Station 09 metadata is missing.');
+
+const advocate = {
+  happened: 'The delete control shows a trash symbol but exposes no name to assistive technology.',
+  matters: 'A control with no name forces people to guess its purpose. In a destructive action, that guess can erase the wrong item or stop the task entirely.',
+  hardest: 'Screen-reader and voice-control users depend on programmatic names to discover and activate controls. New users may also be unsure what an unfamiliar symbol means.',
+  decision: 'Require every icon control to have a specific accessible name that includes the affected item when that context matters.',
+};
+
+const builder = {
+  criterionNotes: {
+    '1.1.1': 'A non-text control needs a text alternative that serves the same purpose.',
+    '4.1.2': 'User interface controls need a programmatically determinable name, role, and state or value when applicable.',
+  },
+  moves: [
+    'Treat the icon as decorative once the button has a useful text name.',
+    'Include the item name in a destructive control, such as Delete Notes.txt.',
+    'Test the computed accessible name instead of relying on a tooltip or visual proximity.',
+  ],
+  snippet: '<button type="button" aria-label="Delete Notes.txt">\n  <svg aria-hidden="true">…</svg>\n</button>',
+  tests: [
+    'Accessibility tree: inspect the button and confirm its computed name is Delete Notes.txt.',
+    'Voice control: activate the control by its visible or programmatic name without position-based commands.',
+    'Automation: keep the expected barrier button-name finding exact and require the fixed view to scan clean.',
+  ],
+  boundary: 'An accessible name does not replace confirmation or undo for high-impact deletion. This fictional item is restored by Reset.',
+};
+
+const presenter = {
+  steps: [
+    { label: 'Set-up', time: '15s', text: 'Name the task: delete Notes.txt. Explain that the item is fictional and Reset restores it.' },
+    { label: 'Barrier run', time: '35s', text: 'Tab to the icon control and inspect its missing accessible name. Do not ask a screen-reader user to guess.' },
+    { label: 'Fixed run', time: '35s', text: 'Switch to the fix and show the computed name Delete Notes.txt before activating it.' },
+    { label: 'Debrief', time: '25s', text: 'Connect a specific name to accurate discovery, voice commands, and safer destructive actions.' },
+  ],
+  lines: [
+    'An icon is visible; a name is discoverable.',
+    'Name the action and the item it affects.',
+    'Never make people guess at a destructive control.',
+  ],
+};
+---
+
+<StationFrame
+  station={station}
+  description="Compare an unnamed icon button with a specifically named delete control."
+  task={{
+    goal: 'Delete the fictional file Notes.txt.',
+    use: 'There is one file and one trash-can control in each panel.',
+    done: 'The item disappears and the panel confirms its name.',
+  }}
+  {advocate}
+  {builder}
+  {presenter}
+>
+  <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="An icon button with no name">
+    <div class="file-row" data-atk-09-barrier-item>
+      <span>Notes.txt</span>
+      <button class="icon-button icon-button--unnamed" type="button" data-atk-09-barrier-delete>
+        <span aria-hidden="true">⌫</span>
+      </button>
+    </div>
+    <p class="status-msg" data-atk-09-barrier-status aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn btn--secondary" type="button" data-atk-09-barrier-reset>Reset Barrier</button>
+    </div>
+  </StationPanel>
+
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="An icon button named for its action and item">
+    <div class="file-row" data-atk-09-fixed-item>
+      <span>Notes.txt</span>
+      <button class="icon-button" type="button" aria-label="Delete Notes.txt" data-atk-09-fixed-delete>
+        <span aria-hidden="true">⌫</span>
+      </button>
+    </div>
+    <p class="status-msg" data-atk-09-fixed-status aria-live="polite"></p>
+    <div class="form-actions">
+      <button class="btn btn--secondary" type="button" data-atk-09-fixed-reset>Reset Fixed</button>
+    </div>
+  </StationPanel>
+</StationFrame>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-atk-station="09"]');
+    if (!root || root.dataset.atkDemoBound === 'true') return;
+    root.dataset.atkDemoBound = 'true';
+
+    const bindDelete = (panel, itemSelector, deleteSelector, statusSelector, resetSelector) => {
+      const item = panel?.querySelector(itemSelector);
+      const status = panel?.querySelector(statusSelector);
+      panel?.querySelector(deleteSelector)?.addEventListener('click', () => {
+        if (item) item.hidden = true;
+        // The delete button lives inside the row we just hid, so focus would be
+        // lost to the body. Move it to the panel heading and let the polite
+        // status announce separately; focusing the status itself would make
+        // assistive technology read the same sentence twice.
+        if (status) status.textContent = 'Notes.txt deleted. No file was changed.';
+        panel.querySelector('.panel-heading')?.focus();
+      });
+      panel?.querySelector(resetSelector)?.addEventListener('click', () => {
+        if (item) item.hidden = false;
+        if (status) status.textContent = '';
+        panel.querySelector('.panel-heading')?.focus();
+      });
+    };
+
+    bindDelete(root.querySelector('[data-atk-panel="barrier"]'), '[data-atk-09-barrier-item]', '[data-atk-09-barrier-delete]', '[data-atk-09-barrier-status]', '[data-atk-09-barrier-reset]');
+    bindDelete(root.querySelector('[data-atk-panel="fixed"]'), '[data-atk-09-fixed-item]', '[data-atk-09-fixed-delete]', '[data-atk-09-fixed-status]', '[data-atk-09-fixed-reset]');
+  })();
+</script>
