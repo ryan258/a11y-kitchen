@@ -65,7 +65,8 @@ The mode is saved in `localStorage` under the key `atk-mode`. It persists across
 - Astro 7, static output, as established by DEC-017. No React, Vue, or Svelte.
 - Vanilla JavaScript only, inline via `<script is:inline>`. No client framework and no state library.
 - No CSS framework. No Tailwind. One hand-written stylesheet: `src/styles/global.css`.
-- Fonts load from Google Fonts via `@import` in `global.css`.
+- Outfit and Space Mono are self-hosted WOFF2 assets referenced by `global.css`; fonts make no
+  third-party runtime request.
 - No build-time data fetching. No CMS. No database.
 - Node 22.12 or newer within Node 22, as established by DEC-005 and retained by DEC-017.
 

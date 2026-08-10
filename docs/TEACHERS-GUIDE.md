@@ -137,8 +137,9 @@ The site is entirely static and local. Three workable arrangements:
 - **Pairs.** One drives, one narrates aloud what changed. Narration is the learning; enforce it.
 - **Built output.** `npm run build` produces `dist/`, a plain static folder. Any static host or
   simple file server will serve it on a classroom network. There is no backend, no database, no API
-  key, and no network call except the Google Fonts stylesheet — so it works fine on a locked-down
-  or offline network, just with fallback fonts.
+  key, and no automatic third-party request while loading or using a demonstration. The fonts and
+  media ship with the built site, so it works on a locked-down or offline network when served
+  locally. Outbound reference links still require a network connection when someone opens them.
 
 ### Privacy note you can state honestly
 
@@ -1106,7 +1107,7 @@ WCAG 2.1 AA compliant" on the basis of one scanner run. The professional habit b
 | A student calls it a simulator | Correct it immediately and briefly, every time. Letting it slide once means it is in their notes. |
 | Someone asks a WCAG question you can't answer | "I'll check the actual text rather than guess." Then open `https://www.w3.org/TR/WCAG22/` and read it with them. Modelling that beats knowing the answer. |
 | The room derails into "compliance vs. real accessibility" | Let it run three minutes; it's a good argument. Land it with: compliance is the floor, people are the point, and this site demonstrates barriers that pass automated compliance checks. |
-| Fonts look wrong | Google Fonts is the site's only third-party request; a locked-down network blocks it and the fallback stack takes over. Nothing else needs the network. |
+| Fonts look wrong | Confirm the host received the built `_astro` assets. The font files ship with the site; if an asset is missing, the system fallback stack takes over. |
 
 ---
 

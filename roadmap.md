@@ -87,7 +87,8 @@ These rules apply to every milestone and are release blockers, not later polish.
 - Client behavior uses inline `<script is:inline>` scripts; no React, Vue, Svelte, state library, or client framework.
 - One hand-written stylesheet at `src/styles/global.css`; no CSS framework or Tailwind.
 - Color, typography, spacing, sizing, focus, and motion values originate in documented `:root` custom properties. Components do not hard-code hex colors.
-- Google Fonts load through `@import` in the global stylesheet and use resilient local fallback stacks.
+- Outfit and Space Mono load from self-hosted WOFF2 assets in `src/assets/fonts/`, with resilient
+  system fallback stacks and no third-party runtime request.
 - No build-time data fetching, CMS, database, authentication, analytics, or public-site AI.
 - Accepted DEC-003 makes `src/` canonical, with any future preview generated from the built site rather than maintained as a second source of truth.
 - Demo forms are local interactions. They submit no real data and make no network request.

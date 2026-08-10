@@ -322,9 +322,11 @@ Rules:
 ## Privacy and network contract
 
 - Forms use fictional data and do not transmit it.
-- No analytics, tracking pixels, cookies, telemetry, or third-party scripts.
-- Google Fonts is the only third-party page request; resilient fallback fonts preserve readability if
-  that request fails. Station media is local and makes no runtime request.
+- Page loads and demonstration interactions make no automatic third-party request. Outbound WCAG
+  reference links navigate away only when a visitor chooses them.
+- No analytics, tracking pixels, cookies, or telemetry.
+- Outfit, Space Mono, and Station 11 media are local assets. System fallback fonts preserve
+  readability if a font asset fails to load.
 - No localStorage key other than `atk-mode` without an accepted requirement.
 - No public AI call, API key, or generated-on-request content.
 

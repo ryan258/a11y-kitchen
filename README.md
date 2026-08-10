@@ -94,7 +94,7 @@ Barrier behavior stays inside its panel. Hidden timers stop, reset clears pendin
 remains available wherever transient content could constrain focus, and browser Back is never
 intercepted.
 
-## Architecture and media
+## Architecture and local assets
 
 `src/` is the only hand-edited product source. All twelve stations use the shared seven-section
 `StationFrame.astro`, their own station components, and a single static `[slug].astro` route
@@ -104,6 +104,9 @@ rail state, and verified WCAG metadata.
 Station 11's MP4, poster, and WebVTT file live under `src/assets/`. See
 [`docs/MEDIA-PROVENANCE.md`](docs/MEDIA-PROVENANCE.md) for the spoken script, tools, licenses,
 generation command, caption timings, and human-review boundary.
+
+Outfit and Space Mono are self-hosted WOFF2 assets, so page loads make no third-party font request.
+See [`docs/FONT-PROVENANCE.md`](docs/FONT-PROVENANCE.md) for source URLs, checksums, and licenses.
 
 Generated `dist/`, Playwright artifacts, and any future preview are not source. Ryan controls staging,
 commits, pushes, hosting, and publication.
@@ -126,7 +129,9 @@ final editorial review also remain required.
 
 Code is MIT ([`LICENSE`](LICENSE)). The teaching guides, station briefs, exhibit copy, and authored
 media are CC BY 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)). Third-party media tool terms are recorded
-in [`docs/MEDIA-PROVENANCE.md`](docs/MEDIA-PROVENANCE.md).
+in [`docs/MEDIA-PROVENANCE.md`](docs/MEDIA-PROVENANCE.md). Outfit and Space Mono remain under the
+SIL Open Font License 1.1; their exact notices are stored with the font assets and recorded in
+[`docs/FONT-PROVENANCE.md`](docs/FONT-PROVENANCE.md).
 
 ## Document authority
 
