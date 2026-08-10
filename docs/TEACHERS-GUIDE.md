@@ -4,6 +4,7 @@ Status: Companion document; no authority over requirements
 Owner: Ryan
 Last updated: 2026-08-09
 Audience: Anyone running this site with a class, workshop, team session, or client demo
+Review boundary: Final disabled-educator and classroom-safety review remains required before facilitated use
 
 This guide tells you how to teach with A11y Test Kitchen: what to say, what to run, where to pause,
 what students reliably get wrong, and what extra knowledge turns each station from a demo into a
@@ -44,8 +45,8 @@ copy on the site was reviewed against it.
 
 Why it matters enough to lead a teacher's guide with it: simulation exercises (blur goggles,
 weighted gloves, mouse-disabling, "try browsing with your eyes closed") are widely criticised by
-disabled advocates. Research on them is unflattering — they tend to produce pity and a belief that
-disability is a personal tragedy, rather than the structural understanding you actually want.
+disabled advocates. They can produce pity and a personal-tragedy framing rather than the structural
+understanding this curriculum is meant to build.
 Someone experiencing five minutes of artificial difficulty learns what *novelty* feels like, not
 what *expertise with an assistive technology plus a hostile interface* feels like. The two are
 opposite experiences.
@@ -69,9 +70,9 @@ out.
 ### If a student pushes back
 
 **"Isn't a simulation still better than nothing?"** — Good question, and the honest answer is that
-it depends what you measure. Simulations reliably raise *sympathy* and reliably fail to raise
-*competence*. This format targets competence: at the end, a student can name the failure, name the
-criterion, and write the fix. Sympathy is not a deliverable.
+it depends what you measure. A simulation may raise sympathy without building practical competence.
+This format targets competence: at the end, a student can name the failure, name the criterion, and
+write the fix. Sympathy is not a deliverable.
 
 **"But I understood it better after wearing the goggles."** — Accept it without arguing. Then ask:
 "What did you build differently the next week?" That question moves the discussion from feeling to
@@ -195,10 +196,10 @@ back to Builder and keeps working — which is itself a small lesson in graceful
 | Barrier | Plum `#8A3E5B` | "Barrier" | diamond |
 | Fixed | Slate blue `#22557E` | "Fixed" | circle |
 
-**Ask the class why this isn't red and green.** Let them sit with it for a moment. The answer:
-red/green is the single most common form of colour vision deficiency, affecting roughly 8% of men
-of northern European descent and about 0.5% of women. An accessibility site that encoded its most
-important distinction in exactly that pairing would undermine its own lesson on its own home page.
+**Ask the class why this isn't red and green.** Let them sit with it for a moment. Colour-vision
+differences are common, vary by type and population, and make red/green a particularly poor pairing
+for critical state. An accessibility site that encoded its most important distinction in exactly
+that pairing would undermine its own lesson on its own home page.
 
 Then push further: the colours are not the point. **Every state indicator shows all three signals —
 colour, word, and shape — so the distinction survives greyscale, forced colours, a bad projector,
@@ -315,8 +316,8 @@ says *Session terminated. Please re-initiate.*
 Then reset, complete the form, and submit. The first submit clears both fields and says exactly
 `Invalid input.` The second submit succeeds.
 
-**Stop talking here:** right after the timeout wipes the fields. Count five full seconds of silence.
-Someone will react out loud. That reaction is the lesson; do not step on it.
+**Stop talking here:** right after the timeout wipes the fields. Pause, then name what the interface
+erased. Do not solicit, score, or interpret a participant's distress as lesson evidence.
 
 **Criteria:** 2.2.1 Timing Adjustable (A), 3.3.1 Error Identification (A), 3.3.2 Labels or
 Instructions (A), 3.3.3 Error Suggestion (AA), 3.3.4 Error Prevention — Legal, Financial, Data (AA,
@@ -359,7 +360,7 @@ government or medical form.
 updated."
 
 **Run it like this:** submit once — you get `Invalid input.` and nothing else. Submit again and it
-works, which is even more infuriating and completely realistic.
+works, revealing attempt-dependent behavior without any recovery guidance.
 
 **Criteria:** 3.3.1 Error Identification (A), 3.3.3 Error Suggestion (AA).
 
@@ -389,9 +390,10 @@ not the same activity — a theme that recurs all the way through.
 **Task:** Start a return for unopened order `ATK-302`, delivered 12 days ago; the return window is
 30 days. **Success:** the online return starts.
 
-**Run it like this:** show the barrier and ask the class to find the answer. Time them. Then show
-the fix: the action first, in three short steps, with the full policy still available in a
-`<details>` disclosure.
+**Run it like this:** show the barrier and ask the class to locate the return action, with observation
+always available instead of participation. Ask what made the action difficult to find. Then show the
+fix: the action first, in three short steps, with the full policy still available in a `<details>`
+disclosure. Compare the interfaces, not anyone's reading speed.
 
 **Criteria:** 3.1.5 Reading Level (AAA).
 
@@ -417,9 +419,9 @@ nobody and it is just inherited. Sometimes the answer is the company. Both are w
 **Task:** Open the account menu and reach Settings. **Success:** "Settings opened."
 
 **Run it like this:** hover to open the menu, then move the pointer toward Settings and *cross the
-gap*. The menu vanishes. Do it two or three times — visible failure is funnier and more memorable
-than described failure. Then try to reach it with Tab: the product trigger is not keyboard operable
-at all.
+gap*. When the menu vanishes, name exactly what the interface did. Demonstrate it once, then try to
+reach it with Tab: the product trigger is not keyboard operable at all. Do not repeat the failure for
+laughs; move promptly to the persistent disclosure control.
 
 **Criteria:** 1.4.13 Content on Hover or Focus (AA), 2.1.1 Keyboard (A).
 
@@ -485,14 +487,15 @@ rather than merely annoying.
 **Task:** Confirm a fictional $25 transfer to Jordan Kim. **Data:** confirmation code `734219`.
 
 **Run it like this:** show the code. Press Continue — the code is gone and the entry field is asking
-for it. Now: **do not read the code out loud, and do not let anyone photograph it.** Ask the class
-to type it. Watch how many can. Then ask how they felt in that second before answering.
+for it. Ask the class what information the interface removed while still expecting it to be used.
+Do not turn the demonstration into a memory test, prevent note-taking, or count who remembered. The
+interface's decision is the evidence; participant performance is not.
 
 **Criteria:** 3.3.7 Redundant Entry (A).
 
-**The insight most classes miss:** working memory holds roughly four items for a handful of seconds,
-and it degrades with stress, fatigue, interruption, pain, medication, anxiety, ADHD, and simply
-being over 60. The interface designer had the code the entire time and chose to make a human hold it
+**The insight most classes miss:** working memory is limited, measured in context-dependent chunks
+rather than one universal item count, and performance varies with context, stress, fatigue, and
+interruption. The interface designer had the code the entire time and chose to make a human hold it
 instead. **The system asked a person to be its memory.** That is the whole lesson, and it is worth
 saying in exactly those words.
 
@@ -550,8 +553,8 @@ exit**; a **keyboard trap contains focus and offers none**. The difference is th
 containment.
 
 **Discussion prompt:** "How would you *find* a keyboard trap in a product you didn't build?" Answer:
-put the mouse down and Tab through the whole page. It takes minutes and finds a large share of
-serious keyboard defects. Automated scanners find approximately none of them.
+put the mouse down and Tab through the whole page. It takes minutes and can reveal serious keyboard
+defects that a static or automated scan cannot prove absent.
 
 ---
 
@@ -574,8 +577,11 @@ replace them with better ones.** Modern CSS makes that easy: `:focus-visible` st
 the browser judges it useful, so keyboard focus stays visible while a clicked button doesn't get a
 persistent ring.
 
-This whole site authors its focus ring deliberately at 3:1 contrast against adjacent colours and
-tests it, which is the standard from WCAG 2.2's Focus Appearance guidance.
+This site authors a three-pixel focus ring and deterministically checks that the indicator is present
+and visible in required states. Manual contrast review remains open. Do not describe that as complete
+WCAG 2.2 Focus Appearance verification: [2.4.13 Focus Appearance](https://www.w3.org/TR/WCAG22/#focus-appearance)
+is Level AAA and evaluates both indicator area and contrast between the same pixels in focused and
+unfocused states.
 
 **Extra knowledge:** WCAG 2.2 added **2.4.11 Focus Not Obscured (Minimum)** — a focus indicator that
 exists but is hidden behind a sticky header or cookie banner is still a failure. Sticky headers plus
@@ -652,8 +658,8 @@ clutter; it is what makes an interface survive contexts you did not anticipate.
 
 **Extra knowledge:** name the real users of forced-colors / high-contrast mode — a Windows feature
 used heavily by people with low vision and light sensitivity. Colour-only status disappears in it
-completely. Also note: colour vision deficiency affects roughly 1 in 12 men and 1 in 200 women, so a
-class of thirty statistically contains someone this affects, which is a good reason not to ask.
+completely. Colour-vision differences are common and vary by type and population, so expect them to
+be present without asking anyone to disclose one.
 
 **Discussion prompt:** "Where does your product use a coloured dot, badge, or chart line as the only
 signal?" Status dashboards, CI pipelines, and charts are the standard offenders — and chart legends
@@ -667,8 +673,8 @@ are the exact same mistake as this station's legend.
 **Task:** Identify the final instruction in the clip. **Answer:** "The final step is Press Done."
 
 **Run it like this:** play the barrier video with the room's sound **off**, or muted deliberately.
-Ask for the answer. Then play the fixed version — same 8.7-second clip, with a default English
-captions track and a full transcript beside it.
+Ask which information the interface failed to provide in another form. Then play the fixed version —
+same 8.7-second clip, with a default English captions track and a full transcript beside it.
 
 **Criteria:** 1.2.2 Captions (Prerecorded) (A), 1.2.3 Audio Description or Media Alternative
 (Prerecorded) (A, conditional).
@@ -863,15 +869,16 @@ curriculum sitting underneath the first one.
 
 ### What the stack teaches by omission
 
-Astro 5, static output, **no client framework**, vanilla inline JavaScript, one hand-written
+Astro 7, static output, **no client framework**, vanilla inline JavaScript, one hand-written
 stylesheet, no CMS, no backend, no state library. Twelve interactive stations with timers, dialogs,
 menus, live regions, media, and multi-step forms — and no React.
 
 Ask the class why. Then give them the real answer: **every dependency is a thing that can break
 accessibility on your behalf.** Native `<button>`, `<label>`, `<dialog>`, `<details>`, and radio
-groups arrive with keyboard behaviour, focus management, and accessibility-tree semantics already
-correct and already tested by browser vendors across every assistive technology. Most accessibility
-defects in modern applications come from reimplementing one of those badly.
+groups start with browser-provided keyboard behaviour and accessibility semantics, which is a much
+stronger baseline than recreating them from generic elements. They still require testing in the
+project's actual browser and assistive-technology support matrix; native HTML is a foundation, not
+universal compatibility evidence.
 
 The architectural principle in `docs/ARCHITECTURE.md` says it in one line: **native HTML first; add
 ARIA only when it communicates real state the browser cannot infer.**
@@ -924,9 +931,9 @@ about tests and shortcuts that conceal defects.
 npm run check             # Astro and TypeScript checks
 npm run verify:content    # collection invariants and source/content boundaries
 npm run build             # static output in dist/
-npm run verify:build      # every route, IDs, shell, panels, criteria, media, state shapes
+npm run verify:build      # expected routes, station panels, modes, media, no external client scripts
 npm run test:functional   # rendered behavior, focus, reset, geometry
-npm run test:a11y         # axe plus the exact intentional-failure ledger
+npm run test:a11y         # axe, exact barrier ledger, representative dynamic fixed states
 npm run gate              # the complete deterministic local gate
 ```
 

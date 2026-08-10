@@ -1,8 +1,8 @@
 # A11y Test Kitchen Roadmap
 
-Last updated: 2026-08-08
-Roadmap status: Full twelve-station collection implemented; manual release audit and publication pending
-Implementation status: Foundation, all station routes, role content, media, and deterministic coverage complete
+Last updated: 2026-08-09
+Roadmap status: Deterministic v1 candidate complete; manual release audit and publication pending
+Implementation status: Foundation, all station routes, role content, media, dependency hardening, and deterministic coverage complete
 
 > The project specification defines intent and acceptance criteria. Once implementation begins, working code is the source of truth. If the code and specification diverge, stop, reconcile the difference, and update the affected planning documents before continuing.
 
@@ -10,7 +10,7 @@ Implementation status: Foundation, all station routes, role content, media, and 
 
 ```text
 PROJECT: A11y Test Kitchen
-STATUS: Full twelve-station collection implemented
+STATUS: Deterministic v1 candidate implemented
 GATE CHECK: Reveal PASS | Build PASS | Deliver PASS for the local static candidate
 BIBLE: Accepted as the collection baseline
 VOICE PROFILES: Implemented in every station
@@ -82,7 +82,7 @@ These rules apply to every milestone and are release blockers, not later polish.
 
 ## Technical guardrails
 
-- Astro 5 with static output and Node 18 or newer, subject to the exact supported runtime recorded in `package.json`.
+- Astro 7 with static output and Node 22.12 or newer within Node 22, as recorded in `package.json` and DEC-017.
 - Astro components plus vanilla JavaScript only.
 - Client behavior uses inline `<script is:inline>` scripts; no React, Vue, Svelte, state library, or client framework.
 - One hand-written stylesheet at `src/styles/global.css`; no CSS framework or Tailwind.
@@ -181,7 +181,7 @@ Produce an accessible static shell that can host every station without adding a 
 
 ### Tasks
 
-- [x] **M1.1 — Establish and verify the Astro toolchain.** Restore or create the Astro 5 static project, declare the supported Node runtime, install dependencies, and prove the development and production builds run.
+- [x] **M1.1 — Establish and verify the Astro toolchain.** Restore or create the static Astro project, declare the supported Node runtime, install dependencies, and prove the development and production builds run. The v1 hardening pass upgraded the accepted baseline to Astro 7 under DEC-017.
 - [x] **M1.2 — Add deterministic quality scripts.** Define repository commands for Astro checks, production build, functional tests, accessibility checks, and the complete local gate. Keep the scripts stable so every later task uses the same entry points.
 - [x] **M1.3 — Build the global design system.** Define all color, type, spacing, layout, focus, state-shape, and motion tokens in `:root`; ensure focus indicators have at least 3:1 contrast against their backgrounds; add the base responsive rules and the reduced-motion override.
 - [x] **M1.4 — Build `Base.astro`.** Add the skip link first in tab order, semantic masthead, page landmark structure, mode control, and footer.

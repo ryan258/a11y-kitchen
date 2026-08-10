@@ -5,6 +5,7 @@ Owner: Ryan
 Last updated: 2026-08-09
 Audience: Elementary teachers (grade 5, ages 10–11) — classroom, library, tech lab, or enrichment
 Companion: [`docs/TEACHERS-GUIDE.md`](TEACHERS-GUIDE.md) is the adult/professional version
+Review boundary: Final disabled-educator and classroom-safety review remains required before classroom use
 
 This guide adapts A11y Test Kitchen for a fifth-grade classroom. It gives you what to say, which
 stations to use, what to skip, how long each piece takes, how to handle the hard moments, and the
@@ -54,8 +55,9 @@ purpose, once on a website that's built well — and compares **the two websites
 
 ### Why this matters more in elementary school than anywhere else
 
-Disability simulations are extremely popular in schools, they feel meaningful, and they mostly do
-harm. Here's the honest reason, and it's worth understanding rather than just following:
+Disability simulations are common in schools and can feel meaningful, but they can cause harm when
+they teach sudden incompetence or pity instead of access. Here's the reason, and it's worth
+understanding rather than just following:
 
 When a ten-year-old wears a blindfold for ten minutes, they experience being **suddenly bad at
 something they're normally good at**. That's terrifying and clumsy. So the takeaway they carry out
@@ -208,9 +210,9 @@ some need a framing sentence from you, and three are honestly not worth your cla
 | # | Station | Why it lands with ten-year-olds |
 |---|---|---|
 | **09** | The unlabelled icon | Two buttons look *identical*; one is unusable. Instant "whoa." |
-| **12** | The target too small | Every kid has fat-fingered a tiny button. Immediate recognition. |
+| **12** | The target too small | Many kids have struggled to tap a tiny button. Immediate recognition. |
 | **10** | The color-only status | Connects to color blindness, which fascinates them. |
-| **06** | The memory tax | Plays like a game. Genuinely fun. |
+| **06** | The memory tax | Makes the interface's unnecessary memory demand easy to see. |
 | **11** | The caption gap | They already use captions. They have opinions. |
 
 ### Tier 2 — Great, with one sentence of setup from you.
@@ -391,9 +393,9 @@ hitting it with. Fifth graders find this genuinely outrageous, which is correct.
 **Permanent, temporary, situational — teach it here.** This is the best station for the single most
 useful idea in the whole unit:
 
-> Tiny buttons are hard for someone whose hands shake, always. (**Permanent**)
-> Tiny buttons are hard for someone with a broken wrist or a cast for six weeks. (**Temporary**)
-> Tiny buttons are hard for *anyone* on a bumpy bus, in gloves, holding a dog's leash, or walking.
+> Tiny buttons can be hard for someone with a tremor. (**Permanent**)
+> Tiny buttons can be hard for someone with a broken wrist or a cast for six weeks. (**Temporary**)
+> Tiny buttons can be hard on a bumpy bus, in gloves, while holding a dog's leash, or while walking.
 > (**Situational**)
 
 Then: "Raise your hand if you've been in that third group this week." Every hand. **Designing for
@@ -425,11 +427,12 @@ circle or a diamond. Three signals instead of one.
 them to try using it. They have to hold the color code in their head and re-check every row against
 it. And it *still* disappears in black and white. **The answer has to be in the row, in words.**
 
-**Color blindness, taught correctly:** about 1 in 12 boys and 1 in 200 girls can't reliably tell
-certain colors apart — most commonly red and green. In a class of 30, that's usually somebody.
+**Color blindness, taught correctly:** color-vision differences are common, vary by type and
+population, and often make red and green difficult to distinguish as a pair. Assume somebody in the
+room may be affected without turning a population estimate into a classroom diagnosis.
 
 ⚠️ **Do not ask who in the room is color blind, and do not run a "test."** A kid finding out in
-front of 29 classmates is a bad day you caused. State the numbers and move on.
+front of 29 classmates is a bad day you caused. State the general point and move on.
 
 **Point out the site itself:** look at the top of any station page. This site uses **plum** and
 **slate blue**, not red and green — and always adds a *word* and a *shape*. A website about
@@ -447,24 +450,22 @@ Real name: *The memory tax* · `/stations/memory-tax/`
 **The task:** Confirm a fake $25 transfer. **The code is `734219`.**
 
 **Your setup sentence:**
-> "This one is a memory game. Except the game is unfair on purpose, and I want you to notice exactly
-> when it gets unfair."
+> "This website removes information it still expects us to use. Watch what the interface does."
 
 **What to do:** Show the code on screen. Click Continue — **the code vanishes** and the next screen
 asks you to type it in.
 
-Now the important part: **don't read the code out loud, and don't let anyone photograph it.** Ask
-the class to type it. Watch how many can. Ask how they felt in the second before answering.
-
-**Stop talking here.** Let the groans happen. The groan *is* the data.
+Now the important part: ask what information disappeared and whether the website still had access to
+it. Do not prevent note-taking, test who remembered, or count successful entries. Students may try
+the field or simply observe. The interface's unnecessary demand is the data.
 
 **The lesson, in fifth-grade words:** the website **had the code the whole time**. It chose to make
 a person remember it instead. That's not a mistake — it's the website asking a human to do its job.
 
-**The science, which fifth graders love:** your working memory holds about **four things** for about
-**twenty seconds**. That's not a personal weakness — that's everybody's brain. And it gets *smaller*
-when you're tired, stressed, rushed, interrupted, or nervous. Which describes exactly the moment
-you're usually being asked to remember a code.
+**The science, in careful fifth-grade language:** working memory can hold only a small amount at once,
+and the amount depends on how information is grouped and what else is happening. It becomes less
+reliable when you're tired, stressed, rushed, interrupted, or nervous — exactly when interfaces often
+ask people to remember a code.
 
 Then the connection they won't expect: **this is why a good teacher writes the instructions on the
 board instead of only saying them.** Same principle. Same reason.
@@ -484,10 +485,11 @@ Real name: *The caption gap* · `/stations/caption-gap/`
 **The task:** Find the last instruction in the video. **The answer is "The final step is Press Done."**
 
 **Your setup sentence:**
-> "I'm going to play a video with the sound off. Tell me the last instruction."
+> "I'm going to play a video with the sound off. Notice which information the interface leaves out."
 
-**What to do:** Play the broken version **muted**. There are no captions. Nobody can answer. Then
-play the fixed version — same 9-second video, now with captions on screen and a full written
+**What to do:** Play the broken version **muted**. There are no captions, so the spoken instructions
+are unavailable in this viewing context. Ask what the interface failed to provide in another form,
+then play the fixed version — same 9-second video, now with captions on screen and a full written
 transcript next to it.
 
 **Poll the room first:** "Who watches videos with the captions turned on, even when you can hear
@@ -527,8 +529,9 @@ Real name: *The disappearing menu* · `/stations/disappearing-menu/`
 **Your setup sentence:**
 > "Watch the menu run away from me."
 
-**What to do:** Hover to open the menu, then move toward "Settings" and cross the little gap. The
-menu vanishes. **Do it three times.** Ham it up. It's funny, and funny is memorable.
+**What to do:** Hover to open the menu, then move toward "Settings" and cross the little gap. When the
+menu vanishes, name what the interface did. Demonstrate it once, then move to the fixed menu; do not
+turn repeated failure into the entertainment.
 
 Then try to reach it with the Tab key — you can't. The broken menu only responds to a mouse.
 
@@ -551,11 +554,12 @@ Real name: *The reading wall* · `/stations/reading-wall/`
 **The task:** Start a return for order `ATK-302`, delivered 12 days ago, with a 30-day return window.
 
 **Your setup sentence:**
-> "Same rules, written two different ways. Race me."
+> "Same rules, written two different ways. Which interface makes the action easier to find?"
 
 **What to do:** Show the broken version — long sentences, legal words, the actual instruction buried
-in the middle. **Time the class** trying to find the answer. Then show the fixed version: three short
-steps, action first. Time it again. The difference is dramatic and the timing makes it undeniable.
+in the middle. Ask students to identify what makes the action difficult to locate, with observation
+always available instead of participation. Then show the fixed version: three short steps, action
+first. Compare the interfaces without timing or ranking anyone's reading.
 
 **The lesson nobody expects — do not skip this one:** show them that the fixed version **still has
 all the long legal text**, tucked inside a little expandable "details" section. *Nothing was deleted.*
@@ -628,15 +632,16 @@ Before you start, say:
 a question, take an answer, stall. Let it hit zero. Everything vanishes and the site says *Session
 terminated. Please re-initiate.*
 
-**Stop talking here.** Five full seconds. The reaction is the lesson.
+**Stop talking here.** Pause briefly, then name what the interface erased. Do not treat a student's
+distress or surprise as lesson evidence.
 
 **Then unpack the three separate problems, because kids will only name the timer:**
 
 1. **The timer.** 30 seconds to do a task, no warning, no way to ask for more time.
 2. **The disappearing labels.** The words telling you what to type are *inside* the boxes — so they
-   vanish the second you start typing. Exactly when you need them. Ask: "Wait, what was box two
-   asking for?" Nobody remembers. (Connect straight back to Station 06 — this is the memory tax
-   again, in a different costume.)
+   vanish the second you start typing. Exactly when you need them. Ask what information the interface
+   removed, and show it again if needed; do not turn the point into a recall test. (Connect straight
+   back to Station 06 — this is the memory tax again, in a different costume.)
 3. **It ate the work.** The error message deleted everything and said only `Invalid input.`
    (Connect to Station 02.)
 
@@ -1064,9 +1069,10 @@ it's slow or hard. It's neither, once you know it.
 
 **"Can I try a screen reader?"**
 Yes — with the right framing, this is fine and even great. But **not as a simulation.** Frame it as
-"let's look at a tool," the same way you'd look at a microscope. Do it *briefly*, do it *badly*, and
-say so: "I'm terrible at this. Somebody who uses it every day is about ten times faster." Never
-frame it as "now you know what it's like." You've used a tool for four minutes; that's all.
+"let's look at a tool," the same way you'd look at a microscope. Use a competent demonstration or a
+reputable expert-user recording when possible. If you are a novice, say so without performing the
+tool badly for effect, and explain that experienced users often operate it much faster. Never frame
+it as "now you know what it's like." You've briefly explored a tool; that's all.
 
 **"What if someone can't use a computer at all?"**
 Then there had better be another way to do the thing — a phone number, a person, a paper form. "Do

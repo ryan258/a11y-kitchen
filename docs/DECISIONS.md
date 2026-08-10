@@ -1,10 +1,10 @@
 # A11y Test Kitchen Decision Log
 
 Status: Active implementation log
-Last updated: 2026-08-08
+Last updated: 2026-08-09
 Authority: Explicit project decisions and proposed amendments
 
-This log prevents consequential choices from being hidden in implementation. Ryan's 2026-08-08 request to develop the project authorized the documented reference-slice baseline. The later request to review that slice and finish the project authorized implementation of the recommended Station 07 safety pattern and the static-inspection option for Station 08. Those choices are accepted only in their narrow forms below; the host-site safety floor remains authoritative.
+This log prevents consequential choices from being hidden in implementation. Ryan's 2026-08-08 request to develop the project authorized the documented reference-slice baseline. The later request to review that slice and finish the project authorized implementation of the recommended Station 07 safety pattern and the static-inspection option for Station 08. Ryan's 2026-08-09 request to bring the current changes to a solid v1 authorized the dependency and release-hardening decision in DEC-017. Those choices are accepted only in their narrow forms below; the host-site safety floor remains authoritative.
 
 ## Status vocabulary
 
@@ -25,7 +25,7 @@ This log prevents consequential choices from being hidden in implementation. Rya
 | DEC-002 | Static Astro, vanilla inline JavaScript, one stylesheet | `INHERITED` | Scaffolding |
 | DEC-003 | Treat `src/` as canonical and generate any preview | `ACCEPTED` | Scaffolding |
 | DEC-004 | Treat this workspace as greenfield | `ACCEPTED` | Scaffolding |
-| DEC-005 | Keep Astro 5 and raise the runtime to Node 22 | `ACCEPTED` | Dependency installation |
+| DEC-005 | Keep Astro 5 and raise the runtime to Node 22 | `SUPERSEDED` by DEC-017 | Initial dependency installation |
 | DEC-006 | Use a native radio group for the three display modes | `ACCEPTED` | `ViewSwitch.astro` |
 | DEC-007 | Make no blanket WCAG conformance claim for station pages | `ACCEPTED` | Public copy and release |
 | DEC-008 | Use a narrow intentional-failure ledger, never broad suppressions | `ACCEPTED` | First accessibility test |
@@ -37,6 +37,7 @@ This log prevents consequential choices from being hidden in implementation. Rya
 | DEC-014 | Measure Station 01 before estimating later station duration | `ACCEPTED` | Station 01 review |
 | DEC-015 | Use Playwright plus axe-core as browser/a11y automation | `ACCEPTED` | Test tooling task |
 | DEC-016 | Generate Station 11 media locally from recorded source text | `ACCEPTED` | Station 11 media |
+| DEC-017 | Upgrade the v1 baseline to supported Astro 7 and retain Node 22 | `ACCEPTED` | v1 dependency hardening |
 
 ## DEC-001 — Interface-centered framing
 
@@ -112,7 +113,7 @@ Treat this workspace as greenfield. Preserve the supplied specification's behavi
 
 ## DEC-005 — Framework and runtime baseline
 
-**Status:** `ACCEPTED`
+**Status:** `SUPERSEDED` by DEC-017
 **Owner:** Ryan
 **Needed by:** Dependency installation
 
@@ -129,6 +130,9 @@ Keep the supplied Astro 5 major as an intentional reference-slice pin. Use Node 
 - Do not run a scaffold or package install until this decision is accepted.
 - Dependency versions and lockfile are created once, under the accepted runtime.
 - A framework-major change cannot silently introduce server output, a client framework, or a different script model.
+
+This was the accepted initial baseline. DEC-017 retains its Node and architecture constraints while
+replacing the Astro 5 version pin for v1.
 
 ## DEC-006 — View-control semantics
 
@@ -307,6 +311,36 @@ Ship one short local MP4 whose script, captions, transcript, and simple card-and
 - `docs/MEDIA-PROVENANCE.md` records the exact inputs, licenses, output, timing, and release review.
 - The authoring synthesizer and FFmpeg are not public runtime dependencies or part of the quality gate.
 - Any regenerated audio requires a fresh human caption-timing and transcript-equivalence review.
+
+## DEC-017 — Supported framework baseline for v1
+
+**Status:** `ACCEPTED`
+**Owner:** Ryan
+**Needed by:** v1 dependency hardening
+
+### Context
+
+The original reference slice intentionally pinned Astro 5. By the v1 hardening pass, Astro's current
+documentation identified older major-version documentation as unmaintained, and the locked Astro 5
+toolchain carried high-severity development dependency advisories. The project uses no framework
+integration, content collection, server adapter, or Vite-specific plugin that would justify retaining
+the older major.
+
+### Decision
+
+Upgrade the exact lockfile baseline to Astro 7.2.0 while retaining Node 22.12 or newer within Node 22,
+fully static output, vanilla inline JavaScript, no client framework, and no server adapter. Resolve
+Astro's optional image dependency to patched `sharp` 0.35.3. Require a clean dependency audit, Astro
+check, production build, and complete deterministic gate on the migrated tree.
+
+### Consequences
+
+- `package.json` and `package-lock.json` are the exact v1 dependency record.
+- The dependency change does not authorize a client framework, server output, integration, or new
+  product scope.
+- Generated HTML and CSS must receive the same rendered functional and accessibility verification as
+  any other component-contract change.
+- Future framework-major changes require another explicit decision and current-tree verification.
 
 ## Decision review checklist
 

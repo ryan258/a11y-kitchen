@@ -15,7 +15,7 @@ GOAL LINE: Written
 SPEC DRAFT: Done
 ROADMAP: Done (/roadmap.md)
 PLANNING PACK: Accepted as the reference-slice implementation baseline
-CODE: Full twelve-station collection implemented; manual release matrix pending
+CODE: Deterministic v1 candidate implemented; manual release matrix pending
 SOURCE SEARCH: No matching shell or Station 01 found under /Users/ryanjohnson/Projects on 2026-08-08
 WORKING BASELINE: Greenfield, accepted in DEC-004
 SPEC IN REPO: Yes (/specs/PROJECT.md)
@@ -62,12 +62,12 @@ The mode is saved in `localStorage` under the key `atk-mode`. It persists across
 
 ### Tech
 
-- Astro 5, static output. No React, Vue, or Svelte.
+- Astro 7, static output, as established by DEC-017. No React, Vue, or Svelte.
 - Vanilla JavaScript only, inline via `<script is:inline>`. No client framework and no state library.
 - No CSS framework. No Tailwind. One hand-written stylesheet: `src/styles/global.css`.
 - Fonts load from Google Fonts via `@import` in `global.css`.
 - No build-time data fetching. No CMS. No database.
-- Node 18 or newer. The supported runtime may be raised through an accepted decision before scaffolding.
+- Node 22.12 or newer within Node 22, as established by DEC-005 and retained by DEC-017.
 
 ### Design
 
@@ -330,7 +330,7 @@ Run this before calling any station done.
 ## Known Risks
 
 1. **The claimed historical source was not found.** Do not create a competing implementation until the owner accepts the greenfield baseline.
-2. **Astro 5 and Node 18 are aging pins.** Confirm the runtime and framework decision before installing dependencies.
+2. **Framework and runtime pins can age.** Keep the accepted Astro and Node baselines current through an explicit decision, a lockfile update, a clean dependency audit, and the complete deterministic gate.
 3. **Inline scripts can duplicate when their component is rendered repeatedly.** Global behavior must be initialized once and station behavior must be idempotent or single-instance.
 4. **Barrier panels can be genuinely harmful if overdone.** A timer that cannot be reset or a focus trap with no escape turns the teaching tool into a real barrier.
 5. **Intentional failures complicate conformance language.** WCAG evaluates full pages; do not make a blanket conformance claim without a documented scope and evaluation.

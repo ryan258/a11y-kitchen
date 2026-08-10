@@ -1,7 +1,7 @@
 # A11y Test Kitchen Architecture
 
 Status: Implemented for the full twelve-station collection; manual release matrix pending
-Last updated: 2026-08-08
+Last updated: 2026-08-09
 Authority: Technical boundaries, component ownership, state contracts, and implementation shape
 
 ## Purpose
@@ -68,7 +68,7 @@ flowchart TD
 │   │   ├── StationTicket.astro
 │   │   ├── ViewSwitch.astro
 │   │   └── stations/
-│   │       └── Station02.astro through Station12.astro
+│   │       └── Station01.astro through Station12.astro
 │   ├── assets/
 │   │   ├── station-11-captions.vtt
 │   │   ├── station-11-instructions.mp4
@@ -87,8 +87,7 @@ flowchart TD
 └── tests/
     ├── accessibility/
     ├── browser/
-    ├── fixtures/
-    └── unit/
+    └── fixtures/
 ```
 
 No placeholder station routes exist. `[slug].astro` prerenders all twelve stations, and only after
@@ -105,7 +104,8 @@ Accepted DEC-005 establishes this runtime and build contract:
 - no integration for React, Vue, Svelte, MDX, a CMS, or server output;
 - production verification runs against `dist/`, not only the development server.
 
-Astro 5's default output is static, but the project should state the intent explicitly and test that every expected route exists in the built artifact.
+The project states `output: 'static'` explicitly and tests that every expected route exists in the
+built artifact; it does not rely on a framework default to communicate the release contract.
 
 ## Component ownership
 
@@ -350,8 +350,8 @@ See `docs/ACCESSIBILITY-TEST-PLAN.md` for procedures and `docs/REQUIREMENTS-TRAC
 - [WAI-ARIA Authoring Practices: Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
 - [WAI-ARIA Authoring Practices: Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/)
 - [Astro documentation: Scripts and event handling](https://docs.astro.build/en/guides/client-side-scripts/)
-- [Astro documentation: Upgrade to Astro 5](https://docs.astro.build/en/guides/upgrade-to/v5/)
-- [Astro 5 documentation snapshot](https://v5.docs.astro.build/)
+- [Astro documentation: Upgrade Astro](https://docs.astro.build/en/upgrade-astro/)
+- [Astro documentation: Upgrade to Astro 7](https://docs.astro.build/en/guides/upgrade-to/v7/)
 
 These sources inform the architecture but do not substitute for testing in the accepted support matrix.
 
