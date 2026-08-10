@@ -11,7 +11,7 @@ or life, and it makes no blanket WCAG conformance claim.
 
 The repository contains the complete twelve-station collection:
 
-- a static Astro 5 shell with no client framework, backend, accounts, analytics, CMS, or public AI;
+- a static Astro 7 shell with no client framework, backend, accounts, analytics, CMS, or public AI;
 - a skip link, semantic landmarks, visible focus, responsive layouts, and reduced-motion support;
 - a persistent Advocate / Builder / Presenter explanation mode stored as `atk-mode`;
 - a data-driven rail linking all twelve completed station routes;
@@ -72,9 +72,9 @@ no API.
 npm run check             # Astro and TypeScript checks
 npm run verify:content    # collection invariants and source/content boundaries
 npm run build             # static production output in dist/
-npm run verify:build      # every route, IDs, shell, panels, criteria, media, and state shapes
+npm run verify:build      # expected routes, station panels, modes, media, and no external client scripts
 npm run test:functional   # rendered behavior, focus, reset, and geometry tests
-npm run test:a11y         # axe plus the exact intentional-failure ledger
+npm run test:a11y         # axe, exact barrier ledger, and representative dynamic fixed states
 npm run gate              # complete deterministic local gate
 npm run media:station-11  # reproduce the local MP4 from the recorded script
 ```
@@ -113,12 +113,20 @@ commits, pushes, hosting, and publication.
 The deterministic gate covers all fourteen routes, modes, views, storage failure, every station's
 primary failure/success/reset path, focus transitions, dialog escape, timer cleanup, duplicate IDs,
 narrow reflow, reduced motion, exact target geometry, local media structure, and automated
-accessibility scans.
+accessibility scans across every fixed audience mode, every compare view, every barrier ledger, and
+representative dynamic fixed states.
 
 Before public release, complete the manual support-matrix checks in
 [`docs/ACCESSIBILITY-TEST-PLAN.md`](docs/ACCESSIBILITY-TEST-PLAN.md): keyboard-only traversal of all
 twelve tasks, real browser zoom, forced colors, Safari with VoiceOver, Firefox, and iOS Safari with
-VoiceOver where available. Human caption accuracy and final editorial review also remain required.
+VoiceOver where available. Human caption accuracy, disabled-educator/classroom-safety review, and
+final editorial review also remain required.
+
+## License
+
+Code is MIT ([`LICENSE`](LICENSE)). The teaching guides, station briefs, exhibit copy, and authored
+media are CC BY 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)). Third-party media tool terms are recorded
+in [`docs/MEDIA-PROVENANCE.md`](docs/MEDIA-PROVENANCE.md).
 
 ## Document authority
 

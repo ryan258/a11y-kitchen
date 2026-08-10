@@ -1,7 +1,7 @@
 # A11y Test Kitchen Accessibility Test Plan
 
 Status: Active for the full collection; deterministic suite implemented and manual matrix pending
-Last updated: 2026-08-08
+Last updated: 2026-08-09
 Authority: Test scope, protocols, evidence, intentional-failure policy, and defect severity
 
 ## Purpose
@@ -70,16 +70,18 @@ Accepted DEC-015 establishes:
 | Layer | Tool | Purpose |
 |---|---|---|
 | Static | Astro check and build | Compilation, types, routes, built artifact |
-| Unit | Node built-in test runner | Pure state, validation, reset, and storage-fallback logic |
+| Source invariants | Node scripts | Metadata, content boundaries, route contracts, criteria, and media |
 | Browser | Playwright | Rendered interaction, focus, responsive layouts, storage failure |
 | Automated a11y | `@axe-core/playwright` | Common semantic, naming, contrast, and structural findings |
+| Markup/IDs | Browser assertions plus HTML validation if adopted | Duplicate IDs, relationships, document structure |
+| Editorial | Deterministic phrase searches plus human review | Framing, placeholder text, incomplete panels, reading level |
 
 Only one explanation panel and one or two station panels are in the accessibility tree at a time, so
 an axe run sees a single state. Every station is therefore scanned in the Fixed view once per audience
 mode (Advocate, Builder, Presenter), and once more in Compare view, where the run must produce nothing
-beyond that station's Barrier exception ledger.
-| Markup/IDs | Browser assertions plus HTML validation if adopted | Duplicate IDs, relationships, document structure |
-| Editorial | Deterministic phrase searches plus human review | Framing, placeholder text, incomplete panels, reading level |
+beyond that station's Barrier exception ledger. Representative dynamic scans additionally cover a
+field error, persistent menu, validation error, open native dialog, and expanded transcript. This is
+targeted automated evidence, not a claim that every possible interaction state has been scanned.
 
 The repository exposes `npm run gate` as the complete deterministic command. Individual commands
 remain available for diagnosis. Successful output is summarized locally; only failures and the smallest
@@ -103,7 +105,7 @@ Record exact OS, browser, browser version, viewport, zoom, input method, assisti
 
 | Cadence | Required layers |
 |---|---|
-| Every code task | Relevant unit/browser checks, static check, targeted manual path |
+| Every code task | Relevant source/browser checks, static check, targeted manual path |
 | Every component contract change | All consumers, keyboard interaction, semantics, duplicate IDs |
 | Every station task | Station functional cases, expected-findings check, keyboard, zoom, editorial |
 | Every station completion | Full station protocol in all views/modes and accepted support-matrix smoke test |
@@ -124,7 +126,7 @@ Record exact OS, browser, browser version, viewport, zoom, input method, assisti
 | ATK-SHELL-006 | Test at 320 CSS px width or equivalent 400% zoom | Stretch gate: content reflows unless a documented two-dimensional exception applies | Manual |
 | ATK-SHELL-007 | Emulate `prefers-reduced-motion: reduce` | Authored transitions and animations are absent | Browser |
 | ATK-SHELL-008 | Inspect every Barrier/Fixed indicator without color | Word and shape still identify state | Manual |
-| ATK-SHELL-009 | Scan rendered HTML in every exposed state | No duplicate IDs or broken label/control relationships | Browser |
+| ATK-SHELL-009 | Scan rendered HTML in every automated view/mode and representative dynamic state | No duplicate IDs or broken label/control relationships | Browser |
 | ATK-SHELL-010 | Press Escape and use browser Back from each barrier | Neither action is blocked; page remains operable | Manual |
 | ATK-SHELL-011 | Run axe on shell-only routes | No unresolved findings | Automated a11y |
 
@@ -187,9 +189,10 @@ Accepted DEC-006 uses a native radio group. The behavior tests below also verify
 ### Station collection coverage
 
 The shared page-contract loop checks each route's station metadata, one Barrier and one Fixed panel,
-the hidden intentional-failure note, independent resets, all three view states, all three audience
-modes, three Presenter lines, and one Builder criterion link per metadata entry. The station-specific
-cases below then test the lesson behavior rather than treating shared structure as proof.
+the hidden intentional-failure note, reset-control presence and view/mode isolation, all three view
+states, all three audience modes, three Presenter lines, and one Builder criterion link per metadata
+entry. Station-specific cases dirty and reset both panels, then test the lesson behavior rather than
+treating shared structure as proof.
 
 | Station | Deterministic behavior covered | Remaining manual emphasis |
 |---|---|---|
@@ -356,13 +359,15 @@ Do not paste successful test logs into prompts. Retain concise pass/fail summari
 - [x] Clean dependency install under accepted Node version
 - [x] Static check and production build
 - [x] All built routes present in `dist/`
-- [x] Complete browser suite; no separate pure-state unit module is currently required
+- [x] Complete browser suite, including dirty-state reset coverage for both panels in every station; no separate pure-state unit module is currently required
 - [x] Fixed and host automated accessibility scans with no unresolved findings
 - [x] Barrier scans exactly match approved ledger
 - [ ] Manual keyboard protocol on all built stations
 - [ ] Required zoom/reflow and reduced-motion protocols
 - [ ] Accepted support-matrix checks with exact environment details
+- [ ] Disabled-educator and classroom-safety review of both facilitator guides
 - [ ] Final human content/framing review
+- [x] Code and teaching-content licenses in place (MIT `LICENSE`, CC BY 4.0 `LICENSE-CONTENT`)
 - [x] WCAG title and implementation-applicability review
 - [x] No blanket conformance claim beyond evidence
 - [x] Known limitations and unresolved P2/P3 issues recorded
