@@ -82,3 +82,58 @@ for (const station of stations) {
     }
   });
 }
+
+const dynamicFixedStates = [
+  {
+    name: 'Station 02 field-specific error',
+    route: '/stations/error-message/',
+    setup: async (page) => {
+      await page.locator('#atk-02-fixed-zip').fill('12');
+      await page.locator('[data-atk-02-fixed-form]').getByRole('button', { name: 'Update payment' }).click();
+      await expect(page.locator('#atk-02-fixed-zip-error')).toBeVisible();
+    },
+  },
+  {
+    name: 'Station 04 persistent menu',
+    route: '/stations/disappearing-menu/',
+    setup: async (page) => {
+      await page.locator('[data-atk-04-fixed-trigger]').click();
+      await expect(page.locator('[data-atk-04-fixed-menu]')).toBeVisible();
+    },
+  },
+  {
+    name: 'Station 06 validation error',
+    route: '/stations/memory-tax/',
+    setup: async (page) => {
+      await page.locator('#atk-06-fixed-code').fill('111111');
+      await page.locator('[data-atk-06-fixed-form]').getByRole('button', { name: 'Confirm transfer' }).click();
+      await expect(page.locator('#atk-06-fixed-code-error')).toBeVisible();
+    },
+  },
+  {
+    name: 'Station 07 open dialog',
+    route: '/stations/keyboard-trap/',
+    setup: async (page) => {
+      await page.locator('[data-atk-07-fixed-open]').click();
+      await expect(page.locator('[data-atk-07-fixed-dialog]')).toBeVisible();
+    },
+  },
+  {
+    name: 'Station 11 expanded transcript',
+    route: '/stations/caption-gap/',
+    setup: async (page) => {
+      await page.locator('#panel-fix-11 .media-transcript summary').click();
+      await expect(page.locator('#panel-fix-11 .media-transcript')).toHaveAttribute('open', '');
+    },
+  },
+];
+
+for (const state of dynamicFixedStates) {
+  test(`@a11y ${state.name} has no automated findings`, async ({ page }) => {
+    await page.goto(state.route);
+    await page.getByRole('radio', { name: 'Try the fix' }).check();
+    await state.setup(page);
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations).toEqual([]);
+  });
+}
