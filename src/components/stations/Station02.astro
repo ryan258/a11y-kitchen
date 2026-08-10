@@ -135,6 +135,7 @@ const presenter = {
 
     fixedForm?.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (fixedComplete) fixedComplete.hidden = true;
       const value = fixedInput?.value.trim() || '';
       if (value !== '60614') {
         fixedInput?.setAttribute('aria-invalid', 'true');
@@ -156,6 +157,7 @@ const presenter = {
     fixedInput?.addEventListener('input', () => {
       fixedInput.removeAttribute('aria-invalid');
       if (fixedError) fixedError.textContent = '';
+      if (fixedComplete) fixedComplete.hidden = true;
     });
 
     fixedPanel?.querySelector('[data-atk-02-fixed-reset]')?.addEventListener('click', () => {

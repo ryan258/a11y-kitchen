@@ -51,7 +51,7 @@ const presenter = {
   description="Compare a disappearing confirmation code with a visible, selectable code."
   task={{
     goal: 'Confirm a fictional $25 transfer to Jordan Kim.',
-    use: 'Confirmation code 734219, supplied inside each panel.',
+    use: 'A confirmation code, supplied inside each panel.',
     done: 'The panel confirms the transfer. No money moves.',
   }}
   {advocate}
@@ -155,12 +155,22 @@ const presenter = {
     const fixedError = fixedPanel?.querySelector('#atk-06-fixed-code-error');
     const fixedStatus = fixedPanel?.querySelector('[data-atk-06-fixed-status]');
     const getFixedCode = () => (fixedProvidedCode?.textContent || '').trim();
+    const clearFixedValidation = () => {
+      fixedInput?.removeAttribute('aria-invalid');
+      if (fixedError) fixedError.textContent = '';
+    };
+    const clearFixedStatus = () => {
+      if (fixedStatus) fixedStatus.textContent = '';
+    };
     fixedPanel?.querySelector('[data-atk-06-use-code]')?.addEventListener('click', () => {
       if (fixedInput) fixedInput.value = getFixedCode();
+      clearFixedValidation();
+      clearFixedStatus();
       fixedInput?.focus();
     });
     fixedForm?.addEventListener('submit', (event) => {
       event.preventDefault();
+      clearFixedStatus();
       const fixedCode = getFixedCode();
       if (!fixedCode || fixedInput?.value.trim() !== fixedCode) {
         fixedInput?.setAttribute('aria-invalid', 'true');
@@ -171,19 +181,17 @@ const presenter = {
         }
         return;
       }
-      fixedInput.removeAttribute('aria-invalid');
-      if (fixedError) fixedError.textContent = '';
+      clearFixedValidation();
       if (fixedStatus) fixedStatus.textContent = 'Transfer confirmed. No money moved.';
     });
     fixedInput?.addEventListener('input', () => {
-      fixedInput.removeAttribute('aria-invalid');
-      if (fixedError) fixedError.textContent = '';
+      clearFixedValidation();
+      clearFixedStatus();
     });
     fixedPanel?.querySelector('[data-atk-06-fixed-reset]')?.addEventListener('click', () => {
       fixedForm?.reset();
-      fixedInput?.removeAttribute('aria-invalid');
-      if (fixedError) fixedError.textContent = '';
-      if (fixedStatus) fixedStatus.textContent = '';
+      clearFixedValidation();
+      clearFixedStatus();
       fixedPanel.querySelector('.panel-heading')?.focus();
     });
   })();
