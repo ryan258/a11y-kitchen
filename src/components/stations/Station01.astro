@@ -206,8 +206,15 @@ const presenter = {
       }
     };
 
-    const expire = () => {
+    const stopTicker = () => {
+      if (ticker === null) return;
       window.clearInterval(ticker);
+      ticker = null;
+    };
+
+    const expire = () => {
+      stopTicker();
+      paused = false;
       if (barrierMember) barrierMember.value = '';
       if (barrierReason) barrierReason.value = '';
       if (barrierStatus) barrierStatus.textContent = 'Session terminated. Please re-initiate.';
@@ -215,11 +222,10 @@ const presenter = {
     };
 
     const startTimer = () => {
-      if (started || timeLeft <= 0) return;
+      if (ticker !== null || timeLeft <= 0 || submits >= 2) return;
       started = true;
       paused = false;
       ticker = window.setInterval(() => {
-        if (paused) return;
         timeLeft -= 1;
         showTime(timeLeft);
         if (timeLeft <= 0) expire();
@@ -245,13 +251,14 @@ const presenter = {
         if (barrierStatus) barrierStatus.textContent = 'Invalid input.';
         return;
       }
-      window.clearInterval(ticker);
+      stopTicker();
+      paused = false;
       if (barrierStatus) barrierStatus.textContent = 'Membership canceled.';
       if (timerDisplay) timerDisplay.textContent = 'Timer stopped.';
     });
 
     barrierPanel?.querySelector('[data-atk-barrier-reset]')?.addEventListener('click', () => {
-      window.clearInterval(ticker);
+      stopTicker();
       started = false;
       paused = false;
       submits = 0;
@@ -266,15 +273,16 @@ const presenter = {
     // The view switch owns panel visibility and announces it; no observer needed.
     barrierPanel?.addEventListener('atk:panel-visibility', (event) => {
       if (!event.detail.visible) {
-        if (started && timeLeft > 0 && submits < 2) {
+        if (started && ticker !== null && timeLeft > 0 && submits < 2) {
           paused = true;
+          stopTicker();
           if (timerDisplay) timerDisplay.textContent = 'Paused while hidden.';
         }
         return;
       }
       if (paused) {
-        paused = false;
         showTime(timeLeft);
+        startTimer();
       }
     });
 

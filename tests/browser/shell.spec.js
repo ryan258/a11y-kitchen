@@ -22,6 +22,8 @@ for (const route of routes) {
       await expect(page.getByRole('heading', { level: 1 })).toContainText('About A11y Test Kitchen');
     }
 
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href', /^data:image\/svg\+xml,/);
+
     const duplicates = await page.evaluate(() => {
       const ids = [...document.querySelectorAll('[id]')].map((element) => element.id);
       return [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
@@ -30,13 +32,15 @@ for (const route of routes) {
   });
 
   test(`shell: ${route} reflows without page-level horizontal overflow`, async ({ page }) => {
-    await page.setViewportSize({ width: 640, height: 900 });
-    await page.goto(route);
-    const sizes = await page.evaluate(() => ({
-      viewport: document.documentElement.clientWidth,
-      page: document.documentElement.scrollWidth,
-    }));
-    expect(sizes.page).toBeLessThanOrEqual(sizes.viewport);
+    for (const width of [320, 640]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(route);
+      const sizes = await page.evaluate(() => ({
+        viewport: document.documentElement.clientWidth,
+        page: document.documentElement.scrollWidth,
+      }));
+      expect(sizes.page, `${route} overflowed at ${width}px`).toBeLessThanOrEqual(sizes.viewport);
+    }
   });
 }
 

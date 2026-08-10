@@ -105,18 +105,38 @@ test('barrier: the countdown starts once and expiry clears both fields', async (
 test('barrier: hiding pauses the timer and reset clears timer, message, and attempts', async ({ page }) => {
   const timer = page.locator('[data-atk-barrier-timer]');
   const status = page.locator('[data-atk-barrier-status]');
+  await page.evaluate(() => {
+    const activeIntervals = new Set();
+    const originalSetInterval = window.setInterval.bind(window);
+    const originalClearInterval = window.clearInterval.bind(window);
+    window.setInterval = (...args) => {
+      const identifier = originalSetInterval(...args);
+      activeIntervals.add(identifier);
+      return identifier;
+    };
+    window.clearInterval = (identifier) => {
+      activeIntervals.delete(identifier);
+      originalClearInterval(identifier);
+    };
+    window.__atkTimerProbe = { activeCount: () => activeIntervals.size };
+  });
   await page.locator('[data-atk-barrier-form]')
     .evaluate((element) => { element.dataset.atkDurationSeconds = '3'; });
   await page.locator('#atk-01-barrier-member-number').focus();
+  expect(await page.evaluate(() => window.__atkTimerProbe.activeCount())).toBe(1);
   await page.waitForTimeout(500);
   await page.getByRole('radio', { name: 'Try the fix' }).check();
   await expect(timer).toContainText('Paused while hidden.');
+  expect(await page.evaluate(() => window.__atkTimerProbe.activeCount())).toBe(0);
   const pausedText = await timer.textContent();
   await page.waitForTimeout(1100);
   expect(await timer.textContent()).toBe(pausedText);
+  expect(await page.evaluate(() => window.__atkTimerProbe.activeCount())).toBe(0);
 
   await page.getByRole('radio', { name: 'Compare side by side' }).check();
+  expect(await page.evaluate(() => window.__atkTimerProbe.activeCount())).toBe(1);
   await page.locator('[data-atk-barrier-reset]').click();
+  expect(await page.evaluate(() => window.__atkTimerProbe.activeCount())).toBe(0);
   await expect(timer).toHaveText('Time left: 3 seconds.');
   await expect(status).toHaveText('');
 

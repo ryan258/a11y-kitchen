@@ -115,6 +115,7 @@ const presenter = {
     });
 
     const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
+    const fixedMenuDemo = fixedPanel?.querySelector('.menu-demo');
     const trigger = fixedPanel?.querySelector('[data-atk-04-fixed-trigger]');
     const menu = fixedPanel?.querySelector('[data-atk-04-fixed-menu]');
     const fixedStatus = fixedPanel?.querySelector('[data-atk-04-fixed-status]');
@@ -129,8 +130,9 @@ const presenter = {
       setOpen(open);
       if (open) menu?.querySelector('button')?.focus();
     });
-    menu?.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
+    fixedMenuDemo?.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && trigger?.getAttribute('aria-expanded') === 'true') {
+        event.preventDefault();
         setOpen(false);
         trigger?.focus();
       }

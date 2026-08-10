@@ -139,6 +139,16 @@ test('station 04: backup works and fixed menu supports Escape with focus return'
   await page.keyboard.press('Escape');
   await expect(page.locator('[data-atk-04-fixed-menu]')).toBeHidden();
   await expect(trigger).toBeFocused();
+
+  await trigger.click();
+  await expect(fixedMenu).toBeVisible();
+  await page.keyboard.press('Shift+Tab');
+  await expect(trigger).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(fixedMenu).toBeHidden();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await expect(trigger).toBeFocused();
+
   await trigger.click();
   await page.locator('[data-atk-04-fixed-settings]').click();
   await expect(page.locator('[data-atk-04-fixed-status]')).toHaveText('Settings opened.');
