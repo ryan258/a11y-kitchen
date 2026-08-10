@@ -1,6 +1,10 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import {
+  findExternalCssSubresources,
+  findExternalHtmlSubresources,
+} from './lib/external-subresources.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceModule = pathToFileURL(path.join(root, 'src', 'data', 'stations.js')).href;
@@ -28,7 +32,31 @@ for (const [label, relativePath] of expectedRoutes) {
   // Duplicate IDs, skip-link order, and the main-content target are asserted in
   // tests/browser/shell.spec.js against a real DOM on every one of these routes,
   // which is strictly stronger than matching regexes over the markup.
-  if (/<script\b[^>]*\bsrc=/i.test(html)) fail(`${label} contains an external client script.`);
+  if (/<script\b[^>]*\bsrc=/i.test(html)) {
+    fail(`${label} contains a client script source; client behavior must remain inline.`);
+  }
+  const externalResources = findExternalHtmlSubresources(html);
+  if (externalResources.length > 0) {
+    const { context, url } = externalResources[0];
+    fail(`${label} contains an external subresource at ${context}: ${url}`);
+  }
+}
+
+const builtAssetRoot = path.join(root, 'dist', '_astro');
+const builtAssetEntries = await readdir(builtAssetRoot, { withFileTypes: true }).catch(() => null);
+if (builtAssetEntries === null) fail('Missing built asset directory at dist/_astro.');
+const builtCssFiles = builtAssetEntries
+  .filter((entry) => entry.isFile() && entry.name.endsWith('.css'))
+  .map((entry) => entry.name);
+if (builtCssFiles.length === 0) fail('No built CSS was found in dist/_astro.');
+
+for (const filename of builtCssFiles) {
+  const css = await readFile(path.join(builtAssetRoot, filename), 'utf8');
+  const externalResources = findExternalCssSubresources(css);
+  if (externalResources.length > 0) {
+    const { context, url } = externalResources[0];
+    fail(`dist/_astro/${filename} contains an external subresource at ${context}: ${url}`);
+  }
 }
 
 const homeHtml = builtPages.get('home');

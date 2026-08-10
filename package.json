@@ -11,14 +11,15 @@
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
-    "test": "npm run test:browser",
+    "test": "npm run test:unit && npm run test:browser",
+    "test:unit": "node --test tests/unit/*.test.mjs",
     "test:browser": "npm run build --silent && playwright test",
     "test:functional": "npm run build --silent && playwright test --grep-invert @a11y",
     "test:a11y": "npm run build --silent && playwright test --grep @a11y",
     "verify:content": "node scripts/verify-content.mjs",
     "verify:build": "node scripts/verify-build.mjs",
     "media:station-11": "bash scripts/generate-station-11-media.sh",
-    "gate": "npm run check --silent && npm run verify:content --silent && npm run test:browser --silent && npm run verify:build --silent"
+    "gate": "npm run check --silent && npm run verify:content --silent && npm run test:unit --silent && npm run test:browser --silent && npm run verify:build --silent"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",

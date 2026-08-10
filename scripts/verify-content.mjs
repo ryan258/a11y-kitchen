@@ -145,6 +145,28 @@ if (!captions.startsWith('WEBVTT') || !captions.includes('Finally, press Done.')
   fail('Station 11 captions are missing or incomplete.');
 }
 
+const fontRoot = path.join(sourceRoot, 'assets', 'fonts');
+for (const filename of [
+  'outfit-latin.woff2',
+  'space-mono-regular-latin.woff2',
+  'space-mono-bold-latin.woff2',
+]) {
+  const font = await readFile(path.join(fontRoot, filename)).catch(() => null);
+  if (!font || font.byteLength < 10_000 || font.subarray(0, 4).toString('ascii') !== 'wOF2') {
+    fail(`Self-hosted font ${filename} is missing or is not a valid WOFF2 asset.`);
+  }
+}
+
+for (const [filename, copyright] of [
+  ['outfit-OFL.txt', 'Copyright 2021 The Outfit Project Authors'],
+  ['space-mono-OFL.txt', 'Copyright 2016 The Space Mono Project Authors'],
+]) {
+  const license = await readFile(path.join(fontRoot, filename), 'utf8').catch(() => '');
+  if (!license.includes(copyright) || !license.includes('SIL OPEN FONT LICENSE Version 1.1')) {
+    fail(`Self-hosted font license ${filename} is missing or incomplete.`);
+  }
+}
+
 const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
 for (const forbidden of ['react', 'vue', 'svelte', 'tailwindcss']) {
