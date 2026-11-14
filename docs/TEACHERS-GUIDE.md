@@ -2,7 +2,7 @@
 
 Status: Companion document; no authority over requirements
 Owner: Ryan
-Last updated: 2026-08-09
+Last updated: 2026-11-12
 Audience: Anyone running this site with a class, workshop, team session, or client demo
 Review boundary: Final disabled-educator and classroom-safety review remains required before facilitated use
 
@@ -120,8 +120,7 @@ npx playwright install chromium
 ### Ten minutes before class
 
 1. `npm run dev`, open the printed URL, and load the home rail.
-2. Open **one** station and switch all three audience modes. If they switch, the global script is
-   fine everywhere.
+2. Open the stations you plan to show and switch the audience mode and panel views on each.
 3. Zoom the browser to 200% and confirm your projector still shows the panels legibly. Most rooms
    need 150–200% regardless of accessibility; back-row students cannot read 16px.
 4. Decide your mode. If you plan to speak from the run sheets, set **Presenter** now — the setting
@@ -131,21 +130,23 @@ npx playwright install chromium
 
 ### Teaching without a laptop per student
 
-The site is entirely static and local. Three workable arrangements:
+The site is static. On an existing deployment, use **Teaching guide** on the home page. Three workable
+arrangements:
 
 - **Projector only.** You drive, the class calls out what they notice. Best for 10–20 minutes.
-- **Pairs.** One drives, one narrates aloud what changed. Narration is the learning; enforce it.
-- **Built output.** `npm run build` produces `dist/`, a plain static folder. Any static host or
-  simple file server will serve it on a classroom network. There is no backend, no database, no API
-  key, and no automatic third-party request while loading or using a demonstration. The fonts and
-  media ship with the built site, so it works on a locked-down or offline network when served
-  locally. Outbound reference links still require a network connection when someone opens them.
+- **Pairs.** Offer driver and observer roles. Let people choose their roles, change them by
+  agreement, and describe what changed in speech, notes, or sketches.
+- **Built output.** `npm run build` produces `dist/`. Serve its contents at the root of an HTTP(S)
+  site on the classroom network. The pages use root-relative paths. Installing dependencies
+  requires registry access or a populated cache. The built fonts and media travel with the site,
+  so station activities can run on a local network with no public internet connection. Optional
+  reference links visit external sites when a visitor follows them.
 
 ### Privacy note you can state honestly
 
-No accounts, no analytics, no cookies, no tracking, no telemetry, no AI calls. Every form is
-fictional and submits nothing. The only stored value is the audience-mode preference. You can say
-this to a class or a client without hedging.
+The exhibit has no accounts, analytics, cookies, tracking, telemetry, or AI calls. Use the fictional
+values shown in the demos. The form exercises stay in the page and the only preference stored is
+the selected audience mode. Check what the classroom host logs about requests to the site.
 
 ---
 
@@ -209,10 +210,11 @@ That is the actual rule from WCAG 1.4.1, and Station 10 teaches it directly.
 
 ### Two safety facts to state up front
 
-1. **The barrier panels are broken on purpose, and only in one specific way each.** Every barrier
-   carries a visually hidden note saying so, which screen reader users hear.
-2. **You can always leave.** Escape always works. Browser Back always works. Every panel has a Reset
-   that restores its starting state and stops any timer. No barrier on this site can trap you.
+1. **The barrier panels are broken on purpose.** Each panel has an approved teaching pattern and
+   exposes that disclosure to assistive technology.
+2. **You can stop or observe.** Each panel has a Reset that returns it to its starting state and
+   stops pending timers. The demos leave browser Back available. Name the exit for the station:
+   for example, Escape from inside the Station 07 promo, or **Reset Barrier** to close and reset it.
 
 Say #2 explicitly before Station 01. It converts the timer from a stressor into an observable.
 
@@ -310,9 +312,9 @@ Every task is fictional and local. Nothing is submitted, saved, or sent.
 **Task:** Cancel the membership. **Data:** member number `482731`, reason "Moving away".
 **Success:** "Membership canceled."
 
-**Run it like this:** Focus a field and stop. Point at the countdown. Type slowly — narrate, ask a
-question, let the class talk. Let it hit zero. Everything the "user" typed disappears and the panel
-says *Session terminated. Please re-initiate.*
+**Run it like this:** Focus a field and start typing. Select **Hide countdown** to remove the changing
+readout while the time limit continues. Show the countdown again and let it hit zero. The form clears
+the sample entries and shows *Session terminated. Please re-initiate.*
 
 Then reset, complete the form, and submit. The first submit clears both fields and says exactly
 `Invalid input.` The second submit succeeds.
@@ -320,9 +322,9 @@ Then reset, complete the form, and submit. The first submit clears both fields a
 **Stop talking here:** right after the timeout wipes the fields. Pause, then name what the interface
 erased. Do not solicit, score, or interpret a participant's distress as lesson evidence.
 
-**Criteria:** 2.2.1 Timing Adjustable (A), 3.3.1 Error Identification (A), 3.3.2 Labels or
-Instructions (A), 3.3.3 Error Suggestion (AA), 3.3.4 Error Prevention — Legal, Financial, Data (AA,
-*conditional*), 3.3.7 Redundant Entry (A).
+**Criteria:** 2.2.1 Timing Adjustable (A), 2.2.2 Pause, Stop, Hide (A), 3.3.1 Error Identification (A),
+3.3.2 Labels or Instructions (A), 3.3.3 Error Suggestion (AA), 3.3.4 Error Prevention (Legal, Financial,
+Data) (AA, conditional), 3.3.7 Redundant Entry (A).
 
 **The insight most classes miss:** there are three separate failures here, and students will name
 only the timer. The timer is the loud one. The quiet ones do more damage:
@@ -331,17 +333,19 @@ only the timer. The timer is the loud one. The quiet ones do more damage:
   person starts typing, which is exactly when they need it. Placeholders also fail for anyone using
   translation, magnification, or high-contrast modes, and screen reader support for them is
   inconsistent. This is one of the most common real-world form defects on the web.
-- The error **destroys the work**. WCAG 3.3.7 Redundant Entry exists because re-entering
-  information you already gave in the same process is a real, measurable cost — heaviest on anyone
-  using a switch device, voice input, an on-screen keyboard, or a language they are still learning.
+- The error **destroys the work**. When a process needs information it already asked for or supplied,
+  3.3.7 requires it to be filled in or available to select, with exceptions for essential re-entry,
+  re-entry required for security, or information that is no longer valid. Retaining a valid entry
+  avoids extra work for people who use a switch, voice input, or an on-screen keyboard.
 
-Then note what the *fix* adds that nobody asks for: a **review step** before the destructive action.
-That is 3.3.4, and it protects the business as much as the customer.
+The Fixed panel lets visitors review, correct, and confirm before the fictional cancellation. That
+models one way to meet 3.3.4 in a real flow involving a legal commitment, financial transaction,
+change to user-controllable stored data, or submission of test responses.
 
-**A detail worth pointing out to technical students:** in the fixed panel, the error message uses
-`role="alert"` and focus is deliberately **not** moved to it. A live region that also receives focus
-gets announced twice by many screen readers. "Move focus to the error" is standard advice, and here
-it is standard advice that is wrong. Real accessibility work is full of these.
+**A detail worth pointing out to technical students:** the Fixed panel updates an existing
+`role="alert"` region while focus stays where the visitor put it. Moving focus to an alert can
+duplicate announcements in some setups. Check first and repeated errors with the browser and
+assistive technology you are demonstrating.
 
 **Discussion prompt:** "Who wrote this timer, and what were they trying to achieve?" Nobody sets a
 30-second limit to hurt people. Someone was told to reduce cancellations, or inherited a session
@@ -388,26 +392,24 @@ not the same activity — a theme that recurs all the way through.
 ### Station 03 — The reading wall
 `/stations/reading-wall/` · Readability and comprehension
 
-**Task:** Start a return for unopened order `ATK-302`, delivered 12 days ago; the return window is
-30 days. **Success:** the online return starts.
+**Task:** Start a return for order `ATK-302`, delivered 12 days ago, unopened and unused in its
+original packaging. The visitor must start the online return within 30 days of recorded delivery.
+**Success:** the online return starts.
 
 **Run it like this:** show the barrier and ask the class to locate the return action, with observation
 always available instead of participation. Ask what made the action difficult to find. Then show the
-fix: the action first, in three short steps, with the full policy still available in a `<details>`
-disclosure. Compare the interfaces, not anyone's reading speed.
+fix, which puts the action first and keeps the policy details available in a `<details>` disclosure.
+Ask what made the action easier to find.
 
 **Criteria:** 3.1.5 Reading Level (AAA).
 
-**The insight most classes miss:** *the fix did not delete the policy.* The complete legal text is
-still there, one click away. Plain language is not dumbing down and it is not removing information;
-it is putting the thing the person came for **first**, and the thing the lawyers need **second**.
-Students almost always assume simplification means loss. Show them the disclosure to kill that idea.
+**Compare meaning as well as length.** Check the deadline, item conditions, and exceptions in both
+versions. Plain language puts the action first and keeps the rules available in words people can use.
 
-**Extra knowledge:** 3.1.5 is a **AAA** criterion, which most organisations never formally target.
-Use it to teach what the levels actually mean (§9). Then make the practical point: reading
-difficulty hits *everyone* under load — tired, stressed, on a phone, in a second language, or
-distracted. Adults read several grade levels below their education level when stressed. The people
-who most need to understand a return policy are, by definition, having a bad day.
+**Extra knowledge:** 3.1.5 is a **AAA** criterion. It addresses alternatives or supplemental
+content for text above lower-secondary reading level. The exhibit's sixth-grade prose target is
+an editorial choice. Ask which version a person could use more readily in a hurry, on a phone,
+or in a language they're still learning.
 
 **Discussion prompt:** "Who benefits from the version nobody can read?" Sometimes the answer is
 nobody and it is just inherited. Sometimes the answer is the company. Both are worth saying out loud.
@@ -424,14 +426,14 @@ gap*. When the menu vanishes, name exactly what the interface did. Demonstrate i
 reach it with Tab: the product trigger is not keyboard operable at all. Do not repeat the failure for
 laughs; move promptly to the persistent disclosure control.
 
-**Criteria:** 1.4.13 Content on Hover or Focus (AA), 2.1.1 Keyboard (A).
+**Criteria:** 1.4.13 Content on Hover or Focus (AA), 2.1.1 Keyboard (A, illustrative).
 
-**The insight most classes miss:** the class will say "just make the gap smaller." Wrong fix. 1.4.13
-requires hover/focus content to be **hoverable** (you can move the pointer onto it), **dismissible**
-(without moving the pointer), and **persistent** (it stays until dismissed). A smaller gap patches
-one symptom for people with steady hands and fixes nothing for anyone using magnification — where
-the menu and the target may not even be on screen at the same time — or a head pointer, trackball,
-or shaky hand.
+Try moving the pointer from the trigger onto Settings. The gap prevents the new content from being
+**hoverable**. Under 1.4.13, authored hover or focus content also stays present until the trigger is
+removed, the visitor dismisses it, or the information is no longer valid. It must be dismissible
+without moving pointer or focus unless it reports an input error or covers or replaces no other
+content. The exhibit's safe backup lets keyboard users reach Settings, so the trigger illustrates
+the keyboard problem while the function stays available. [W3C guidance on hover or focus content](https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html)
 
 The real fix converts hover into a *state you control*: a `button` with `aria-expanded` and
 `aria-controls`, focus moved to the first item, Escape to close with focus returned to the trigger.
@@ -448,30 +450,25 @@ Accessibility requirements and mobile requirements converge constantly.
 ### Station 05 — The interruption
 `/stations/interruption/` · Focus and context control
 
-**Task:** Book an appointment for Sam Lee on August 19, 2026 at 10:30 AM.
+**Task:** Use the fictional scenario printed on the page to book an appointment for Sam Lee.
 
-**Run it like this:** start typing the name. A "helpful" availability update fires, appears, and
-**takes your focus**. Keep typing after it appears — your keystrokes are going somewhere else now.
-That is the demo. Escape or the visible close button returns focus to where you were.
+**Run it like this:** start typing the sample name. The availability update appears and moves
+focus to **Return to form**. Show where the focus indicator lands and that typing no longer adds
+letters to the field. Activate the button, or press Escape with focus in the interruption, to
+return to the form.
 
-**Stop talking here:** the instant focus jumps. Ask: "Where did my typing just go?"
+**Pause when focus jumps.** Ask what happened to the field the teacher was editing.
 
-**Criteria:** 2.2.2 Pause, Stop, Hide (A), 2.4.3 Focus Order (A), 3.2.5 Change on Request (AAA).
+**Criteria:** 2.4.3 Focus Order (A), 3.2.2 On Input (A), 3.2.5 Change on Request (AAA),
+4.1.3 Status Messages (AA).
 
-**The insight most classes miss:** the barrier does *not* erase any data. That is deliberate — the
-station isolates a single variable so the only thing to notice is the focus movement. Point this out
-explicitly; it teaches experimental design as well as accessibility. Every station on this site is
-built as a controlled comparison: same task, same data, same success condition, **one** difference.
+The field retains the entry, so the group can isolate the focus jump. In a real product, a context
+change that follows typing needs advance notice under 3.2.2. In Fixed, entering the same values
+leaves focus in the form. The visitor chooses **Check availability** when ready.
 
-Then the important part: for a sighted mouse user this interruption is a mild annoyance. For a
-screen reader user, focus is *the entire interface* — moving it without asking is like someone
-picking up your phone mid-sentence and scrolling it. For someone using voice control, their next
-command lands on the wrong element. Same code, radically different consequence.
-
-The fix does not remove the feature. It converts automatic into **on request** — a `Check
-availability` button — and announces the result in a polite live region **without moving focus**.
-Polite means "when the user is idle," not "immediately"; assertive interrupts, and interrupting is
-what the barrier already did.
+Watch the result appear with focus still on the button. The Fixed result uses a polite live region
+so assistive technology can announce it without moving focus. Ask a screen reader user to verify the
+result with the tool they use. The announcement timing depends on the browser and assistive technology.
 
 **Discussion prompt:** "Name an interruption in a product you use that you would keep, and one you
 would convert to on-request." Chat widgets, cookie banners, and 'new content available' toasts
@@ -504,15 +501,13 @@ Then the systemic point: this is not one of twelve equal barriers. Cognitive acc
 enormously common, badly served by tooling, invisible to automated scanners, and rarely taught. This
 site puts cognitive stations first on purpose (01, 02, 03, 06), and you should tell your class that.
 
-**Extra knowledge:** 3.3.7 was **added in WCAG 2.2** (published October 2023). WCAG is not frozen —
-2.2 also added Target Size Minimum (2.5.8, Station 12), Focus Not Obscured, Dragging Movements, and
-Accessible Authentication. Several of the newest criteria are cognitive, which reflects how badly
-under-served that area was.
+**Extra knowledge:** WCAG 2.2 added 3.3.7. It applies when the same process asks again for information
+it already collected or supplied. Fixed keeps the sample code available and lets the visitor choose
+**Use this code**. Essential re-entry, security, and information that is no longer valid are
+exceptions. [W3C guidance on Redundant Entry](https://www.w3.org/WAI/WCAG22/Understanding/redundant-entry.html)
 
-**Discussion prompt:** "Where does a *real* one-time code have to disappear for security, and what
-would you do instead?" Correct answers include: keep it visible in the same view, autofill from SMS,
-paste support (never block paste on a code field — that is an accessibility failure people defend
-as a security feature), and generous time limits.
+**Discussion prompt:** "If a real security process needs a code, how can we make entry easier?"
+Consider paste support, platform autofill, and keeping the code available where the process permits it.
 
 ---
 
@@ -523,16 +518,16 @@ as a security feature), and generous time limits.
 closes and focus returns to `Open promo`.
 
 **Run it like this:** open the promo with the keyboard, then press Tab repeatedly. Focus cycles
-between two promo controls and never leaves. There is no visible close control. Press Escape —
-you're out, and focus returns where it started.
+between two promo controls. The promo has no visible close control. Press Escape while focus is
+inside it to close it and return focus to **Open promo**.
 
 **Criteria:** 2.1.2 No Keyboard Trap (A) — recorded as *conditional* in this repo, for the reason
 below.
 
 **Read this before you teach it — the honest disclosure:** this barrier is a deliberately **safe
-approximation**, accepted as DEC-009. It is not a literal keyboard trap. Escape always releases it,
-browser Back is untouched, and Reset closes it. Tell your class that. Then explain why, because the
-reason is a better lesson than the demo:
+approximation**, accepted as DEC-009. Escape works from inside the promo, browser Back is
+available, and **Reset Barrier** or switching views closes it. Tell your class which exits they can
+use, then explain the safety choice:
 
 > A real keyboard trap has no exit. Shipping one on a public teaching site would mean that a keyboard
 > user visiting to *learn about* accessibility would be unable to leave the page. The project's rule
@@ -584,10 +579,11 @@ WCAG 2.2 Focus Appearance verification: [2.4.13 Focus Appearance](https://www.w3
 is Level AAA and evaluates both indicator area and contrast between the same pixels in focused and
 unfocused states.
 
-**Extra knowledge:** WCAG 2.2 added **2.4.11 Focus Not Obscured (Minimum)** — a focus indicator that
-exists but is hidden behind a sticky header or cookie banner is still a failure. Sticky headers plus
-keyboard navigation is one of the most common defects on modern sites and one of the least noticed
-by their builders.
+**Extra knowledge:** WCAG 2.2 added **2.4.11 Focus Not Obscured (Minimum)** (AA). When a control
+receives keyboard focus, author-created content such as a sticky header must leave at least part of
+the control visible. Check indicator visibility separately under **2.4.7 Focus Visible** and
+authored indicator contrast against adjacent colors under **1.4.11 Non-text Contrast**.
+[W3C guidance on Focus Not Obscured](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html)
 
 **Discussion prompt:** "Where does your product's focus ring disappear?" Sticky headers, custom
 dropdowns, dark-on-dark buttons, and anything with `overflow: hidden` are the usual suspects.
@@ -602,9 +598,9 @@ dropdowns, dark-on-dark buttons, and anything with `overflow: hidden` are the us
 **Run it like this:** the barrier's delete button is a trash glyph and nothing else — no accessible
 name at all. The fixed version looks **identical** and exposes `Delete Notes.txt`.
 
-**Say this out loud:** "These two buttons are visually identical. One is usable by everyone; one is
-an unlabelled mystery to anyone who can't see the glyph. Nothing you can see distinguishes them."
-That sentence is the single best argument for the accessibility tree that a class will hear all day.
+**Say this out loud:** "These two buttons look the same. The Fixed button exposes the name
+Delete Notes.txt. The Barrier button exposes an empty name." If you demonstrate with a screen
+reader, report what your setup actually announces.
 
 **Criteria:** 1.1.1 Non-text Content (A), 4.1.2 Name, Role, Value (A).
 
@@ -620,14 +616,10 @@ Then show them the browser DevTools accessibility pane on this very station. See
 accessible name" next to a perfectly visible trash icon converts more sceptics than any slide.
 
 **The punchline — use it:** open `tests/fixtures/intentional-failures.js`. It records **thirteen
-deliberate barriers across twelve stations. Exactly one** carries a `toolRule` — this station's
-`button-name`. Every other barrier on the site is asserted structurally or checked by a human,
-because automated tooling cannot detect them.
-
-That is a measured fact from this repository, not a statistic from a blog post: **a full automated
-scan of this site would find one of thirteen deliberately planted, genuine accessibility barriers.**
-Anyone who tells your students that a green axe report means an accessible product has just been
-answered.
+deliberate barrier entries across twelve stations. Exactly one** carries a `toolRule`, this station's
+`button-name`. The other entries name a structural assertion or a manual check. This is evidence
+about the project's configured axe scans and the states they cover. Ask what additional evidence
+would show that a whole task is usable.
 
 **Discussion prompt:** "Why is `aria-label` on a `<div>` the wrong fix?" Because you also need role
 and keyboard operability, and by the time you've added `role="button"`, `tabindex="0"`, Enter *and*
@@ -685,10 +677,13 @@ serve the same need.
 
 - **Captions** are synchronised. They serve someone watching the video who needs the audio in text,
   and they must include meaningful non-speech sound.
-- **A transcript** is the complete content as text, independent of the timeline. It serves someone
-  who cannot use video at all, someone who wants to skim, someone with a slow connection — and
-  search engines, which is the argument that unlocks budget in rooms where the accessibility
-  argument didn't.
+- **A transcript** can convey the meaningful audio, visuals, and sequence in text. This clip's
+  narration already describes the important visual information. In another clip, a transcript of
+  speech alone could miss an important action or on-screen label. The synchronized media criterion
+  1.2.3 allows a complete media alternative or audio description. [W3C guidance on media alternatives](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-or-media-alternative-prerecorded.html)
+
+Ask someone to answer the final-instruction question from the captions with audio muted, then try
+again from the transcript alone. Record whether both provide the same answer.
 
 **Extra knowledge, and be blunt about it:** auto-generated captions are a starting point, never a
 deliverable. They mangle names, technical terms, and homophones; they usually omit punctuation and
@@ -710,23 +705,17 @@ and stop producing new untranscribed video today.
 
 **Task:** Choose option B. **Success:** "Selected option B."
 
-**Run it like this:** the barrier's targets are 20×20 CSS pixels with 2-pixel gaps. The fix is
-44×44 with 8-pixel gaps. If you have a touchscreen or can hand a phone around, do it — this is the
-one station where the physical demonstration beats the projector every time.
+**Run it like this:** use the Barrier view on its own to inspect 20×20 CSS px targets with 2 px gaps.
+Then switch to Fixed to inspect 44×44 CSS px targets with 8 px gaps. Offer a phone or touchscreen to
+anyone who wants to try the same task both ways.
 
 **Criteria:** 2.5.8 Target Size (Minimum) (AA).
 
-**The insight most classes miss:** **spacing matters as much as size.** Two-pixel gaps mean that
-even a hit within the target risks the neighbour, and the consequence of a mis-tap on a real
-interface is often destructive and unlabelled — delete instead of edit, buy instead of save. That
-is why 2.5.8 has a spacing exception at all.
-
-**Get the numbers right, because students will quote you:** WCAG 2.2's 2.5.8 minimum is **24×24 CSS
-pixels** (with documented exceptions including spacing, inline targets, and user-agent defaults).
-The **44×44** used in this station's fix is a *product choice above the minimum*, aligned with
-platform human-interface guidance — not a claim that WCAG requires 44. The station brief states this
-distinction explicitly, and it is exactly the kind of precision that separates someone who has read
-the standard from someone who has read a tweet about it.
+Both size and spacing matter. The Barrier targets' centers are 22 CSS px apart because each target
+is 20 px wide and the gap is 2 px. The 24 px spacing circles overlap, so the spacing exception does
+not apply to that row. WCAG 2.5.8 uses a 24×24 CSS px minimum subject to exceptions. The Fixed design
+chooses 44×44 CSS px. Compare shows an equivalent larger control for each option, which is relevant
+to the criterion's Equivalent exception. [W3C guidance on Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)
 
 **Extra knowledge — permanent, temporary, situational.** This is the best station to introduce it.
 A small target is hard for someone with a tremor or limited fine motor control (**permanent**), for
@@ -767,12 +756,12 @@ head. It will feel far too long to you and about right to them.
 Before Stations 01, 05, and 07 — the ones with time pressure, unexpected focus movement, or a
 constrained overlay — say some version of:
 
-> "The next demo has a countdown that will delete work on purpose. You can watch instead of doing
-> it, and you can leave the panel at any time with Reset or Escape."
+> "This demo can interrupt your task. You can watch, direct me, or try it. Here's how to stop it."
 
-State it before, not after. The Presenter run sheet for Station 01 includes an explicit reminder to
-reset before time pressure harms a participant, which tells you the project already expects you to
-do this.
+Name the actual behavior and exit before starting. In Station 01, **Reset Barrier** clears the
+attempt and stops the timer. In Station 05, **Return to form** or Escape from the interruption
+returns to the form. In Station 07, Escape works from inside the promo, and **Reset Barrier**
+closes and resets the example.
 
 ### Never make frustration the entertainment
 
@@ -932,7 +921,7 @@ about tests and shortcuts that conceal defects.
 npm run check             # Astro and TypeScript checks
 npm run verify:content    # collection invariants and source/content boundaries
 npm run build             # static output in dist/
-npm run verify:build      # expected routes, station panels, modes, media, no external client scripts
+npm run verify:build      # route, panel, media, notice, and declared subresource checks
 npm run test:functional   # rendered behavior, focus, reset, geometry
 npm run test:a11y         # axe, exact barrier ledger, representative dynamic fixed states
 npm run gate              # the complete deterministic local gate
@@ -987,36 +976,31 @@ several are already anchored to a station above.
 
 ### What A, AA, and AAA actually mean
 
-They are **not** severity ratings, and this misconception is nearly universal.
+The levels describe cumulative conformance. Level A covers the applicable Level A criteria. Level AA
+adds AA, and Level AAA adds AAA. WCAG advises against making AAA the general policy for entire sites
+because some content cannot satisfy every AAA criterion. A defect's impact depends on what it prevents
+people from doing. A law, policy, or contract may name its own version, level, and scope.
+[WCAG 2.2 conformance requirements](https://www.w3.org/TR/WCAG22/#conformance-reqs)
 
-- **Level A** — the floor. Failing these usually blocks people entirely.
-- **Level AA** — the practical target. This is what almost every law, policy, and contract references
-  (EN 301 549, Section 508, the European Accessibility Act, most procurement language).
-- **Level AAA** — enhanced. **WCAG itself states that AAA conformance is not recommended as a
-  general policy for entire sites**, because it is not achievable for all content. It is applied
-  selectively.
-
-So when Station 03 (3.1.5 Reading Level, AAA) and Station 05 (3.2.5 Change on Request, AAA) appear
-here, that is not the project overreaching — it is a teaching site choosing to demonstrate valuable
-criteria beyond the compliance floor. Say that explicitly; a student who understands *why* AAA
-criteria appear here understands the level system properly.
+Station 03 shows how a readable alternative makes a return policy usable. Station 05 shows how
+waiting for a request preserves someone's place in a task. Both are useful patterns from Level AAA.
 
 ### "Confirmed" versus "conditional" applicability
 
 Look at `src/data/stations.js`: every criterion record carries `applicability: 'confirmed'` or
-`'conditional'`. Several are conditional — 1.2.3, 2.1.2, 2.4.7, 3.3.4.
+`'conditional'`. The notes identify the relevant exception, applicability limit, or safe approximation.
 
 This encodes a professional habit worth transplanting: **verifying that a criterion's title is
 correct and verifying that the criterion actually applies to this situation are two separate acts of
 review.** Quoting a real criterion that does not apply to the case in front of you is one of the
-fastest ways to lose a technical argument, and it is extremely common. The repo goes further and
-records `titleVerifiedOn: '2026-08-08'` — a date, because standards get revised and confidence has a
-shelf life.
+fastest ways to lose a technical argument, and it is extremely common. The repo records
+`titleVerifiedOn` for the title check. The [release evidence](evidence/README.md) records observed
+behavior separately.
 
 ### The limits of automated testing — with evidence
 
-Use the Station 09 punchline (§5): **thirteen deliberate barriers, one detected by an automated
-rule.** Then generalise carefully. Automated tools reliably catch a narrow class of machine-checkable
+Use the Station 09 example (§5): **thirteen ledger entries, one with an expected configured axe
+finding.** Automated tools reliably catch a narrow class of machine-checkable
 defects — missing alt attributes, missing accessible names, colour contrast on plain text, some ARIA
 misuse, duplicate IDs, form fields with no label. They cannot judge:
 
@@ -1099,11 +1083,11 @@ WCAG 2.1 AA compliant" on the basis of one scanner run. The professional habit b
 
 | Problem | What to do |
 |---|---|
-| The Station 01 timer expires before you finish explaining | Say "and that's the point," then Reset. It is a better demo than the one you planned. |
+| The Station 01 timer expires before you finish explaining | Point to the termination message and explain what cleared. Use **Reset Barrier** to start over. |
 | A student's panel is in a weird state | Reset that panel. It restores the documented start without touching the other panel, the view, or the mode. |
-| Someone gets genuinely stuck in the Station 07 overlay | Escape. Always works, by design. Say so, and use it as the lesson. |
-| The audience-mode switch appears not to work | Reload once. If it still fails, the browser is blocking storage — the site falls back to Builder and stays functional, which is worth pointing out rather than apologising for. |
-| The Station 11 video won't play | Check the projector's audio route. The MP4 is local, so it isn't a network problem. Fall back to the fixed panel's transcript — which is, conveniently, precisely the lesson. |
+| The Station 07 overlay is still open | Press Escape while focus is inside it, use **Reset Barrier**, or switch to **Try the fix**. |
+| The audience preference resets on navigation | If browser storage is blocked, choose the mode again on the current page. If the page shows a message about JavaScript, use the written lesson or check that scripts can run. |
+| The Station 11 video won't play | Check the projector's audio route and that the host serves the complete build. Use the Fixed transcript to continue. |
 | A student calls it a simulator | Correct it immediately and briefly, every time. Letting it slide once means it is in their notes. |
 | Someone asks a WCAG question you can't answer | "I'll check the actual text rather than guess." Then open `https://www.w3.org/TR/WCAG22/` and read it with them. Modelling that beats knowing the answer. |
 | The room derails into "compliance vs. real accessibility" | Let it run three minutes; it's a good argument. Land it with: compliance is the floor, people are the point, and this site demonstrates barriers that pass automated compliance checks. |
@@ -1129,8 +1113,9 @@ Terms your class will hear from you and then encounter in the wild.
   means it follows a logical sequence; **focus trap** means you can't get out.
 - **Forced colors** — an OS-level mode (notably Windows High Contrast) that overrides page colours.
   Colour-only meaning vanishes in it.
-- **Live region** — a region announced when its content changes. `polite` waits for a pause;
-  `assertive`/`role="alert"` interrupts. Overuse is its own defect.
+- **Live region** — a region whose changes can be announced by assistive technology. `polite` asks
+  for an announcement at a suitable opportunity. Reserve `assertive` and `role="alert"` for urgent
+  updates, and verify what the tools in use actually announce.
 - **Reflow** — content adapting to narrow viewports or high zoom without two-dimensional scrolling.
 - **Skip link** — the first thing in tab order, letting keyboard users jump past repeated
   navigation. Every page here has one.
@@ -1138,7 +1123,7 @@ Terms your class will hear from you and then encounter in the wild.
   (Minimum)). Always cite number *and* exact title.
 - **Target size** — the clickable/tappable area of a control. Bigger than the icon inside it, if
   you've done it right.
-- **WCAG** — Web Content Accessibility Guidelines. Version 2.2 is current; this project cites
+- **WCAG** — Web Content Accessibility Guidelines. This project uses version 2.2 and cites
   `https://www.w3.org/TR/WCAG22/` throughout.
 
 ---
@@ -1153,13 +1138,13 @@ Print this page or keep it on a second screen.
 |---|---|---|---|---|
 | 01 | `cancellation-form` | Cancel the membership | Member `482731`, reason "Moving away" | "Membership canceled." |
 | 02 | `error-message` | Update the rejected payment | Billing ZIP `60614` | "Payment details updated." |
-| 03 | `reading-wall` | Start a return | Order `ATK-302`, delivered 12 days ago, 30-day window | Online return starts |
+| 03 | `reading-wall` | Start a return | Order `ATK-302`, delivered 12 days ago, unopened and unused in original packaging | Online return starts within 30 days of delivery |
 | 04 | `disappearing-menu` | Reach Settings | — | "Settings opened." |
-| 05 | `interruption` | Book an appointment | Sam Lee, Aug 19 2026, 10:30 AM | Appointment confirmed |
+| 05 | `interruption` | Book a fictional appointment | Sample scenario shown on the page | Appointment confirmed |
 | 06 | `memory-tax` | Confirm a $25 transfer | Code `734219`, to Jordan Kim | Transfer confirmed |
 | 07 | `keyboard-trap` | Open and close the promo | — | Overlay closes, focus returns |
 | 08 | `invisible-focus` | Buy the Balcony ticket | Replay starts on Standard; Balcony is next | Balcony ticket confirmed |
-| 09 | `unlabelled-icon` | Delete `Notes.txt` | — | Item gone, name announced |
+| 09 | `unlabelled-icon` | Delete `Notes.txt` | — | Item removed; Fixed button exposes `Delete Notes.txt` |
 | 10 | `color-only-status` | Find the failed order | `ATK-510`, `ATK-511`, `ATK-512` | **`ATK-511`** |
 | 11 | `caption-gap` | Find the final instruction | — | "The final step is Press Done." |
 | 12 | `target-too-small` | Choose option B | Options A, B, C | "Selected option B." |
@@ -1168,11 +1153,11 @@ Print this page or keep it on a second screen.
 
 | # | Criteria |
 |---|---|
-| 01 | 2.2.1 A · 3.3.1 A · 3.3.2 A · 3.3.3 AA · 3.3.4 AA* · 3.3.7 A |
+| 01 | 2.2.1 A · 2.2.2 A · 3.3.1 A · 3.3.2 A · 3.3.3 AA · 3.3.4 AA* · 3.3.7 A |
 | 02 | 3.3.1 A · 3.3.3 AA |
 | 03 | 3.1.5 AAA |
-| 04 | 1.4.13 AA · 2.1.1 A |
-| 05 | 2.2.2 A · 2.4.3 A · 3.2.5 AAA |
+| 04 | 1.4.13 AA · 2.1.1 A* |
+| 05 | 2.4.3 A · 3.2.2 A · 3.2.5 AAA · 4.1.3 AA |
 | 06 | 3.3.7 A |
 | 07 | 2.1.2 A* |
 | 08 | 2.4.7 AA* |
@@ -1186,9 +1171,9 @@ Print this page or keep it on a second screen.
 ### Five sentences to have ready
 
 1. "This judges the interface, never the person — it is not a simulator."
-2. "You can always leave: Escape, Back, and Reset all work, always."
+2. "You can watch or try it. I'll point out how to exit this station before we start."
 3. "Same task, same data, one difference. That's the whole design."
-4. "Of thirteen deliberate barriers here, an automated scanner finds one."
+4. "The project's axe ledger expects one finding. The other lessons have structural or manual checks."
 5. "The fix isn't more code. It's usually less."
 
 ### Pre-flight checklist

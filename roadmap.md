@@ -1,8 +1,8 @@
 # A11y Test Kitchen Roadmap
 
-Last updated: 2026-08-09
-Roadmap status: Deterministic v1 candidate complete; manual release audit and publication pending
-Implementation status: Foundation, all station routes, role content, media, dependency hardening, and deterministic coverage complete
+Last updated: 2026-11-12
+Roadmap status: V1 candidate implemented, with current release checks tracked in the evidence index
+Implementation status: Foundation, all station routes, teacher entry, role content, and local media implemented
 
 > The project specification defines intent and acceptance criteria. Once implementation begins, working code is the source of truth. If the code and specification diverge, stop, reconcile the difference, and update the affected planning documents before continuing.
 
@@ -10,13 +10,13 @@ Implementation status: Foundation, all station routes, role content, media, depe
 
 ```text
 PROJECT: A11y Test Kitchen
-STATUS: Deterministic v1 candidate implemented
-GATE CHECK: Reveal PASS | Build PASS | Deliver PASS for the local static candidate
+STATUS: V1 candidate implemented
+GATE RECORD: docs/evidence/README.md
 BIBLE: Accepted as the collection baseline
 VOICE PROFILES: Implemented in every station
 CRAFT RULES: Enforced in source and deterministic content checks
 SKILL FILE: Remains a separate owner-approved task outside the public site
-RELEASE LIMIT: Manual support-matrix evidence and owner publication approval remain pending
+RELEASE LIMIT: Manual support matrix, caption and educator review, and owner approval remain pending
 ```
 
 ### Premise
@@ -91,8 +91,10 @@ These rules apply to every milestone and are release blockers, not later polish.
   system fallback stacks and no third-party runtime request.
 - No build-time data fetching, CMS, database, authentication, analytics, or public-site AI.
 - Accepted DEC-003 makes `src/` canonical, with any future preview generated from the built site rather than maintained as a second source of truth.
-- Demo forms are local interactions. They submit no real data and make no network request.
-- The global mode preference uses the exact `localStorage` key `atk-mode`, defaults to `builder`, and fails safely when storage is unavailable.
+- Demo answers stay in the page even if scripts are unavailable. A readable Advocate summary
+  remains available while interactive controls are hidden.
+- The interactive mode uses the exact `localStorage` key `atk-mode`, defaults to `builder`, and
+  fails safely when storage is unavailable.
 - The state tokens remain `--barrier: #8A3E5B` with a diamond and `--fix: #22557E` with a circle. Do not substitute a red/green pair.
 
 ## Station page contract
@@ -111,19 +113,19 @@ Every station uses these seven sections in this order:
 
 ## Station sequence and criteria queue
 
-The criterion numbers below came from the supplied project specification. Their exact numbers, titles,
-levels, and applicability notes are now recorded in `src/data/stations.js` after verification against WCAG 2.2.
+The current criterion numbers, titles, levels, and applicability notes are recorded in
+`src/data/stations.js` after verification against WCAG 2.2.
 
 | # | Station | Visitor task | Named barrier | Criteria to verify |
 |---|---|---|---|---|
-| 01 | The cancellation form | Cancel a membership | Session timer, placeholder labels, destructive errors | 2.2.1, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.7 |
+| 01 | The cancellation form | Cancel a membership | Session timer, placeholder labels, destructive errors | 2.2.1, 2.2.2 (countdown control), 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.7 |
 | 02 | The error message | Fix a rejected payment | Vague error with no recovery path | 3.3.1, 3.3.3 |
-| 03 | The reading wall | Follow return instructions | Grade-16 legalese for a grade-6 task | 3.1.5 |
+| 03 | The reading wall | Follow return instructions | Dense policy language compared with equivalent plain-language instructions | 3.1.5 |
 | 04 | The disappearing menu | Reach a settings page | Hover-only menu that vanishes | 1.4.13, 2.1.1 |
-| 05 | The interruption | Book an appointment | Auto-refresh and focus-stealing modals | 2.2.2, 2.4.3, 3.2.5 |
+| 05 | The interruption | Book an appointment | Field entry schedules a focus-stealing interruption | 2.4.3, 3.2.2, 3.2.5, 4.1.3 (Fixed status) |
 | 06 | The memory tax | Transfer money | A confirmation code shown only once | 3.3.7 |
-| 07 | The keyboard trap | Close a promo overlay | Focus cannot leave the overlay | 2.1.2 |
-| 08 | The invisible focus | Buy a ticket without a mouse | Removed focus outline | 2.4.7 |
+| 07 | The keyboard trap | Close a promo overlay | A focus cycle with a permanent Escape path inside the overlay | 2.1.2 |
+| 08 | The invisible focus | Buy a ticket without a mouse | A replay omits the product focus marker while live controls keep their focus rings | 2.4.7 |
 | 09 | The unlabelled icon | Delete one item | Icon-only controls with no accessible name | 4.1.2, 1.1.1 |
 | 10 | The color-only status | Find the failed order | Status shown by a colored dot alone | 1.4.1 |
 | 11 | The caption gap | Get instructions from a video | No captions or transcript | 1.2.2, 1.2.3 |
@@ -136,13 +138,13 @@ The project will ship in vertical slices. Milestone 2 proves the complete statio
 | Milestone | Outcome | Status |
 |---|---|---|
 | 0. Alignment and source reconciliation | Canonical source, premise, specification, and safety decisions agree | Accepted; the optional operating-skill task remains separate |
-| 1. Accessible site foundation | Static Astro shell, design system, mode behavior, rail, and About page | Implemented; manual support-matrix checks pending |
+| 1. Accessible site foundation | Static Astro shell, design system, mode behavior, rail, About, and teacher entry | Implemented; manual support-matrix checks pending |
 | 2. Station 01 reference slice | One complete station and reusable station components | Implemented; manual support-matrix checks pending |
 | 3. Cognitive-accessibility MVP | Stations 01-03 complete and publicly reviewable | Implemented with deterministic coverage |
 | 4. Interaction and interruption set | Stations 04-06 complete | Implemented with deterministic coverage |
 | 5. Keyboard and semantics set | Stations 07-09 complete after safety decisions | Implemented with narrow, documented exceptions |
 | 6. Visual, media, and pointer set | Stations 10-12 complete | Implemented with original, locally generated media |
-| 7. Whole-site hardening and release | Cross-page audit, documentation, and static release candidate | Deterministic hardening complete; manual matrix and publication pending |
+| 7. Whole-site hardening and release | Cross-page audit, documentation, and static release candidate | Current checks tracked in the [release evidence index](docs/evidence/README.md) |
 
 No calendar estimates are assigned until the full Station 01 review, including manual evidence, establishes a measured production cycle.
 
@@ -160,7 +162,7 @@ Create one trustworthy starting point and resolve contradictions before implemen
 - [x] **M0.4 — Complete the production bible.** Record the editorial/visual setting, three tone words, format rules, “what it is not,” whether the project connects to a larger body of work or stands alone, and the production window for one station. Do not invent the missing connection or time budget.
 - [x] **M0.5 — Record repository ownership.** Ryan decides whether and when to initialize Git and remains responsible for all commits.
 - [x] **M0.6 — Resolve intentional-barrier policy.** Define how expected accessibility failures are scoped, documented, audited, and prevented from leaking outside each barrier panel.
-- [x] **M0.7 — Resolve the Station 07 and Station 08 conflicts.** DEC-009 uses a bounded focus-cycle demonstration with permanent Escape and reset exits. DEC-010 uses a noninteractive replay for the missing-focus failure, so the host never removes focus from a live control. The specification records both amendments.
+- [x] **M0.7 — Resolve the Station 07 and Station 08 conflicts.** DEC-009 uses a bounded focus-cycle demonstration with Escape in the promo and reset and view-change exits. DEC-010 uses a noninteractive replay for the missing-focus failure so focus remains visible on live controls. The specification records both amendments.
 - [x] **M0.8 — Define the support matrix.** Record the desktop and mobile browsers, keyboard paths, zoom setup, reduced-motion setup, and real assistive-technology smoke tests used for release.
 - [ ] **M0.9 — Create the project operating skill.** After the premise, audience voices, craft rules, production bible, and barrier-safety policy are approved, create `/Users/ryanjohnson/.skills/a11y-test-kitchen/SKILL.md` in a separate owner-approved task. It should turn the approved bible into repeatable station-authoring instructions and must not add AI to the public site.
 
@@ -191,7 +193,7 @@ Produce an accessible static shell that can host every station without adding a 
 - [x] **M1.7 — Build `StateChip.astro` and `StationTicket.astro`.** Encode the color + word + shape contract and the built/not-built rail states.
 - [x] **M1.8 — Build the home page rail.** Render all twelve stations from the data source; unbuilt stations use dashed, non-misleading “Not built yet” tickets.
 - [x] **M1.9 — Build the About page.** Explain the project, the non-simulator framing, the three audience modes, and the limits of the demonstrations in public language.
-- [ ] **M1.10 — Audit the shell.** Verify keyboard order, skip-link behavior, landmarks, focus visibility, 200% zoom, narrow layouts, reduced motion, storage failure, and state indicators before station code is added.
+- [ ] **M1.10 — Complete the manual shell audit.** Verify keyboard order, skip-link behavior, landmarks, focus visibility, 200% zoom, narrow layouts, reduced motion, storage failure, and state indicators against the current artifact.
 
 ### Exit gate
 
@@ -214,7 +216,7 @@ If the original Station 01 is restored, extract reusable components from its wor
 - [x] **M2.1 — Write the Station 01 implementation brief.** Finalize the seven page sections, starting state, reset behavior, barrier sequence, fixed sequence, all three audience panels, and verified WCAG criterion titles.
 - [x] **M2.2 — Build `ViewSwitch.astro`.** Implement the accepted native-radio display modes, checked state, native keyboard behavior, single-instance panels, and the 60rem side-by-side breakpoint.
 - [x] **M2.3 — Build `ChangedPanels.astro`.** Accept Advocate, Builder, and Presenter content without duplicating IDs or exposing inactive content to assistive technology.
-- [x] **M2.4 — Implement the Station 01 barrier.** On the first focus of any barrier field, start a 30-second countdown. At zero, clear every field and show “Session terminated. Please re-initiate.” On the first submit, clear every field and show only “Invalid input.” Accept the second submit. Include the reset control, hidden “broken on purpose” note, and a permanent keyboard escape path.
+- [x] **M2.4 — Implement the Station 01 barrier.** On first field focus, start a 30-second countdown. At zero, clear the fields, show “Session terminated. Please re-initiate.” and require Reset Barrier to restart. The first submit clears the fields and shows only “Invalid input.” Accept a complete retry within the session. Keep the reset and host escape paths available.
 - [x] **M2.5 — Implement the Station 01 fix.** Add the three-step flow and move focus to each new step heading. Require a member number of exactly six digits; an error names the field, states what is wrong, preserves the value, and uses `role="alert"` without taking focus. Back navigation retains prior answers, step 3 reviews every answer, no time limit applies, and reset restores the full starting state.
 - [x] **M2.6 — Write the three explanation panels.** Advocate uses human impact and no code; Builder uses verified criteria, code moves, a focused snippet, and tests; Presenter uses a timed run sheet and three memorable lines.
 - [x] **M2.7 — Add Station 01 functional coverage.** Cover the timer start and expiry, first and second submits, validation and alerts, back navigation, retained state, review, both resets, all views, and all audience modes.
@@ -277,7 +279,7 @@ Add Stations 07-09 only after the intentional-barrier policy resolves the tensio
 
 ### Tasks
 
-- [x] **M5.1 — Approve the safe Station 07 pattern.** DEC-009 documents a bounded cycle that always retains Escape, reset, and view-change exits.
+- [x] **M5.1 — Approve the safe Station 07 pattern.** DEC-009 documents Escape from inside the promo, the persistent host reset, and cleanup on view change.
 - [x] **M5.2 — Build and deterministically audit Station 07: The keyboard trap.** Keep constrained focus behavior inside the barrier panel and provide tested escape paths; the fixed overlay follows a native-dialog pattern.
 - [x] **M5.3 — Approve the safe Station 08 pattern.** DEC-010 documents a noninteractive missing-focus replay that does not place a keyboard user in an invisible-focus task.
 - [x] **M5.4 — Build and deterministically audit Station 08: The invisible focus.** Limit the deliberate failure to the approved replay; the fixed task has a consistent, high-contrast indicator throughout.
@@ -300,7 +302,7 @@ Complete the twelve-station curriculum with non-color status, captions/transcrip
 ### Tasks
 
 - [x] **M6.1 — Build and deterministically audit Station 10: The color-only status.** The fix communicates status with color, a written label, and a shape; forced-color confirmation remains in the manual release matrix.
-- [x] **M6.2 — Prepare Station 11 media.** Create a short, locally generated instructional clip, accurate synchronized captions, an equivalent transcript, and a reproducible provenance record.
+- [x] **M6.2 — Prepare Station 11 media.** Create a short, locally generated instructional clip, captions, a transcript, and a reproducible provenance record. Human timing and equivalence checks are part of the release review.
 - [x] **M6.3 — Build and deterministically audit Station 11: The caption gap.** The barrier remains controllable and bounded; the fix exposes captions and a transcript with an understandable relationship to the media.
 - [x] **M6.4 — Build and deterministically audit Station 12: The target too small.** Test exact rendered geometry at a phone-sized viewport and verify the fixed target size and spacing against the named criterion.
 - [x] **M6.5 — Run the twelve-station regression.** Recheck rail status, routes, modes, views, resets, responsive layout, media behavior, and shared semantics across the complete collection.
@@ -308,7 +310,8 @@ Complete the twelve-station curriculum with non-color status, captions/transcrip
 ### Exit gate
 
 - All twelve rail tickets lead to complete stations.
-- Media rights, captions, and transcript accuracy are documented.
+- Media rights and source artifacts are documented. The release evidence records human checks of
+  caption timing and transcript accuracy.
 - State meaning survives monochrome, zoom, and the selected high-contrast conditions.
 - Pointer targets meet the verified criterion without creating overlap or horizontal scrolling.
 
@@ -321,12 +324,12 @@ Turn the completed station set into a reproducible static release candidate.
 ### Tasks
 
 - [x] **M7.1 — Run a content and framing review.** Search all public copy for simulator language, person-blaming language, invented WCAG claims, incomplete audience panels, placeholders, and reading-level drift. A final human plain-language review remains in the manual release matrix.
-- [x] **M7.2 — Run a structural review.** Verify routes, titles, headings, landmarks, internal links, duplicate IDs, hidden-state semantics, local media, and absence of unintended client scripts or data submission.
+- [ ] **M7.2 — Complete structural verification on the current artifact.** Check routes, headings, landmarks, navigation, rendered IDs, hidden state, media, script placement, declared subresources, and the script-disabled privacy boundary.
 - [ ] **M7.3 — Run the full accessibility matrix.** Complete automated audits and the documented browser, keyboard, 200% zoom, reduced-motion, high-contrast, and assistive-technology checks.
-- [x] **M7.4 — Run the functional regression.** Exercise every task, failure path, success path, reset, mode, view, breakpoint, navigation path, and storage-failure path covered by the deterministic suite.
-- [x] **M7.5 — Verify a clean static build.** Install from the lockfile into a fresh dependency tree, run the complete quality gate, build static output, and inspect representative built pages rather than only the development server.
+- [ ] **M7.4 — Run the functional regression for the release candidate.** Exercise the station paths, resets, modes, views, breakpoints, navigation, and failure states in the current deterministic suite.
+- [ ] **M7.5 — Verify the release build from a clean dependency tree.** Install from the lockfile, run the complete gate, and record the exact artifact. Earlier results remain in the evidence history.
 - [x] **M7.6 — Finish project documentation.** Document local setup, quality commands, architecture, station authoring, intentional-barrier policy, known limitations, media provenance, evidence, and release steps in `README.md` and `docs/`.
-- [x] **M7.7 — Prepare the release handoff.** Record what changed, what remains out of scope, unresolved risks, manual-test boundaries, and the exact release artifact. Ryan handles staging, commits, hosting, and publication approval.
+- [ ] **M7.7 — Finish the release handoff.** Record unresolved risks, human review results, and the exact artifact in the evidence index. Ryan handles staging, commits, hosting, and publication approval.
 
 ### Exit gate
 
@@ -393,7 +396,7 @@ The exact script names are established in Milestone 1 and then remain stable. Th
 | Layer | Purpose | Minimum evidence |
 |---|---|---|
 | Static/build | Catch Astro, import, type, and production-output failures | Clean dependency install, Astro check, static build |
-| Unit | Exercise pure interaction state where practical | Mode fallback, timer/form state, reset behavior, validation state |
+| Unit | Exercise external-resource parsing and URL classification | Encoded and malformed URLs, valid same-origin resources, and HTML/CSS resource cases |
 | Browser functional | Verify rendered behavior rather than implementation details | Modes, views, responsive compare layout, forms, focus movement, resets, navigation |
 | Automated accessibility | Find semantic, naming, contrast, landmark, and ID defects | Shell and fixed views scan clean; barrier exceptions are exact and documented |
 | Manual keyboard | Confirm real traversal and escape behavior | Full task in both panels, visible focus, logical order, no trap |
@@ -465,7 +468,7 @@ Station-specific markup and behavior stay on the station route unless at least t
 | The twelve-station content load stalls delivery | Many partial stations exist but none are shippable | Ship audited cohorts; never mark a station built until all three audience panels are complete |
 | Copy becomes technical or person-blaming | The public framing fails | Run role-specific editorial review and simulator-language search at station and release gates |
 | Responsive comparison overflows | The site fails at zoom and smaller screens | Stack below 60rem, test long content and controls at required zoom on every station |
-| External fonts fail or delay | Content becomes unreadable or layout shifts badly | Use robust fallbacks and keep the content usable before web fonts load |
+| A local font asset fails or is omitted | Content becomes harder to read or shifts | Ship local fonts and their notices, and keep system font fallbacks |
 
 ## Explicitly out of scope
 
@@ -488,15 +491,18 @@ Only decisions that materially affect upcoming work are listed here. Source owne
 baseline, intentional-failure policy, the initial support matrix, the Station 07/08 safety patterns, and
 Station 11 media provenance are accepted in DEC-003, DEC-004, DEC-008 through DEC-011, and DEC-016.
 
-1. **Release target:** select a static host only after the manual release matrix is complete; hosting choice must not reshape the product architecture.
+1. **Release target:** DEC-012 defers the hosting decision until Ryan reviews the whole-site release
+   evidence. The host serves the build at an HTTP(S) origin root.
 
 ## Immediate next task
 
-Complete the whole-site manual release evidence in the accepted support matrix:
+Use the [current release evidence index](docs/evidence/README.md) for results and outstanding checks.
 
-1. Full keyboard walkthrough of all twelve tasks, 200% browser zoom, forced-colors check, and exact focus-contrast review.
-2. Safari with VoiceOver and Firefox desktop smoke tests for the shell and each distinct interaction pattern.
-3. iOS Safari with VoiceOver smoke tests for the shell, media, dialog, and target-size station when that environment is available.
-4. Owner review of the static release candidate, its intentional-failure ledger, and its public `built` rail status.
+1. Record the complete gate for a candidate from the lockfile and identify the built artifact.
+2. Complete the manual keyboard, 200% zoom, reflow, reduced-motion, forced-color, touch, contrast,
+   and assistive-technology matrix on that build.
+3. Record human caption timing and transcript review, disabled-educator classroom-safety review,
+   and final editorial and standards review.
+4. Bring the artifact, evidence, and documented limitations to Ryan for the release decision.
 
 After that review, Ryan chooses the static host and publication timing. The project operating skill remains a separate owner-approved task outside the public site.

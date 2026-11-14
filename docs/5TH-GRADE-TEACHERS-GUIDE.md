@@ -2,7 +2,7 @@
 
 Status: Companion document; no authority over requirements
 Owner: Ryan
-Last updated: 2026-08-09
+Last updated: 2026-11-12
 Audience: Elementary teachers (grade 5, ages 10–11) — classroom, library, tech lab, or enrichment
 Companion: [`docs/TEACHERS-GUIDE.md`](TEACHERS-GUIDE.md) is the adult/professional version
 Review boundary: Final disabled-educator and classroom-safety review remains required before classroom use
@@ -130,48 +130,49 @@ Can I see it? Can I use it? Can I understand it? Does it work with my stuff?
 
 ### Getting the site running
 
-You need a computer with Node installed and a terminal. If that sentence just lost you, ask your
-tech coordinator to run these two commands once and give you the link:
+If your school already serves the exhibit, open **Teaching guide** from the home page. For a teacher's
+own computer, ask your tech coordinator to install the Node version in `.nvmrc` and run:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-That prints a web address. Open it. That's the site.
+Open the local address printed in the terminal. Installing the dependencies needs access to the npm
+registry or a populated package cache.
 
 **For a whole class on Chromebooks or shared devices**, ask your tech person to run `npm run build`
-instead — it produces a plain folder called `dist/` that can be dropped on any school web server or
-static host. There's no login, no database, and no account of any kind.
+and serve the contents of `dist/` at the root of a school HTTP(S) site. Give students that site's
+address. The pages use root-relative paths, so open them through the server rather than from a
+subfolder or by double-clicking a file. Fonts and video ship with the site. Students need access
+to the server, and the station activities can run without a connection to the public internet.
 
 ### What you can promise your principal, your tech director, and parents
 
-All of these are true and you can state them plainly:
-
-- **No accounts, no logins, no student data collected.** Ever.
+- **The exhibit has no accounts and asks for sample information only.** Use the fictional values
+  shown on the page. Ask your tech coordinator what the school server logs about page visits.
 - **No analytics, no tracking, no cookies, no advertising.**
 - **No AI features.**
-- **Every form is fake.** The names, order numbers, and dollar amounts are invented. Nothing is
-  submitted, sent, saved, or emailed anywhere.
+- **Every form is a local exercise.** The names, order numbers, and dollar amounts are invented.
+  The exhibit handles demo answers in the page and stores only the audience preference.
 - **Nothing is purchased.** Station 06 says "$25 transfer" and Station 08 says "buy a ticket" — no
   money exists, no money moves.
-- **Works behind a school firewall.** The only outside request is a font. If your network blocks it,
-  the site just uses a backup font and works exactly the same.
+- **Assets come from the school server.** The fonts, captions, and video are bundled. Optional
+  standards links open external sites when a visitor follows them.
 
 ### Room setup
 
 - **Whole-class demo (projector):** you drive, kids call out what they notice. Best for the first
   session and for the harder stations.
-- **Pairs at one device:** the best format for most of this. One "driver," one "noticer." **Swap
-  every station** — set a timer, because they won't swap on their own.
+- **Pairs at one device:** offer driver and observer roles. Let students choose a role, swap by
+  agreement, or watch the teacher. Keep their usual input methods and assistive technology available.
 - **1:1 devices:** works, but you'll lose the talk. If you go 1:1, require a partner to compare
   notes with after each station.
 
 ### Projector check before class
 
-Zoom the browser to **150–200%** so the back row can read it. Do this even if you think it's fine.
-It's also a small live demonstration: zooming is itself an accessibility feature, and the site is
-built to work at 200% without breaking. You can point that out.
+Try **150–200%** zoom and check the actual view from the back row. Preview the lesson at that zoom
+and scroll to each control you'll need. Point out how zoom helps people read the same page.
 
 ### One setting to change before kids touch it
 
@@ -222,7 +223,7 @@ some need a framing sentence from you, and three are honestly not worth your cla
 | **04** | The disappearing menu | "Watch the menu run away from me." |
 | **03** | The reading wall | "Same rules, written two ways. Which one can you actually use?" |
 | **02** | The error message | "It's like getting a paper back that just says WRONG." |
-| **01** | The cancellation form | "This one has a timer that deletes your work. Watch." (Read §6 first.) |
+| **01** | The cancellation form | Teacher-led only. "This example uses a timer that clears my sample answers. You can watch or take a break." Read §6 first. |
 | **07** | The keyboard trap | Needs keyboard skills first. Teach Tab and Esc before you start. |
 
 ### Tier 3 — Teacher demo only, or skip.
@@ -303,7 +304,7 @@ instead. Use the site's real names when navigating so kids can find them.
 |---|---|
 | 0–5 | Add to the chart |
 | 5–15 | Teach Tab, Shift+Tab, Enter, Space, Esc. Practice on any website. |
-| 15–30 | **The No-Mouse Challenge** (§7, Activity 3) on a Tier 1 station they already know |
+| 15–30 | **Optional keyboard inspection** (§7, Activity 3) on a Tier 1 station they already know |
 | 30–40 | **Station 11 — The Silent Video**, whole class |
 | 40–45 | Discussion: who uses captions? (Almost everyone, it turns out.) |
 
@@ -337,29 +338,28 @@ Real name: *The unlabelled icon* · `/stations/unlabelled-icon/`
 **The task:** Delete a fake file called `Notes.txt`.
 
 **Your setup sentence:**
-> "I'm going to show you two buttons. They look exactly the same. One of them works for everybody.
-> One of them is a total mystery to some people. Watch if you can tell which is which."
+> "I'm going to show you two buttons that look the same. One gives a screen reader the words
+> for what the button does. Let's find out what the other button is missing."
 
 **What to do:** Show the broken version — a trash can icon, nothing else. Click it; the file
 deletes. Then show the fixed version. It looks **identical**. Ask: "What's different?"
 
 Let them guess. They can't get it, because nothing visible changed.
 
-**Then reveal it:** the fixed button has a hidden name attached — `Delete Notes.txt` — that a screen
-reader can read out loud. The broken one has no name at all. To a kid who can see, both are a trash
-can. To a kid using a screen reader, one says "delete Notes dot t-x-t" and the other says
-**"button"** and nothing else.
+**Then reveal it:** both buttons show a trash can. The Fixed button has the accessible name
+**Delete Notes.txt**. The Barrier button has an empty name. Show those two values in the
+browser's accessibility inspector, or read them aloud. If you use a screen reader to demonstrate
+the difference, describe what your setup actually says.
 
-**Stop talking here.** Right after "and the other one just says *button*." Count to five. Somebody
-will say "wait, that's it?" That's the whole lesson landing.
+**Pause here.** Ask what words would tell someone what the button does and which file it acts on.
 
-**Kid-sized explanation of a screen reader:** software that reads the screen out loud, used by
-people who are blind or have low vision. It can only read what's actually *written* into the page.
-An icon is a picture. Pictures have no words unless somebody adds them.
+**Kid-sized explanation of a screen reader:** software that can speak what's on a screen or send
+it to a braille display. A button's accessible name gives it words to share, even when the
+button shows a picture.
 
 **The powerful comparison:** it's like a classroom where every door is labeled — Library, Gym,
 Nurse — except one, which is just a blank door. If you already know the building you're fine. If you
-don't, you're stuck. The fix costs the designer about four seconds.
+don't, you need another way to tell which room it is.
 
 **Discussion question:** "Where in this school is there a door, button, or sign with no words on it?"
 They will find real ones. Take a walk if you have time.
@@ -376,19 +376,14 @@ Real name: *The target too small* · `/stations/target-too-small/`
 
 Every hand goes up. That's your hook.
 
-**What to do:** The broken version has three tiny buttons crammed together — 20 pixels wide with a
-2-pixel gap, which is about the width of a pencil line between them. The fixed version has the same
-three buttons at 44 pixels with real space between them. If you have a touchscreen device, **pass it
-around.** This is the one station where the physical experience beats the projector every time.
+**What to do:** Show the Barrier on its own, then switch to Fixed and try the same task. The Barrier
+buttons are 20 CSS pixels wide with 2 pixels between them. The Fixed buttons are 44 CSS pixels wide
+with 8 pixels between them. Offer a touchscreen to students who want to try.
 
-**The insight most classes miss — teach this one:** kids will say "make the buttons bigger." Half
-right. **The space between them matters just as much.** With a 2-pixel gap, even a good tap can hit
-the neighbor. And on real apps, the button next to the one you wanted is often *delete*, or *buy*,
-or *send*.
-
-**Kid math you can do on the board:** a fingertip is roughly 8–10 millimeters across. The broken
-buttons are about 5 millimeters. You are being asked to hit a target smaller than the thing you're
-hitting it with. Fifth graders find this genuinely outrageous, which is correct.
+**Math you can draw on the board:** From the middle of one Barrier button to the middle of the next
+is 22 pixels. Draw a 24-pixel circle centered on each button, using the same scale for both. The
+circles overlap. A slightly misplaced tap has little room before it reaches another button. Ask
+what might happen if the neighboring button were **Delete** or **Send**.
 
 **Permanent, temporary, situational — teach it here.** This is the best station for the single most
 useful idea in the whole unit:
@@ -503,7 +498,8 @@ happening live in their own lives.
 - **A transcript** = the whole thing written out as text, next to the video. For reading, skimming,
   searching, or if you can't play video at all.
 
-You need **both**. They're not substitutes.
+Use both here. Find the final instruction first with captions and the sound off, then try reading
+the transcript without playing the video. Ask whether both give you the same answer.
 
 **The honest bit about auto-captions — worth teaching:** YouTube's automatic captions are a starting
 point, not a finish line. They mangle names, they miss punctuation, they don't say who's speaking,
@@ -551,7 +547,8 @@ been told it was the website's fault.
 ### Station 03 — "The Wall of Words"
 Real name: *The reading wall* · `/stations/reading-wall/`
 
-**The task:** Start a return for order `ATK-302`, delivered 12 days ago, with a 30-day return window.
+**The task:** Start an online return for order `ATK-302` within 30 days of recorded delivery.
+The sample order arrived 12 days ago and is unopened, unused, and in its original packaging.
 
 **Your setup sentence:**
 > "Same rules, written two different ways. Which interface makes the action easier to find?"
@@ -561,8 +558,9 @@ in the middle. Ask students to identify what makes the action difficult to locat
 always available instead of participation. Then show the fixed version: three short steps, action
 first. Compare the interfaces without timing or ranking anyone's reading.
 
-**The lesson nobody expects — do not skip this one:** show them that the fixed version **still has
-all the long legal text**, tucked inside a little expandable "details" section. *Nothing was deleted.*
+**Check the meaning together.** Open the Fixed policy details and compare the deadline, item
+conditions, and exceptions with the Barrier. Put the action first and keep the rules available
+in plain language.
 
 Fifth graders assume "make it simpler" means "take stuff out" or "for people who aren't smart." It
 means **put what the person came for first**, and put the rest where it's still available. That's a
@@ -571,9 +569,8 @@ distinction most adults never learn, and it's genuinely transferable to their ow
 **Strong ELA connection.** This is your main idea / supporting details / audience-awareness lesson,
 with an authentic purpose attached.
 
-**The other honest point:** everybody reads worse when tired, rushed, stressed, or upset. The person
-reading a return policy is, by definition, having a bad day. Hard writing hits hardest exactly when
-people can least afford it.
+**Ask about context.** A return policy can be harder to use when someone is tired or in a hurry.
+Which sentence would they need first?
 
 **Discussion question:** "What's a rule at this school that's written in a confusing way?" Then do
 §7 Activity 5 and actually rewrite it.
@@ -628,16 +625,17 @@ Before you start, say:
 > "I'm about to show you something that deletes my work on purpose. You're watching me do it, not
 > doing it yourselves. Nothing real is lost."
 
-**What to do:** Click into a box. Point at the countdown. Now **type slowly and keep talking** — ask
-a question, take an answer, stall. Let it hit zero. Everything vanishes and the site says *Session
-terminated. Please re-initiate.*
+**What to do:** Click into a box. Point at the countdown and type a sample answer. Choose
+**Hide countdown** so the class can see that the changing numbers go away. Show it again and let
+it hit zero. The answers vanish and the site says *Session terminated. Please re-initiate.*
 
 **Stop talking here.** Pause briefly, then name what the interface erased. Do not treat a student's
 distress or surprise as lesson evidence.
 
 **Then unpack the three separate problems, because kids will only name the timer:**
 
-1. **The timer.** 30 seconds to do a task, no warning, no way to ask for more time.
+1. **The timer.** You can hide the changing numbers. The time limit keeps running, and there is no
+   way to ask for more time.
 2. **The disappearing labels.** The words telling you what to type are *inside* the boxes — so they
    vanish the second you start typing. Exactly when you need them. Ask what information the interface
    removed, and show it again if needed; do not turn the point into a recall test. (Connect straight
@@ -666,8 +664,9 @@ Real name: *The keyboard trap* · `/stations/keyboard-trap/`
 
 **The task:** Open a pop-up ad and close it using only the keyboard.
 
-**What to do:** Open the promo. Now press Tab over and over. Focus bounces between the same two
-things and never gets out. There's no visible close button. Then press **Escape** — you're free.
+**What to do:** Open the promo and press Tab twice. Focus returns to the first of two promo
+controls. Press **Escape while focus is in the promo** to close it. The Barrier's **Reset Barrier**
+button also closes the example and returns it to its start.
 
 **Be honest with your class, because the honesty is the better lesson:** this one is a *safe
 imitation*. A real keyboard trap has **no** way out. The people who built this site decided that
@@ -680,19 +679,21 @@ it's warning you about.**
 Ask your class whether they think that was the right call. It's a real ethics question with no
 trick answer, and ten-year-olds are surprisingly good at it.
 
-**Discussion question:** "How would you *find* a trap like this in a game or website?" The answer is
-wonderfully simple: put the mouse down and press Tab through the whole thing. That's it. That's a
-real professional technique, and they can do it today.
+**Discussion question:** "How would you check whether a keyboard user can leave a pop-up?"
+Look for a labeled close control. Follow the focus indicator and try the documented keyboard exit.
 
 ---
 
 ### Station 05 — "The Interruption" *(teacher demo, optional)*
 Real name: *The interruption* · `/stations/interruption/`
 
-**If you use it, keep it to 90 seconds.** Start typing a name; a pop-up appears and **steals where
-your typing goes.** Keep typing so the class sees the letters land in the wrong place.
+**If you use it, keep it to 90 seconds.** Start typing the sample name. When the update appears,
+point to the focus ring on **Return to form**. Ordinary letters stop appearing in the name field
+while that button has focus. Choose **Return to form** and point out where focus returns. In Fixed,
+choose **Check availability** and show how the update leaves focus where you put it.
 
-**Kid analogy:** "Someone grabs your pencil mid-sentence, writes something else, and hands it back."
+**Kid analogy:** "You're halfway through a sentence when someone takes your pencil and gives it
+back only after you stop to answer them."
 
 **Why it's Tier 3:** the underlying concept (keyboard "focus") is abstract at this age. If you
 haven't taught focus, the demo reads as just a pop-up, which they've all seen and stopped noticing.
@@ -749,9 +750,10 @@ Then: **"Is that the person's fault, or the door's fault?"**
 That's the whole unit in one question, and you haven't touched a computer yet. Come back to this
 door all week: "remember the door."
 
-### Activity 3 — The No-Mouse Challenge (15 min)
+### Activity 3 — Optional keyboard inspection (15 min)
 
-Teach these five keys first, and practice on any website:
+Show these five keys on a familiar station. Students can try them, direct the teacher, or observe.
+Keep their usual pointer, touch, voice, keyboard, or assistive-technology setup available.
 
 | Key | What it does |
 |---|---|
@@ -759,18 +761,13 @@ Teach these five keys first, and practice on any website:
 | **Shift + Tab** | Jump back |
 | **Enter** | Press the thing |
 | **Space** | Check a box, or scroll |
-| **Esc** | Get out of here |
+| **Esc** | Close an open example that offers Escape |
 
-Then: **hands completely off the mouse and trackpad** — say it, then physically enforce it, because
-they will cheat instantly. Complete one station they already know.
+Report the **first specific thing the interface did**. Examples include "the focus ring disappeared,"
+"Tab skipped the menu," and "Enter left the button unchanged." Then try the same step in Fixed.
+Students can speak, draw, point to the control, or write what they observed.
 
-**The rule that makes this an experiment instead of a struggle:** when something goes wrong, they
-report **the first specific thing** that failed — "I couldn't tell where I was," "Tab skipped the
-menu," "nothing happened when I pressed Enter." Not "it's broken." Naming the failure precisely is
-the actual skill.
-
-Debrief question: "If you had to use a computer this way every day, which websites would you stop
-using?"
+Debrief question: "What did the page do with that key, and what should the design do instead?"
 
 ### Activity 4 — Design a Button (15 min, paper and markers)
 
@@ -915,7 +912,8 @@ it was a big deal.
 ## 10. Differentiation
 
 **For students who need more support:**
-- Pair them as the **noticer**, not the driver. Noticing is the actual thinking; driving is typing.
+- Offer driver, observer, or teacher-led options. Ask what would help each student take the role
+  they want. Typing is optional for both roles.
 - Give the sentence frames (§8) on a card at the desk.
 - Pre-teach three vocabulary words rather than ten.
 - Stations 12 and 09 need almost no reading. Start there.
@@ -931,11 +929,11 @@ it was a big deal.
 - Have them audit a real app and write a letter to the company. Send it. Some companies write back.
 
 **For multilingual learners:**
-- The whole unit is unusually friendly here — the barriers are **visual and experiential** before
-  they're verbal. A kid can fully understand Station 12 with almost no English.
-- Station 03 is a direct win: they already know what it's like when the words are the obstacle.
-  Their expertise is real, and you can say so.
-- Captions on video (Station 11) help language learners enormously. Name that connection out loud.
+- Model Station 12 with pointing, a short spoken description, or a sketch of the two target sizes.
+- For Station 03, offer vocabulary or translation support and compare where the same rule appears
+  in each version.
+- In Station 11, offer both the captions and transcript so learners can review the words at their
+  own pace.
 
 ---
 
@@ -954,6 +952,9 @@ it was a big deal.
 Give them this sheet. Have them self-assess, then you assess. The gap between the two is often the
 most useful conversation of the unit.
 
+Count a spoken, drawn, written, or pointed-out observation. Assess what students identify about the
+design, whether they drove the example, directed the teacher, or watched.
+
 | I can… | Not yet | Getting there | Got it |
 |---|---|---|---|
 | …explain that somebody *made* every app and website | | | |
@@ -962,7 +963,7 @@ most useful conversation of the unit.
 | …explain a fix in my own words | | | |
 | …say why we don't wear blindfolds to learn about this | | | |
 | …use "disability" like a normal word | | | |
-| …check a design without a mouse | | | |
+| …describe what happens when someone tries one step with a keyboard | | | |
 
 That fifth row matters more than it looks. A kid who can explain *why no blindfolds* has understood
 the deepest idea in the unit.
@@ -992,10 +993,8 @@ fixes are genuinely worth doing.
   it with evidence from at least two stations.
 - **Informative:** Explain one barrier and its fix to a third grader. Audience-awareness assessment
   hiding inside a technology lesson.
-- **Narrative:** Write a story from the point of view of somebody trying to use the broken version.
-  ⚠️ **Guardrail:** the story is about *the website being frustrating*, not about *what it's like to
-  be disabled*. Say that when you assign it, or you'll get thirty simulation essays and undo the
-  whole unit.
+- **Narrative:** Tell the story of a fictional visitor trying to return an order. Describe which
+  instruction the page gives, where the task stalls, and what change would help the visitor finish.
 
 ---
 
@@ -1021,7 +1020,7 @@ Verify against your state's exact wording — states adopt and renumber. These a
 - **3-5-ETS1-2** — Generate and compare multiple solutions. (Broken vs. fixed is a built-in
   comparison; the "just add a legend" debate at Station 10 is solution comparison in the wild.)
 - **3-5-ETS1-3** — Plan and carry out fair tests, identifying failure points to improve a model. (The
-  No-Mouse Challenge is a fair test with controlled variables — say that to your science coach.)
+  optional keyboard inspection compares the same input on both versions of one interface.)
 
 **ISTE Standards for Students**
 
@@ -1096,11 +1095,11 @@ is not about other people.
 | Problem | What to do |
 |---|---|
 | Kids are laughing *at* the broken version too much | Redirect from mocking to investigating: "Okay — who exactly does this lock out? Be specific." |
-| A kid is genuinely upset by the Station 01 timer | Reset it immediately (the Reset button restores everything), remind them nothing real was lost, and let them step back to watching. Then check in privately after. |
-| Somebody's stuck in the Station 07 pop-up | **Escape.** Always works, by design. Use it as the lesson. |
+| A kid is upset by the Station 01 timer | Stop the demo or choose **Reset Barrier** to clear the attempt and stop the timer. Remind them the example used fictional data, offer a break or observation, and check in privately after. |
+| The Station 07 pop-up is still open | Press **Escape** with focus in the promo, use **Reset Barrier**, or switch to **Try the fix**. Fixed has a visible **Close promotion** button. |
 | The site is showing code instead of plain English | The mode got switched. Click **Advocate** at the top. |
 | A panel is in a weird state | Every panel has a **Reset** button. It only resets that panel. |
-| Station 11's video won't play | Check the projector's sound routing — the video is stored locally, so it's not a network problem. If you can't fix it, use the fixed panel's transcript instead, which *is* the lesson. |
+| Station 11's video won't play | Check the projector sound and that the site server serves the complete build. Use the Fixed transcript to continue the lesson. |
 | Kids say "just make it bigger" for everything | Good instinct, incomplete. Push: "Bigger helps who? Who does it still leave out?" |
 | A kid calls it a simulator | Correct it right away, briefly, every time. If you let it slide once, it goes home in their notes that way. |
 | A kid asks a question you can't answer | "I don't know — that's a real question. Let's find out." Model it. That's a better lesson than knowing. |
@@ -1120,8 +1119,8 @@ Copy, adjust, send.
 >
 > We're using a website called A11y Test Kitchen. Students try a website that's **broken on purpose**,
 > then try a well-built version of the same thing, and figure out what changed and who it matters
-> for. Everything on the site is pretend — no accounts, no student data, no purchases, nothing sent
-> anywhere.
+> for. The class will use fictional sample values. The exercises don't send answers or make
+> purchases, and students don't need an account.
 >
 > **One thing I want to be clear about:** we are **not** doing disability simulations. No blindfolds,
 > no earplugs, no pretending. Disabled advocates have asked schools to stop doing those, because they
@@ -1147,7 +1146,25 @@ Copy, adjust, send.
 
 ## 16. Quick reference card
 
-Print this page. Keep it next to the keyboard.
+Print this section or read it aloud. If you're using the local development server on port 4321,
+the links below open the stations directly. On a school server, open **Teaching guide** from the home
+page for that site's station links.
+
+### Run a 20-minute lesson
+
+1. **Set up (2 minutes).** Open [Station 09 on the local site](http://localhost:4321/stations/unlabelled-icon/)
+   and choose **Advocate**. Read aloud: “We're going to try two versions of the same task. Look for
+   one thing the design changes. You can try it, tell me what to click, or watch.”
+2. **Compare names (7 minutes).** In Station 09, delete the sample file in Barrier and Fixed. Both
+   show the same icon. Read the Fixed button's accessible name **Delete Notes.txt**, then ask which
+   words tell someone what the button does.
+3. **Compare sizes (7 minutes).** Open [Station 12 on the local site](http://localhost:4321/stations/target-too-small/).
+   Choose B in both panels. Ask how the larger, spaced targets change the task. One comparison is enough.
+4. **Exit ticket (4 minutes).** “The design changed ____. That makes it easier to ____.” Accept a
+   spoken, drawn, or written answer. Skip the timer lesson unless you want to demonstrate it yourself.
+
+Use [Station 01 on the local site](http://localhost:4321/stations/cancellation-form/) only as an optional
+teacher-led demonstration. Read the [timer safety note](#station-01--the-work-eater) first.
 
 ### Answer key — everything you need to run each station
 
@@ -1159,11 +1176,11 @@ Print this page. Keep it next to the keyboard.
 | 06 ⭐ | The Vanishing Code | memory-tax | Confirm the transfer | Code **734219** | Transfer confirmed |
 | 11 ⭐ | The Silent Video | caption-gap | Find the last instruction | — | "The final step is Press Done." |
 | 04 | The Runaway Menu | disappearing-menu | Get to Settings | — | "Settings opened." |
-| 03 | The Wall of Words | reading-wall | Start a return | Order ATK-302, 12 days ago, 30-day window | Return starts |
+| 03 | The Wall of Words | reading-wall | Start a return | Order ATK-302, delivered 12 days ago, unopened and unused in original packaging | Start the online return within 30 days of delivery |
 | 02 | The Unhelpful WRONG | error-message | Fix the payment | ZIP **60614** | "Payment details updated." |
 | 01 ⚠️ | The Work Eater | cancellation-form | Cancel a membership | Member **482731**, "Moving away" | "Membership canceled." |
-| 07 | The Room With No Door | keyboard-trap | Close the pop-up | — | Escape closes it |
-| 05 | The Interruption | interruption | Book an appointment | Sam Lee, Aug 19 2026, 10:30 AM | Confirmed |
+| 07 | The Room With No Door | keyboard-trap | Close the pop-up | — | Escape from the promo, or Reset Barrier |
+| 05 | The Interruption | interruption | Book a fictional appointment | Sample scenario shown on the page | Confirmed |
 | 08 | *(skip)* | invisible-focus | — | — | — |
 
 ⭐ = best for fifth grade · ⚠️ = teacher demo only, read the safety note
@@ -1186,9 +1203,10 @@ Print this page. Keep it next to the keyboard.
 - [ ] Station 01 planned as **your** demo, not theirs
 - [ ] Sound tested if Station 11 is in the plan
 
-### The five keys, for the No-Mouse Challenge
+### The five keys for optional keyboard inspection
 
-**Tab** = next · **Shift+Tab** = back · **Enter** = press it · **Space** = check it · **Esc** = get out
+**Tab** = next · **Shift+Tab** = back · **Enter** = activate · **Space** = check or activate ·
+**Esc** = close an open example that offers Escape
 
 ---
 

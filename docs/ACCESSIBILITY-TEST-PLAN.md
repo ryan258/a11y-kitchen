@@ -1,7 +1,7 @@
 # A11y Test Kitchen Accessibility Test Plan
 
 Status: Active for the full collection; deterministic suite implemented and manual matrix pending
-Last updated: 2026-08-09
+Last updated: 2026-11-12
 Authority: Test scope, protocols, evidence, intentional-failure policy, and defect severity
 
 ## Purpose
@@ -17,7 +17,7 @@ Automation is necessary but insufficient. Passing tools do not prove usability, 
 - Project requirements: `specs/PROJECT.md`
 - Test procedures: this document
 
-Criterion numbers, titles, levels, exceptions, and applicability are verified against the normative WCAG 2.2 recommendation. W3C Understanding and technique pages may inform implementation, but techniques are examples rather than the only valid solutions.
+Check criterion numbers, titles, levels, and exceptions against the WCAG 2.2 Recommendation. Record separately how each criterion applies to the example. The W3C Understanding and technique pages explain intent and show implementation options.
 
 ## Conformance and claim policy
 
@@ -48,7 +48,7 @@ Under accepted DEC-007, and until a formal evaluation supports a defined scope:
 
 ### In scope
 
-- Home page, About page, and all twelve station routes
+- Home, About, Teaching guide, and all twelve station routes
 - Masthead, skip link, mode control, rail, footer
 - Barrier, fixed, compare, and all audience-mode states
 - Keyboard, pointer, touch where applicable, browser zoom, reduced motion, forced colors where supported
@@ -73,13 +73,14 @@ Accepted DEC-015 establishes:
 | Source invariants | Node scripts | Metadata, content boundaries, route contracts, criteria, and media |
 | Browser | Playwright | Rendered interaction, focus, responsive layouts, storage failure |
 | Automated a11y | `@axe-core/playwright` | Common semantic, naming, contrast, and structural findings |
-| Markup/IDs | Browser assertions plus HTML validation if adopted | Duplicate IDs, relationships, document structure |
+| Markup/IDs | Built-source structure checks and rendered browser assertions | Script placement in the body, duplicate IDs, relationships, and document structure |
+| Network | Built HTML/CSS scan and browser request observation | Declared resource URLs, requests during tested interactions, and no native demo submission |
 | Editorial | Deterministic phrase searches plus human review | Framing, placeholder text, incomplete panels, reading level |
 
 Only one explanation panel and one or two station panels are in the accessibility tree at a time, so
 an axe run sees a single state. Every station is therefore scanned in the Fixed view once per audience
-mode (Advocate, Builder, Presenter), and once more in Compare view, where the run must produce nothing
-beyond that station's Barrier exception ledger. Representative dynamic scans additionally cover a
+mode (Advocate, Builder, Presenter), and once more in Compare view, where the scan checks the
+Barrier ledger's exact targets and results. Representative dynamic scans additionally cover a
 field error, persistent menu, validation error, open native dialog, and expanded transcript. This is
 targeted automated evidence, not a claim that every possible interaction state has been scanned.
 
@@ -105,7 +106,7 @@ Record exact OS, browser, browser version, viewport, zoom, input method, assisti
 
 | Cadence | Required layers |
 |---|---|
-| Every code task | Relevant source/browser checks, static check, targeted manual path |
+| Every code task | Relevant targeted checks. Record rendered or manual paths when executed |
 | Every component contract change | All consumers, keyboard interaction, semantics, duplicate IDs |
 | Every station task | Station functional cases, expected-findings check, keyboard, zoom, editorial |
 | Every station completion | Full station protocol in all views/modes and accepted support-matrix smoke test |
@@ -120,15 +121,20 @@ Record exact OS, browser, browser version, viewport, zoom, input method, assisti
 |---|---|---|---|
 | ATK-SHELL-001 | Load each built route and press Tab once | Skip link is first focus target and visibly focused | Browser + manual |
 | ATK-SHELL-002 | Activate skip link | Focus/reading position reaches the main-content target | Browser + manual |
-| ATK-SHELL-003 | Traverse every host control by keyboard | Logical order, visible focus, no unreachable or extra stop | Manual |
-| ATK-SHELL-004 | Measure authored focus indicator against adjacent colors | Required visual parts reach at least 3:1 | Automated + manual review |
-| ATK-SHELL-005 | Set 1280px viewport and 200% browser zoom | No horizontal page scroll and no lost content/function | Manual |
-| ATK-SHELL-006 | Test at 320 CSS px width or equivalent 400% zoom | Stretch gate: content reflows unless a documented two-dimensional exception applies | Manual |
+| ATK-SHELL-003 | Traverse host controls by keyboard, including at narrow sizes and around open overlays | Logical order, visible focus (2.4.7), and no focused component entirely hidden by authored content (2.4.11) | Manual |
+| ATK-SHELL-004 | Measure the authored focus indicator against adjacent colors | Required visual cues reach at least 3:1 (1.4.11) | Automated + manual review |
+| ATK-SHELL-005 | Starting at a 1280 CSS px viewport, use 200% browser zoom | Text resizes without loss of content or functionality, with captions and images of text excepted (1.4.4). The project also checks for horizontal page scroll | Manual |
+| ATK-SHELL-006 | Test at 320 CSS px width or equivalent 400% zoom from 1280 CSS px | No content or functionality is lost and no two-dimensional scrolling is needed except where essential to usage or meaning (1.4.10) | Manual |
 | ATK-SHELL-007 | Emulate `prefers-reduced-motion: reduce` | Authored transitions and animations are absent | Browser |
 | ATK-SHELL-008 | Inspect every Barrier/Fixed indicator without color | Word and shape still identify state | Manual |
 | ATK-SHELL-009 | Scan rendered HTML in every automated view/mode and representative dynamic state | No duplicate IDs or broken label/control relationships | Browser |
 | ATK-SHELL-010 | Press Escape and use browser Back from each barrier | Neither action is blocked; page remains operable | Manual |
 | ATK-SHELL-011 | Run axe on shell-only routes | No unresolved findings | Automated a11y |
+| ATK-SHELL-012 | Disable JavaScript, load station routes, and inspect demo form markup | Readable task and Advocate explanation; no exposed inert demo controls or native submission | Built-source + browser |
+| ATK-SHELL-013 | Measure authored Fixed input boundaries where they identify editable areas | At least 3:1 contrast against adjacent colors (1.4.11) | Manual |
+| ATK-SHELL-014 | Check all built HTML/CSS and observe requests during page loads and station interactions | No automatic third-party request in inspected declarations and exercised states | Static + browser |
+| ATK-SHELL-015 | Open the facilitator entry and inspect its links and prompts | Direct Station 09 and 12 links, Advocate instruction, choice to observe, and teacher-led timer guidance | Browser + editorial |
+| ATK-SHELL-016 | Apply all four text-spacing overrides together | Labels, messages, and controls stay readable and usable (1.4.12) | Manual |
 
 ### Audience mode
 
@@ -170,10 +176,11 @@ Accepted DEC-006 uses a native radio group. The behavior tests below also verify
 |---|---|---|---|
 | ATK-S01-B-001 | Focus any field for the first time | One 30-second countdown starts | Browser |
 | ATK-S01-B-002 | Move among fields after countdown starts | Countdown does not restart or multiply | Browser |
-| ATK-S01-B-003 | Allow countdown to reach zero | All fields clear and exact termination message appears | Browser |
-| ATK-S01-B-004 | Submit first complete attempt | All fields clear and only “Invalid input.” is shown | Browser |
-| ATK-S01-B-005 | Submit second complete attempt | Submission is accepted | Browser |
+| ATK-S01-B-003 | Allow countdown to reach zero and try again | All fields clear, exact termination message and reset guidance appear, and Reset Barrier is required to restart | Browser |
+| ATK-S01-B-004 | Submit first attempt | All fields clear and only “Invalid input.” is shown | Browser |
+| ATK-S01-B-005 | Submit incomplete and complete retries | An incomplete retry preserves values and shows the generic error; a complete retry before expiry is accepted | Browser |
 | ATK-S01-B-006 | Complete task using keyboard and attempt to leave at every step | Every control is reachable and the visitor can escape/reset | Manual |
+| ATK-S01-B-007 | Start the countdown, hide its readout, wait, and show it again | The readout is hidden on request (2.2.2). The time limit continues and still clears fields at expiry (2.2.1) | Browser + manual |
 
 ### Station 01 fixed
 
@@ -181,7 +188,7 @@ Accepted DEC-006 uses a native radio group. The behavior tests below also verify
 |---|---|---|---|
 | ATK-S01-F-001 | Advance each step | Focus moves to the new step heading | Browser + AT smoke |
 | ATK-S01-F-002 | Enter member number that is not exactly six digits | Named corrective error appears and value remains | Browser |
-| ATK-S01-F-003 | Trigger an error | Error uses `role="alert"`, does not take focus, and is announced exactly once | Browser + AT smoke |
+| ATK-S01-F-003 | Trigger an error twice, with a correction between attempts | Browser checks the existing `role="alert"` region, updated text, and unchanged focus. AT smoke verifies first and repeat announcements | Browser + AT smoke |
 | ATK-S01-F-004 | Enter values, advance, then Go back | Previous step and all prior answers are restored | Browser |
 | ATK-S01-F-005 | Wait and inspect timers | No time limit or automatic destructive change exists | Browser + code inspection |
 | ATK-S01-F-006 | Reach step 3 | Review shows every answer before final action | Browser |
@@ -197,17 +204,17 @@ treating shared structure as proof.
 | Station | Deterministic behavior covered | Remaining manual emphasis |
 |---|---|---|
 | 01 | Timed destructive Barrier; pause on hide; six-digit validation; step focus; review and confirm; independent resets | Error announcement with real AT |
-| 02 | Vague retry; field-specific error announced without stealing focus; value retention; completion | Error announcement with real AT |
-| 03 | Equivalent return result in both versions; independent reset | Human reading-level and comprehension edit |
-| 04 | Permanent safe backup; fixed disclosure persistence; Escape and focus return | Pointer hover/focus matrix |
-| 05 | Bounded automatic interrupt; Escape; focus return; user-requested fixed update | Announcement timing and interruption review |
-| 06 | Code disappears in Barrier; Fixed retains and can enter it; confirmation | Cognitive/redundant-entry review |
-| 07 | Bounded focus cycle; permanent Escape; focus return; fixed native dialog close | Full keyboard and AT dialog matrix |
+| 02 | Vague retry; field-specific error with preserved focus and value; completion | First and repeat error announcements with real AT |
+| 03 | Equivalent return result in both versions; reset closes the policy disclosure | Check equivalent policy facts and human comprehension |
+| 04 | Permanent safe backup; fixed disclosure persistence; Escape and focus return | Mixed pointer and keyboard handoff |
+| 05 | Entering a Barrier value can trigger the focus jump while the visitor remains on a Barrier field. In Fixed, typing keeps focus and Check availability changes only the result message | Verify the result is announced without moving focus (4.1.3) |
+| 06 | Code disappears in Barrier; Fixed retains and can enter it; confirmation | Cognitive/redundant-entry and error announcement review |
+| 07 | Bounded focus cycle, stable layout when focus moves outside the promo, cleanup on Escape, Reset, and view change, and native Fixed dialog Escape | Full keyboard and AT dialog matrix |
 | 08 | Noninteractive missing-focus replay; real Fixed radio task | Visual focus and forced-color matrix |
 | 09 | Delete/reset; focus moves to the panel heading when the row is removed; Fixed icon exposes item-specific accessible name | Real AT name announcement |
 | 10 | Same failed order identified; Fixed state includes color, word, and shape | Monochrome and forced-colors review |
 | 11 | Same local media; Fixed captions track and transcript; task completion | Human caption synchronization and transcript accuracy |
-| 12 | Rendered 20×20/2px Barrier and 44×44/8px Fixed geometry; selection | Physical touch/device matrix |
+| 12 | Standalone Barrier has 20×20 CSS px targets with 2 px gaps. Neighboring centers are 22 px apart, so the 24 px spacing circles overlap. Standalone Fixed has 44×44 targets with 8 px gaps | Physical touch/device matrix. Compare also exposes equivalent larger controls, which affects a 2.5.8 assessment |
 
 ### Content and criteria
 
@@ -245,8 +252,8 @@ expiresOnOrMilestone
 
 ### Enforcement rules
 
-1. Expose and scan every barrier view; do not permanently hide it from automation.
-2. Compare actual findings to exact ledger entries.
+1. Expose and scan every Barrier and Compare view.
+2. Compare actual rules and affected nodes to the exact Barrier ledger in both views.
 3. Fail on any unexpected rule, selector, count, impact, or message pattern.
 4. Fail if an expected finding disappears without an approved lesson change; this may indicate the demo no longer teaches what it claims.
 5. Never suppress No Keyboard Trap, Pause/Stop/Hide non-interference, global focus escape, or host-shell failures.
@@ -267,26 +274,29 @@ For every built route:
 7. Complete the fixed task, including every validation and back/recovery path.
 8. Enter compare mode and traverse both panels in DOM order.
 9. Reset each panel independently.
-10. Confirm focus remains visible, never enters hidden content, and never becomes stranded.
+10. Confirm the focus indicator remains visible, the focused component is at least partially visible when author-created content overlaps it, and focus stays out of hidden panels.
 11. Use browser Back and confirm it remains native.
 
 Record the first unexpected focus target, missing visual focus, trapped path, or control that requires a pointer. Do not summarize a failure as “keyboard issue.”
 
 ## Zoom and reflow protocol
 
-Required floor:
+**Resize Text (1.4.4)**
 
 1. Set the viewport to 1280 CSS pixels wide.
 2. Set browser zoom to 200%.
-3. Check page-level horizontal overflow.
-4. Complete both station tasks and open every mode/view.
-5. Check long errors, code snippets, controls, and compare stacking.
+3. Complete both station tasks and open every mode/view. Check for lost or clipped text and unavailable functions, including long errors, code snippets, and controls.
+4. Check page-level horizontal overflow for the project's 200% zoom requirement.
 
-Stretch gate aligned with WCAG 2.2 Reflow:
+**Reflow (1.4.10)**
 
-1. Test at a 320 CSS pixel content width or 400% zoom from 1280px.
-2. Allow two-dimensional scrolling only for a part whose meaning genuinely requires it.
-3. Keep forms, navigation, prose, and station controls one-dimensional.
+1. Test at a 320 CSS px viewport width or at 400% zoom from a starting 1280 CSS px viewport.
+2. Check that all content and functionality remain available, including stacked Compare.
+3. Record any part that requires two-dimensional layout for its usage or meaning. Forms, navigation, prose, and ordinary station controls should reflow.
+
+**Text Spacing (1.4.12)**
+
+Override line height to at least `1.5`, spacing after paragraphs to `2em`, letter spacing to `0.12em`, and word spacing to `0.16em`, all at once. Check that text remains readable and controls can still be used.
 
 ## Reduced-motion protocol
 
@@ -306,7 +316,7 @@ For every new interaction pattern and each completed station:
 2. Confirm mode-control group name, button names, and pressed state.
 3. Confirm view-control name, option state, and revealed region relationship under the accepted pattern.
 4. Complete each panel using forms/control navigation.
-5. Trigger each error and status message; confirm it is announced once with useful context.
+5. Trigger first and repeat errors and results in the Fixed flows. Verify the existing live regions in Stations 01, 02, 05, and 06 convey useful context without taking focus. Check for missed or duplicate announcements. A newly opened dialog that takes focus needs its own focus and naming checks.
 6. Confirm hidden panels and inactive audience content are not discoverable.
 7. Confirm state-chip word and meaning are available without relying on decorative shape.
 8. Confirm reset result and focus destination.
@@ -335,11 +345,14 @@ An intentional barrier finding is not assigned defect severity when it exactly m
 
 ## Evidence record
 
-Store future evidence under `docs/evidence/YYYY-MM-DD-task-id/` only when implementation begins. Each record contains:
+Use the [current release evidence index](evidence/README.md) to locate the candidate and see
+which checks are pending. Keep completed historical records under
+`docs/evidence/YYYY-MM-DD-task-id/`. Each new record contains:
 
 ```text
 Task ID
-Commit or working-tree identifier supplied by Ryan, if available
+Commit and working-tree scope
+Built artifact path or checksum and how it was produced
 Build/runtime versions
 Commands run
 Failure summary, if any
@@ -356,28 +369,29 @@ Do not paste successful test logs into prompts. Retain concise pass/fail summari
 
 ## Release evidence gate
 
-- [x] Clean dependency install under accepted Node version
-- [x] Static check and production build
-- [x] All built routes present in `dist/`
-- [x] Complete browser suite, including dirty-state reset coverage for both panels in every station; no separate pure-state unit module is currently required
-- [x] Fixed and host automated accessibility scans with no unresolved findings
-- [x] Barrier scans exactly match approved ledger
-- [ ] Manual keyboard protocol on all built stations
-- [ ] Required zoom/reflow and reduced-motion protocols
-- [ ] Accepted support-matrix checks with exact environment details
-- [ ] Disabled-educator and classroom-safety review of both facilitator guides
-- [ ] Final human content/framing review
-- [x] Code and teaching-content licenses in place (MIT `LICENSE`, CC BY 4.0 `LICENSE-CONTENT`)
-- [x] WCAG title and implementation-applicability review
-- [x] No blanket conformance claim beyond evidence
-- [x] Known limitations and unresolved P2/P3 issues recorded
-- [x] No known P0 or P1 issue open in deterministic review
+Record current results against one build in the [release evidence index](evidence/README.md).
+The gate requires:
+
+- Clean dependency install under the accepted Node version, static check, and production build.
+- All built routes, assets, and code, content, and font license notices present in `dist/`.
+- Complete browser suite, including both resets per station, readable script-disabled fallback,
+  no demo submission, runtime request checks, and the exact Barrier ledger in Barrier and Compare.
+- Manual keyboard traversal of all stations, zoom/reflow, reduced motion, forced colors, field
+  and focus contrast, and the support matrix with exact environment details.
+- Human caption timing, transcript accuracy, and media operation checks.
+- Disabled-educator classroom-safety review of both guides and the teacher quick start.
+- Final editorial, WCAG title and applicability review, and public wording bounded by evidence.
+- Recorded limitations and unresolved P2/P3 issues, with any P0 or P1 issue resolved.
 
 ## Primary references
 
 - [WCAG 2.2 normative recommendation](https://www.w3.org/TR/WCAG22/)
 - [WCAG 2.2 conformance requirements](https://www.w3.org/TR/WCAG22/#conformance-reqs)
 - [WCAG 2.2 Reflow](https://www.w3.org/TR/WCAG22/#reflow)
+- [WCAG 2.2 Resize Text](https://www.w3.org/TR/WCAG22/#resize-text)
+- [WCAG 2.2 Text Spacing](https://www.w3.org/TR/WCAG22/#text-spacing)
+- [WCAG 2.2 Focus Not Obscured (Minimum)](https://www.w3.org/TR/WCAG22/#focus-not-obscured-minimum)
+- [WCAG 2.2 Status Messages](https://www.w3.org/TR/WCAG22/#status-messages)
 - [WCAG 2.2 No Keyboard Trap](https://www.w3.org/TR/WCAG22/#no-keyboard-trap)
 - [WCAG 2.2 Pause, Stop, Hide](https://www.w3.org/TR/WCAG22/#pause-stop-hide)
 - [WAI-ARIA APG Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/)
