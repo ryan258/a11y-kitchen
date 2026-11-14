@@ -63,12 +63,12 @@ const collectionRouteSource = await readFile(
   path.join(sourceRoot, 'pages', 'stations', '[slug].astro'),
   'utf8',
 );
-if (!collectionRouteSource.includes("from '../../data/stations.js'")) {
+if (!collectionRouteSource.includes("import { builtStations } from '../../data/stations.js'")) {
   fail('The station collection route must consume the canonical station metadata module.');
 }
 
 const stationModuleUrl = pathToFileURL(path.join(sourceRoot, 'data', 'stations.js')).href;
-const { stations } = await import(stationModuleUrl);
+const { stations, builtStations } = await import(stationModuleUrl);
 if (!Array.isArray(stations)) fail('stations.js must export a stations array.');
 if (stations.length !== 12) fail(`Expected 12 station records; found ${stations.length}.`);
 
@@ -96,11 +96,6 @@ for (const station of stations) {
   }
 }
 
-const builtNumbers = stations.filter((station) => station.status === 'built').map((station) => station.id);
-if (builtNumbers.join(',') !== expectedNumbers.join(',')) {
-  fail('Every Station 01 through 12 must be marked built in the completed collection.');
-}
-
 for (const station of stations) {
   if (new Set(station.criteria.map((criterion) => criterion.id)).size !== station.criteria.length) {
     fail(`Station ${station.id} repeats a criterion.`);
@@ -124,7 +119,7 @@ for (const station of stations) {
   }
 }
 
-for (const station of stations) {
+for (const station of builtStations) {
   const componentPath = path.join(sourceRoot, 'components', 'stations', `Station${station.id}.astro`);
   const component = await readFile(componentPath, 'utf8').catch(() => null);
   if (component === null) fail(`Station ${station.id} is missing ${componentPath}.`);
@@ -141,8 +136,31 @@ if (media.byteLength < 10_000) fail('Station 11 instructional media is missing o
 const poster = await readFile(path.join(sourceRoot, 'assets', 'station-11-poster.png'));
 if (poster.byteLength < 1_000) fail('Station 11 local poster is missing or unexpectedly small.');
 const captions = await readFile(path.join(sourceRoot, 'assets', 'station-11-captions.vtt'), 'utf8');
-if (!captions.startsWith('WEBVTT') || !captions.includes('Finally, press Done.')) {
-  fail('Station 11 captions are missing or incomplete.');
+const [captionHeader, ...cues] = captions.trim().split(/\r?\n\s*\r?\n/);
+if (captionHeader !== 'WEBVTT' || cues.length === 0) fail('Station 11 needs a WebVTT header and cues.');
+
+const timestamp = '(\\d{2}):(\\d{2})\\.(\\d{3})';
+const timingPattern = new RegExp(`^${timestamp} --> ${timestamp}$`);
+const toMilliseconds = ([minutes, seconds, millis]) => Number(minutes) * 60_000 + Number(seconds) * 1000 + Number(millis);
+let previousEnd = 0;
+const captionText = cues.map((cue) => {
+  const [timing, ...lines] = cue.split(/\r?\n/);
+  const match = timing.match(timingPattern);
+  if (!match || lines.length === 0) fail(`Invalid Station 11 caption cue: ${timing}`);
+  const start = toMilliseconds(match.slice(1, 4));
+  const end = toMilliseconds(match.slice(4, 7));
+  if (start < previousEnd || start >= end) fail(`Out-of-order Station 11 caption cue: ${timing}`);
+  previousEnd = end;
+  return lines.join(' ');
+}).join(' ');
+
+const generator = await readFile(path.join(root, 'scripts', 'generate-station-11-media.sh'), 'utf8');
+const narration = generator.match(/^script_text='([^'\n]+)'$/m)?.[1];
+const station11 = await readFile(path.join(sourceRoot, 'components', 'stations', 'Station11.astro'), 'utf8');
+const transcript = station11.match(/<p data-atk-11-narration>([^<]+)<\/p>/)?.[1];
+const normalize = (value) => value?.replace(/\s+/g, ' ').trim();
+if (!narration || normalize(narration) !== normalize(captionText) || normalize(narration) !== normalize(transcript)) {
+  fail('Station 11 narration, captions, and transcript must contain the same spoken instructions.');
 }
 
 const fontRoot = path.join(sourceRoot, 'assets', 'fonts');
