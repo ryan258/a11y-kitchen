@@ -1,10 +1,14 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '10');
-if (!station) throw new Error('Station 10 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
   happened: 'Each order shows status with a colored dot and nothing else. The visitor must distinguish two colors to find the failed order.',
@@ -28,7 +32,7 @@ const builder = {
     'Forced colors: verify text and shapes remain visible when author colors are replaced.',
     'Assistive technology: confirm every order exposes its status in the row’s accessible text.',
   ],
-  boundary: 'Color may still support the distinction. This example does not define every status in a production order system.',
+  boundary: 'WCAG requires a visible cue beyond color when color alone conveys the status. This example uses both a word and a shape so the status is recognizable in more than one way.',
 };
 
 const presenter = {
@@ -63,7 +67,7 @@ const presenter = {
       <span><span class="status-dot status-dot--complete" aria-hidden="true"></span> Slate blue means complete</span>
       <span><span class="status-dot status-dot--failed" aria-hidden="true"></span> Plum means failed</span>
     </div>
-    <form class="station-form choice-form order-choice-form" data-atk-10-barrier-form>
+    <form method="dialog" class="station-form choice-form order-choice-form" data-atk-10-barrier-form>
       <fieldset>
         <legend>Select the failed order</legend>
         <label><input type="radio" name="order" value="ATK-510" /> <span>ATK-510 · $28</span><span class="status-dot status-dot--complete" aria-hidden="true"></span></label>
@@ -79,7 +83,7 @@ const presenter = {
   </StationPanel>
 
   <StationPanel slot="fixed" stationId={station.id} type="fix" heading="Order status with color, word, and shape">
-    <form class="station-form choice-form order-choice-form" data-atk-10-fixed-form>
+    <form method="dialog" class="station-form choice-form order-choice-form" data-atk-10-fixed-form>
       <fieldset>
         <legend>Select the failed order</legend>
         <label>
@@ -105,16 +109,19 @@ const presenter = {
       </div>
     </form>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="10"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
     root.querySelectorAll('[data-atk-10-barrier-form], [data-atk-10-fixed-form]').forEach((form) => {
       const panel = form.closest('[data-atk-panel]');
       const status = form.querySelector('[data-atk-10-status]');
+      const clearStatus = () => {
+        if (status) status.textContent = '';
+      };
+      form.addEventListener('change', clearStatus);
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         const selected = form.querySelector('input[type="radio"]:checked');
@@ -128,9 +135,13 @@ const presenter = {
       });
       form.querySelector('[data-atk-10-reset]')?.addEventListener('click', () => {
         form.reset();
-        if (status) status.textContent = '';
+        clearStatus();
         panel?.querySelector('.panel-heading')?.focus();
       });
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

@@ -11,7 +11,7 @@ import Station09 from '../../components/stations/Station09.astro';
 import Station10 from '../../components/stations/Station10.astro';
 import Station11 from '../../components/stations/Station11.astro';
 import Station12 from '../../components/stations/Station12.astro';
-import { stations } from '../../data/stations.js';
+import { builtStations } from '../../data/stations.js';
 
 const components = {
   '01': Station01,
@@ -29,15 +29,15 @@ const components = {
 };
 
 export function getStaticPaths() {
-  return stations.map((station) => ({
+  return builtStations.map((station) => ({
     params: { slug: station.slug },
-    props: { stationId: station.id },
+    props: { station },
   }));
 }
 
-const { stationId } = Astro.props;
-const StationComponent = components[stationId as keyof typeof components];
-if (!StationComponent) throw new Error(`No station component exists for ${stationId}.`);
+const { station } = Astro.props;
+const StationComponent = components[station.id as keyof typeof components];
+if (!StationComponent) throw new Error(`No station component exists for ${station.id}.`);
 ---
 
-<StationComponent />
+<StationComponent {station} />

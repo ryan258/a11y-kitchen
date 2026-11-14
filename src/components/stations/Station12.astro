@@ -1,10 +1,14 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '12');
-if (!station) throw new Error('Station 12 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
   happened: 'The phone-sized task packs twenty-pixel option buttons only two pixels apart. A small movement can activate the wrong choice.',
@@ -15,11 +19,11 @@ const advocate = {
 
 const builder = {
   criterionNotes: {
-    '2.5.8': 'At Level AA, pointer targets are at least 24 by 24 CSS pixels or meet a listed spacing or other exception.',
+    '2.5.8': 'At Level AA, pointer targets measure at least 24 by 24 CSS pixels or meet an exception. Here, the small targets are 20 pixels across with 2-pixel gaps. Their centers are 22 pixels apart, so the 24-pixel spacing circles overlap.',
   },
   moves: [
     'Give each compact target at least a 24-by-24 CSS-pixel area; this fix uses 44 by 44.',
-    'Leave enough space so adjacent target areas do not overlap.',
+    'For a small target, center a 24 CSS pixel diameter circle on its bounding box. Check that it clears nearby targets and circles around other undersized targets.',
     'Keep the keyboard focus indicator visible and avoid changing the visual order at narrow widths.',
   ],
   snippet: '.option-target {\n  inline-size: 2.75rem;\n  block-size: 2.75rem;\n  margin: 0.25rem;\n}',
@@ -28,7 +32,7 @@ const builder = {
     'Touch: activate each option repeatedly without zooming and watch for adjacent activations.',
     'Keyboard and zoom: verify focus, labels, and layout remain usable independently of pointer size.',
   ],
-  boundary: 'WCAG includes exceptions and a 24-pixel minimum, not a universal 44-pixel rule. This station chooses 44 pixels as a more forgiving product target.',
+  boundary: 'The Barrier illustrates the geometry of an undersized target in isolation. In a real product, check whether the same function is available through an equivalent control on the same page. The Fixed 44 by 44 size matches the threshold of the separate Level AAA Target Size (Enhanced) criterion.',
 };
 
 const presenter = {
@@ -81,23 +85,23 @@ const presenter = {
       <button class="btn btn--secondary" type="button" data-atk-12-reset>Reset Fixed</button>
     </div>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="12"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
     root.querySelectorAll('[data-atk-panel]').forEach((panel) => {
       const options = Array.from(panel.querySelectorAll('[data-atk-12-option]'));
       const status = panel.querySelector('[data-atk-12-status]');
       options.forEach((button) => button.addEventListener('click', () => {
-        options.forEach((option) => option.setAttribute('aria-pressed', String(option === button)));
+        const select = button.getAttribute('aria-pressed') !== 'true';
+        options.forEach((option) => option.setAttribute('aria-pressed', String(select && option === button)));
         const value = button.getAttribute('data-atk-12-option');
         if (status) {
-          status.textContent = value === 'B'
-            ? 'Selected option B.'
-            : `Selected option ${value}. Choose B to finish.`;
+          if (!select) status.textContent = 'No option selected. Choose B to finish.';
+          else if (value === 'B') status.textContent = 'Selected option B.';
+          else status.textContent = `Selected option ${value}. Choose B to finish.`;
         }
       }));
       panel.querySelector('[data-atk-12-reset]')?.addEventListener('click', () => {
@@ -106,5 +110,9 @@ const presenter = {
         panel.querySelector('.panel-heading')?.focus();
       });
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

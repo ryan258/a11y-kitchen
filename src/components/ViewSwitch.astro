@@ -60,14 +60,13 @@ const fixedPanelId = `panel-fix-${stationId}`;
     const initialize = () => {
       document.querySelectorAll('[data-atk-view-switch]').forEach((fieldset) => {
         if (fieldset.dataset.atkViewBound === 'true') return;
-        fieldset.dataset.atkViewBound = 'true';
-
         const station = fieldset.closest('[data-atk-station]');
+        const demo = station?.querySelector('[data-atk-demo]');
         const barrierPanel = station?.querySelector('[data-atk-panel="barrier"]');
         const fixedPanel = station?.querySelector('[data-atk-panel="fixed"]');
         const panelsLayout = station?.querySelector('.station-panels-layout');
         const radios = Array.from(fieldset.querySelectorAll('[data-atk-view-control]'));
-        if (!station || !barrierPanel || !fixedPanel || radios.length !== 3) return;
+        if (station?.dataset.atkDemoBound !== 'true' || !demo || !barrierPanel || !fixedPanel || radios.length !== 3) return;
 
         const notify = (panel, visible) => {
           panel.dispatchEvent(new CustomEvent('atk:panel-visibility', { detail: { visible } }));
@@ -103,6 +102,10 @@ const fixedPanelId = `panel-fix-${stationId}`;
         });
 
         updateView(radios.find((radio) => radio.checked)?.value || 'barrier');
+        demo.hidden = false;
+        const fallback = station.querySelector('[data-atk-static-lesson]');
+        if (fallback) fallback.hidden = true;
+        fieldset.dataset.atkViewBound = 'true';
       });
     };
 

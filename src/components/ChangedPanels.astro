@@ -14,7 +14,6 @@ const { stationId } = Astro.props;
     class="mode-panel mode-panel--advocate"
     data-atk-mode-panel="advocate"
     aria-label="Advocate explanation"
-    hidden
   >
     <div class="panel-content"><slot name="advocate" /></div>
   </section>
@@ -24,6 +23,7 @@ const { stationId } = Astro.props;
     class="mode-panel mode-panel--builder"
     data-atk-mode-panel="builder"
     aria-label="Builder explanation"
+    hidden
   >
     <div class="panel-content"><slot name="builder" /></div>
   </section>

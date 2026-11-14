@@ -1,14 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
 import StationTicket from '../components/StationTicket.astro';
-import { stations } from '../data/stations.js';
+import { builtStations, stations } from '../data/stations.js';
+
+const firstStation = builtStations[0];
 ---
 
 <Base title="Home · Interactive Teaching Exhibit">
   <section class="hero-section">
     <h1 class="hero-title">Interface Barriers, Tested & Fixed</h1>
     <p class="hero-subtitle">
-      A public, static teaching exhibit where you try a deliberately broken interface, try the production-quality fix, and read what changed in the language your role needs.
+      Try a task on a page with an access barrier. Try the same task after a fix. Then see what changed.
     </p>
 
     <div class="framing-banner" role="note">
@@ -16,16 +18,16 @@ import { stations } from '../data/stations.js';
         <strong>The One Framing Rule:</strong> This site judges <em>the interface</em>, never the person. It is not a disability simulator.
       </p>
       <div class="framing-actions">
-        <a href="/stations/cancellation-form/" class="button--primary">Try Station 01: Cancellation Form</a>
+        {firstStation && <a href={`/stations/${firstStation.slug}/`} class="button--primary">Try Station {firstStation.id} · {firstStation.title}</a>}
       </div>
     </div>
   </section>
 
   <section class="rail-section" aria-labelledby="stations-rail-heading">
     <div class="rail-header">
-      <h2 id="stations-rail-heading" class="rail-title">Station Rail</h2>
+      <h2 id="stations-rail-heading" class="rail-title" tabindex="-1">Station Rail</h2>
       <p class="rail-summary">
-        12 interactive stations covering cognitive, form, focus, keyboard, and visual accessibility patterns.
+        {builtStations.length} interactive stations covering cognitive, form, focus, keyboard, and visual accessibility patterns.
       </p>
     </div>
 

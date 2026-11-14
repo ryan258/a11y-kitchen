@@ -1,10 +1,14 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '09');
-if (!station) throw new Error('Station 09 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
   happened: 'The delete control shows a trash symbol but exposes no name to assistive technology.',
@@ -15,8 +19,8 @@ const advocate = {
 
 const builder = {
   criterionNotes: {
-    '1.1.1': 'A non-text control needs a text alternative that serves the same purpose.',
-    '4.1.2': 'User interface controls need a programmatically determinable name, role, and state or value when applicable.',
+    '1.1.1': 'An icon-only control needs a text name that describes its purpose. Here, that name is Delete Notes.txt.',
+    '4.1.2': 'Assistive technology must be able to determine the name and role, set user-settable states and values, and receive change notifications. The native button supplies the role. This lesson isolates the missing name.',
   },
   moves: [
     'Treat the icon as decorative once the button has a useful text name.',
@@ -26,7 +30,7 @@ const builder = {
   snippet: '<button type="button" aria-label="Delete Notes.txt">\n  <svg aria-hidden="true">…</svg>\n</button>',
   tests: [
     'Accessibility tree: inspect the button and confirm its computed name is Delete Notes.txt.',
-    'Voice control: activate the control by its visible or programmatic name without position-based commands.',
+    'With your supported voice control tool, try activating Delete Notes.txt by name and verify that it identifies the intended button.',
     'Automation: keep the expected barrier button-name finding exact and require the fixed view to scan clean.',
   ],
   boundary: 'An accessible name does not replace confirmation or undo for high-impact deletion. This fictional item is restored by Reset.',
@@ -63,7 +67,7 @@ const presenter = {
     <div class="file-row" data-atk-09-barrier-item>
       <span>Notes.txt</span>
       <button class="icon-button icon-button--unnamed" type="button" data-atk-09-barrier-delete>
-        <span aria-hidden="true">⌫</span>
+        <span aria-hidden="true">🗑︎</span>
       </button>
     </div>
     <p class="status-msg" data-atk-09-barrier-status aria-live="polite"></p>
@@ -76,7 +80,7 @@ const presenter = {
     <div class="file-row" data-atk-09-fixed-item>
       <span>Notes.txt</span>
       <button class="icon-button" type="button" aria-label="Delete Notes.txt" data-atk-09-fixed-delete>
-        <span aria-hidden="true">⌫</span>
+        <span aria-hidden="true">🗑︎</span>
       </button>
     </div>
     <p class="status-msg" data-atk-09-fixed-status aria-live="polite"></p>
@@ -84,13 +88,12 @@ const presenter = {
       <button class="btn btn--secondary" type="button" data-atk-09-fixed-reset>Reset Fixed</button>
     </div>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="09"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
 
     const bindDelete = (panel, itemSelector, deleteSelector, statusSelector, resetSelector) => {
       const item = panel?.querySelector(itemSelector);
@@ -98,9 +101,8 @@ const presenter = {
       panel?.querySelector(deleteSelector)?.addEventListener('click', () => {
         if (item) item.hidden = true;
         // The delete button lives inside the row we just hid, so focus would be
-        // lost to the body. Move it to the panel heading and let the polite
-        // status announce separately; focusing the status itself would make
-        // assistive technology read the same sentence twice.
+        // lost to the body. Move it to the panel heading and update the
+        // separate polite status without focusing it.
         if (status) status.textContent = 'Notes.txt deleted. No file was changed.';
         panel.querySelector('.panel-heading')?.focus();
       });
@@ -113,5 +115,9 @@ const presenter = {
 
     bindDelete(root.querySelector('[data-atk-panel="barrier"]'), '[data-atk-09-barrier-item]', '[data-atk-09-barrier-delete]', '[data-atk-09-barrier-status]', '[data-atk-09-barrier-reset]');
     bindDelete(root.querySelector('[data-atk-panel="fixed"]'), '[data-atk-09-fixed-item]', '[data-atk-09-fixed-delete]', '[data-atk-09-fixed-status]', '[data-atk-09-fixed-reset]');
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

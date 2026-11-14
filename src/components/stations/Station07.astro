@@ -1,13 +1,17 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '07');
-if (!station) throw new Error('Station 07 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
-  happened: 'The promo overlay cycles keyboard focus between promotional links and offers no visible close control. This safe lesson preserves Escape, even though a harmful production trap might not.',
+  happened: 'The promo overlay cycles keyboard focus between two promotional controls and offers no visible close button. Escape closes the demonstration while focus is in the overlay.',
   matters: 'When people cannot leave an overlay, every task behind it becomes unavailable. Confusing release instructions also make the site feel unsafe and out of control.',
   hardest: 'Keyboard-only and switch-device users can be stranded. Screen-reader users may hear the same controls repeat without a clear way back to the page.',
   decision: 'Require every overlay to provide a clearly named close control, a standard Escape action, tested focus behavior, and focus return to the opener.',
@@ -15,7 +19,7 @@ const advocate = {
 
 const builder = {
   criterionNotes: {
-    '2.1.2': 'When keyboard focus can move into a component, the visitor must be able to move it away using standard keys or clearly explained methods. This bounded lesson keeps Escape as a safety release.',
+    '2.1.2': 'If keyboard focus can enter a component, it must also be possible to leave using the keyboard alone. Explain the exit if it takes more than standard keys. Escape is the documented exit inside this demo.',
   },
   moves: [
     'Use a native dialog or a fully tested dialog pattern with a visible close button.',
@@ -28,13 +32,13 @@ const builder = {
     'Safety: attempt Shift+Tab, repeated Tab, Escape, and browser Back from every overlay control.',
     'Assistive technology: confirm the dialog name, description, close control, and return point are announced.',
   ],
-  boundary: 'The barrier is intentionally an escapable approximation, not a literal keyboard trap. Non-interference is more important than reproducing the full harm.',
+  boundary: 'The barrier demonstrates the repeated focus cycle with an Escape exit. The host Reset Barrier button also ends the demo.',
 };
 
 const presenter = {
   steps: [
-    { label: 'Set-up', time: '20s', text: 'State that the site will not create a real trap. Escape is the permanent safety release in the barrier.' },
-    { label: 'Barrier run', time: '35s', text: 'Open the promo, Tab through the repeating links, then press Escape. Do not ask a participant to keep cycling.' },
+    { label: 'Set-up', time: '20s', text: 'Show the safety instructions. Press Escape while focused inside the promo or use Reset Barrier to stop.' },
+    { label: 'Barrier run', time: '35s', text: 'Open the promo, Tab through the repeating controls once, then press Escape.' },
     { label: 'Fixed run', time: '40s', text: 'Open the native dialog, use the visible Close promotion button, reopen, and use Escape. Show focus returning to Open promo.' },
     { label: 'Debrief', time: '25s', text: 'Explain that a real trap removes the safe exit this exhibit deliberately preserves.' },
   ],
@@ -51,7 +55,7 @@ const presenter = {
   description="Inspect an escapable focus cycle, then use a production-quality dialog with clear exits."
   task={{
     goal: 'Open and close the fictional promotion using only the keyboard.',
-    use: 'In the barrier, Escape is the permanent host-owned safety release.',
+    use: 'In the barrier, press Escape inside the overlay or use Reset Barrier to end the demo.',
     done: 'The overlay closes and focus returns to its opener.',
   }}
   {advocate}
@@ -59,7 +63,10 @@ const presenter = {
   {presenter}
 >
   <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="A bounded focus cycle with safety Escape">
-    <button class="btn btn--barrier" type="button" data-atk-07-barrier-open>Open promo</button>
+    <div class="form-actions">
+      <button class="btn btn--barrier" type="button" data-atk-07-barrier-open>Open promo</button>
+      <button class="btn btn--secondary" type="button" data-atk-07-barrier-reset>Reset Barrier</button>
+    </div>
     <div
       class="promo-overlay"
       role="dialog"
@@ -70,23 +77,20 @@ const presenter = {
     >
       <h3 id="atk-07-barrier-dialog-heading">Weekend offer</h3>
       <p>Save on a fictional plan. The broken product offers no visible close control.</p>
-      <p id="atk-07-barrier-dialog-safety" class="safety-note"><strong>Safety release:</strong> Press Escape at any time.</p>
+      <p id="atk-07-barrier-dialog-safety" class="safety-note">Press Escape while focus is here. You can also end the demo with Reset Barrier above.</p>
       <div class="form-actions">
         <button class="btn btn--secondary" type="button" data-atk-07-cycle>View offer</button>
         <button class="btn btn--secondary" type="button" data-atk-07-cycle>Read terms</button>
       </div>
     </div>
     <p class="status-msg" data-atk-07-barrier-status aria-live="polite"></p>
-    <div class="form-actions">
-      <button class="btn btn--secondary" type="button" data-atk-07-barrier-reset>Reset Barrier</button>
-    </div>
   </StationPanel>
 
   <StationPanel slot="fixed" stationId={station.id} type="fix" heading="A dialog with clear, standard exits">
     <button class="btn btn--fix" type="button" data-atk-07-fixed-open>Open promo</button>
-    <dialog class="promo-dialog" aria-labelledby="atk-07-fixed-dialog-heading" data-atk-07-fixed-dialog>
+    <dialog class="promo-dialog" aria-labelledby="atk-07-fixed-dialog-heading" aria-describedby="atk-07-fixed-dialog-purpose" data-atk-07-fixed-dialog>
       <h3 id="atk-07-fixed-dialog-heading">Weekend offer</h3>
-      <p>Save on a fictional plan. You can close this message and continue.</p>
+      <p id="atk-07-fixed-dialog-purpose">Save on a fictional plan. You can close this message and continue.</p>
       <div class="form-actions">
         <button class="btn btn--fix" type="button" data-atk-07-fixed-close>Close promotion</button>
       </div>
@@ -96,13 +100,12 @@ const presenter = {
       <button class="btn btn--secondary" type="button" data-atk-07-fixed-reset>Reset Fixed</button>
     </div>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="07"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
 
     const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
     const barrierOpen = barrierPanel?.querySelector('[data-atk-07-barrier-open]');
@@ -133,7 +136,7 @@ const presenter = {
       cycleControls[next].focus();
     });
     barrierPanel?.querySelector('[data-atk-07-barrier-reset]')?.addEventListener('click', () => {
-      closeBarrier(false);
+      closeBarrier(false, false);
       if (barrierStatus) barrierStatus.textContent = '';
       barrierPanel.querySelector('.panel-heading')?.focus();
     });
@@ -167,5 +170,9 @@ const presenter = {
     fixedPanel?.addEventListener('atk:panel-visibility', (event) => {
       if (!event.detail.visible && fixedDialog?.open) closeFixed(false, false);
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

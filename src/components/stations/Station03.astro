@@ -1,10 +1,19 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '03');
-if (!station) throw new Error('Station 03 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
+
+const originalPolicy = [
+  'Pursuant to the applicable merchandise disposition protocol, a consumer seeking rescission of a completed transaction for non-defective culinary apparatus must initiate the digital merchandise-return authorization pathway no later than thirty calendar days subsequent to documented delivery, provided the commodity remains unopened, unutilized, and accompanied by its original constituent packaging.',
+  'Manufacturer-warranty escalation is reserved for defective commodities, while final-sale exception processing applies only where the original transaction was expressly designated as non-returnable. Failure to select the procedurally appropriate remedy may delay review.',
+];
 
 const advocate = {
   happened: 'The return policy hides a simple choice inside dense legal language and unfamiliar terms.',
@@ -15,14 +24,14 @@ const advocate = {
 
 const builder = {
   criterionNotes: {
-    '3.1.5': 'At Level AAA, advanced text needs a simpler version or other help. The project’s sixth-grade target is an editorial choice, not the criterion’s exact threshold.',
+    '3.1.5': 'At Level AAA, text above the lower-secondary reading level needs a simpler version or supporting material. This project aims for sixth-grade language.',
   },
   moves: [
     'Put the person’s next action before policy detail.',
     'Use short sentences, concrete verbs, headings, and ordered steps.',
     'Keep required legal detail available without making it the only path to the task.',
   ],
-  snippet: '<h3>Return this item</h3>\n<ol>\n  <li>Choose “Start online return.”</li>\n  <li>Print the free label.</li>\n  <li>Send the unopened item within 30 days.</li>\n</ol>',
+  snippet: '<h3>Return this item</h3>\n<p>Start an online return within 30 days of the recorded delivery date.</p>\n<p>The item must be unopened, unused, and in its original packaging.</p>',
   tests: [
     'Editorial: ask a reader to name the next action after one pass, without coaching.',
     'Keyboard and zoom: confirm headings, steps, and choices remain in a clear order at narrow widths.',
@@ -33,9 +42,9 @@ const builder = {
 
 const presenter = {
   steps: [
-    { label: 'Set-up', time: '15s', text: 'Explain that both panels describe the same unopened blender returned after 12 days.' },
+    { label: 'Set-up', time: '15s', text: 'Explain that both panels describe the same unopened blender, delivered 12 days ago.' },
     { label: 'Barrier run', time: '45s', text: 'Read only the first dense paragraph, then try to choose the correct process without turning confusion into a joke.' },
-    { label: 'Fixed run', time: '35s', text: 'Read the three short steps and choose Start online return.' },
+    { label: 'Fixed run', time: '35s', text: 'Read the short instructions and choose Start online return. Open the policy details to show the original wording.' },
     { label: 'Debrief', time: '25s', text: 'Point out that plain language preserved the policy while making the action visible.' },
   ],
   lines: [
@@ -51,7 +60,7 @@ const presenter = {
   description="Compare dense return-policy language with short, actionable instructions."
   task={{
     goal: 'Start the correct return process for an unopened blender delivered 12 days ago.',
-    use: 'Order ATK-302. The item is unopened and the return window is 30 days.',
+    use: 'Order ATK-302. The blender works and is unopened, unused, and in its original packaging. It was not marked final sale.',
     done: 'The panel confirms that your return has started.',
   }}
   {advocate}
@@ -61,20 +70,9 @@ const presenter = {
   <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="Return policy as a reading wall">
     <div class="reading-wall" aria-labelledby="atk-03-barrier-policy-heading">
       <h3 id="atk-03-barrier-policy-heading">Merchandise disposition protocol</h3>
-      <p>
-        Pursuant to the applicable merchandise disposition protocol, a consumer seeking rescission
-        of a completed transaction for non-defective culinary apparatus must initiate the digital
-        merchandise-return authorization pathway no later than thirty calendar days subsequent to
-        documented delivery, provided the commodity remains unopened, unutilized, and accompanied
-        by its original constituent packaging.
-      </p>
-      <p>
-        Manufacturer-warranty escalation is reserved for defective commodities, while final-sale
-        exception processing applies only where the original transaction was expressly designated
-        as non-returnable. Failure to select the procedurally appropriate remedy may delay review.
-      </p>
+      {originalPolicy.map((paragraph) => <p>{paragraph}</p>)}
     </div>
-    <form class="station-form choice-form" data-atk-03-form data-correct="online">
+    <form method="dialog" class="station-form choice-form" data-atk-03-form data-correct="online">
       <fieldset>
         <legend>Choose the applicable disposition pathway</legend>
         <label><input type="radio" name="return-path" value="online" /> Initiate digital merchandise-return authorization</label>
@@ -89,25 +87,24 @@ const presenter = {
     </form>
   </StationPanel>
 
-  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="Return instructions in plain steps">
+  <StationPanel slot="fixed" stationId={station.id} type="fix" heading="Return instructions in plain language">
     <div class="plain-steps" aria-labelledby="atk-03-fixed-steps-heading">
       <h3 id="atk-03-fixed-steps-heading">Return this item</h3>
-      <ol>
-        <li>Choose <strong>Start online return</strong>.</li>
-        <li>Print the free return label.</li>
-        <li>Send the unopened blender within 30 days.</li>
-      </ol>
-      <details>
+      <p>Choose <strong>Start online return</strong> within 30 calendar days of the recorded delivery date.</p>
+      <p>This process is for items that work and are unopened, unused, and in their original packaging.</p>
+      <p>Use the maker’s warranty for a defective item. Request a final-sale exception only if the purchase was marked non-returnable. Choosing the wrong process can delay review.</p>
+      <details data-atk-03-policy>
         <summary>Read the full policy details</summary>
-        <p>Defective items use the maker’s warranty. Items marked final sale cannot be returned.</p>
+        <h4>Original policy wording</h4>
+        {originalPolicy.map((paragraph) => <p>{paragraph}</p>)}
       </details>
     </div>
-    <form class="station-form choice-form" data-atk-03-form data-correct="online">
+    <form method="dialog" class="station-form choice-form" data-atk-03-form data-correct="online">
       <fieldset>
         <legend>What should you do?</legend>
         <label><input type="radio" name="return-path-fixed" value="online" /> Start online return</label>
         <label><input type="radio" name="return-path-fixed" value="warranty" /> Contact the maker about a defect</label>
-        <label><input type="radio" name="return-path-fixed" value="exception" /> Stop because the item is final sale</label>
+        <label><input type="radio" name="return-path-fixed" value="exception" /> Request a final-sale exception</label>
       </fieldset>
       <p class="status-msg" data-atk-choice-status aria-live="polite"></p>
       <div class="form-actions">
@@ -116,17 +113,21 @@ const presenter = {
       </div>
     </form>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="03"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
 
     root.querySelectorAll('[data-atk-03-form]').forEach((form) => {
       const panel = form.closest('[data-atk-panel]');
       const status = form.querySelector('[data-atk-choice-status]');
+      const policy = panel?.querySelector('[data-atk-03-policy]');
+      const clearStatus = () => {
+        if (status) status.textContent = '';
+      };
+      form.addEventListener('change', clearStatus);
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         const selected = form.querySelector('input[type="radio"]:checked');
@@ -142,9 +143,14 @@ const presenter = {
       });
       form.querySelector('[data-atk-choice-reset]')?.addEventListener('click', () => {
         form.reset();
-        if (status) status.textContent = '';
+        if (policy) policy.open = false;
+        clearStatus();
         panel?.querySelector('.panel-heading')?.focus();
       });
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

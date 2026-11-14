@@ -50,6 +50,7 @@
   --text-muted: #54627A;
   --border-subtle: #E2E8F0;
   --border-strong: #CBD5E1;
+  --control-border: #64748B;
   --text-on-strong: #FFFFFF;
   --error-bg: #FDEDF0;
   --error-text: #5C1D2E;
@@ -202,8 +203,9 @@ body {
 
 .nav-links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-sm) var(--space-lg);
   list-style: none;
 }
 
@@ -216,7 +218,8 @@ body {
 }
 
 .nav-link:hover,
-.nav-link[aria-current="page"] {
+.nav-link[aria-current="page"],
+.nav-link[data-section-current="true"] {
   color: var(--text-primary);
   border-bottom-color: var(--focus-ring);
 }
@@ -611,6 +614,14 @@ body {
   color: var(--text-secondary);
 }
 
+.station-navigation ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-lg);
+  list-style: none;
+  margin-top: var(--space-lg);
+}
+
 .about-section li {
   margin-bottom: var(--space-sm);
 }
@@ -817,7 +828,7 @@ body {
   font-family: var(--font-sans);
   font-size: 1rem;
   color: var(--text-primary);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--control-border);
   border-radius: var(--radius-sm);
   background-color: var(--bg-surface);
 }
@@ -882,7 +893,8 @@ body {
   display: inline-block;
 }
 
-.error-alert {
+/* Keep the empty alert exposed to AT and add visible styling only for a message. */
+.error-alert:not(:empty) {
   background-color: var(--error-bg);
   border: 2px solid var(--barrier);
   color: var(--error-text);
@@ -890,15 +902,6 @@ body {
   border-radius: var(--radius-md);
   margin-bottom: var(--space-md);
   font-weight: 600;
-}
-
-/*
- * Error alerts stay in the DOM so role="alert" fires when text is written into
- * them. An empty alert must not render as a bordered box, and an empty target
- * must not contribute to the field's accessible description.
- */
-.error-alert:empty {
-  display: none;
 }
 
 .step-heading {
@@ -961,10 +964,8 @@ body {
   line-height: 1.8;
 }
 
-.plain-steps ol {
-  display: grid;
-  gap: var(--space-sm);
-  margin-left: var(--space-lg);
+.plain-steps details p + p {
+  margin-top: var(--space-sm);
 }
 
 .plain-steps summary {
@@ -1010,7 +1011,8 @@ body {
 }
 
 .hover-only-trigger:hover ~ .hover-only-menu,
-.hover-only-menu:hover {
+.hover-only-menu:hover,
+.hover-only-menu:focus-within {
   display: grid;
 }
 
@@ -1421,6 +1423,18 @@ body {
   .status-tag-shape {
     forced-color-adjust: none;
     background-color: CanvasText;
+  }
+}
+
+@media print {
+  body:has(.teacher-guide) .masthead,
+  body:has(.teacher-guide) .site-footer {
+    display: none;
+  }
+
+  .teacher-guide .about-section {
+    margin-bottom: var(--space-lg);
+    break-inside: avoid;
   }
 }
 

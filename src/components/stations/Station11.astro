@@ -1,13 +1,17 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 import videoUrl from '../../assets/station-11-instructions.mp4?url';
 import captionsUrl from '../../assets/station-11-captions.vtt?url';
 import posterUrl from '../../assets/station-11-poster.png?url';
 
-const station = stations.find((candidate) => candidate.id === '11');
-if (!station) throw new Error('Station 11 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
   happened: 'The instructional video speaks every step but provides no captions or transcript. The task depends on hearing the recording.',
@@ -18,8 +22,8 @@ const advocate = {
 
 const builder = {
   criterionNotes: {
-    '1.2.2': 'Prerecorded synchronized media needs captions for all meaningful audio unless it is a clearly labelled media alternative for text.',
-    '1.2.3': 'Prerecorded video needs an audio description or a full media alternative. Here, the audio states all meaningful visual information and the transcript provides the equivalent sequence.',
+    '1.2.2': 'Captions convey prerecorded audio in sync with the video, including meaningful sounds and speaker identification when needed. The exception is video clearly labeled as an alternative to equivalent text.',
+    '1.2.3': 'Level A provides two paths for the visual information in prerecorded synchronized media. Use audio description or a complete text alternative covering audio and visuals. This clip’s narration already conveys the important visuals, so it needs no extra description.',
   },
   moves: [
     'Author a WebVTT caption file that matches the spoken words and timing.',
@@ -32,7 +36,7 @@ const builder = {
     'Transcript: complete the task using only the transcript and compare its meaning with the final video.',
     'Keyboard and assistive technology: operate native media controls and discover the transcript relationship.',
   ],
-  boundary: 'Captions and transcripts need human accuracy review. This original clip contains no meaningful visual information that is absent from its narration.',
+  boundary: 'Captions support watching without hearing the audio. The transcript gives people a separate way to complete the task without playing the clip. Review both against the final media.',
 };
 
 const presenter = {
@@ -66,7 +70,7 @@ const presenter = {
     <video class="instruction-video" controls preload="metadata" poster={posterUrl} aria-label="Table setup instructions" data-atk-11-video>
       <source src={videoUrl} type="video/mp4" />
     </video>
-    <form class="station-form choice-form" data-atk-11-form data-correct="done">
+    <form method="dialog" class="station-form choice-form" data-atk-11-form data-correct="done">
       <fieldset>
         <legend>What is the final step?</legend>
         <label><input type="radio" name="final-step" value="card" /> Place the blue card</label>
@@ -96,10 +100,10 @@ const presenter = {
     </video>
     <details class="media-transcript" id="atk-11-fixed-transcript">
       <summary>Read the transcript</summary>
-      <p><strong>Speaker:</strong> First, place the blue card in the center of the table. Next, put the metal spoon to the right of the card. Finally, press Done.</p>
+      <p data-atk-11-narration>First, place the blue card in the center of the table. Next, put the metal spoon to the right of the card. Finally, press Done.</p>
       <p>Visual note: The video shows the same blue card and spoon named in the narration. It adds no unspoken instruction.</p>
     </details>
-    <form class="station-form choice-form" data-atk-11-form data-correct="done">
+    <form method="dialog" class="station-form choice-form" data-atk-11-form data-correct="done">
       <fieldset>
         <legend>What is the final step?</legend>
         <label><input type="radio" name="final-step-fixed" value="card" /> Place the blue card</label>
@@ -113,18 +117,21 @@ const presenter = {
       </div>
     </form>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="11"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
     root.querySelectorAll('[data-atk-11-form]').forEach((form) => {
       const panel = form.closest('[data-atk-panel]');
       const status = form.querySelector('[data-atk-11-status]');
       const video = panel?.querySelector('[data-atk-11-video]');
       const transcript = panel?.querySelector('.media-transcript');
+      const clearStatus = () => {
+        if (status) status.textContent = '';
+      };
+      form.addEventListener('change', clearStatus);
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         const selected = form.querySelector('input[type="radio"]:checked');
@@ -138,7 +145,7 @@ const presenter = {
       });
       form.querySelector('[data-atk-11-reset]')?.addEventListener('click', () => {
         form.reset();
-        if (status) status.textContent = '';
+        clearStatus();
         video?.pause();
         if (video) video.currentTime = 0;
         transcript?.removeAttribute('open');
@@ -148,5 +155,9 @@ const presenter = {
         if (!event.detail.visible) video?.pause();
       });
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

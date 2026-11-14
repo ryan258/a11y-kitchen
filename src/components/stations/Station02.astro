@@ -1,29 +1,33 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '02');
-if (!station) throw new Error('Station 02 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
   happened: 'The payment form rejected an entry with only “Invalid input.” It did not say which field failed or what would make the entry valid.',
   matters: 'A vague error turns a small correction into guessing. People retry, abandon the payment, or contact support because the interface withholds the next step.',
   hardest: 'People using screen magnification, assistive technology, translation tools, or limited attention may not be able to scan the whole form and infer the problem.',
-  decision: 'Require every payment error to name the field, explain the problem, keep the person’s entry, and give a specific correction.',
+  decision: 'Name the field and explain the problem, keep the person’s entry, and offer a specific correction when it is safe to do so.',
 };
 
 const builder = {
   criterionNotes: {
-    '3.3.1': 'Identify the field in error and describe the problem in text.',
-    '3.3.3': 'When the correction is known, tell the person how to fix the entry.',
+    '3.3.1': 'When an input error is detected automatically, identify the affected field and describe the problem in text.',
+    '3.3.3': 'For an automatically detected error, offer the known correction unless that would jeopardize security or the purpose of the content.',
   },
   moves: [
     'Keep the submitted value so the person can edit it.',
     'Connect the input to a field-specific error with aria-describedby.',
-    'Set aria-invalid only while the field is invalid, and let role="alert" announce without moving focus.',
+    'Set aria-invalid only while the field is invalid. Write the error into the existing live region and keep focus in place.',
   ],
-  snippet: "zip.setAttribute('aria-invalid', 'true');\n// The alert stays in the DOM; writing text into it announces once.\n// Do not also focus it: role=\"alert\" plus focus reads the error twice.\nerror.textContent = 'Billing ZIP code: Enter the 5-digit ZIP shown with this card.';",
+  snippet: "zip.setAttribute('aria-invalid', 'true');\n// Update the existing live alert and keep focus in place.\nerror.textContent = 'Billing ZIP code: Enter the 5-digit ZIP shown with this card.';",
   tests: [
     'Keyboard: submit a wrong value, confirm focus stays where it was, then correct it without retyping unrelated data.',
     'Assistive technology: confirm the field name, problem, and correction are announced together.',
@@ -60,10 +64,10 @@ const presenter = {
   {presenter}
 >
   <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="A dead-end payment error">
-    <form class="station-form" data-atk-02-barrier-form novalidate>
+    <form method="dialog" class="station-form" data-atk-02-barrier-form novalidate>
       <div class="form-group">
         <label for="atk-02-barrier-zip">Billing ZIP code</label>
-        <input id="atk-02-barrier-zip" name="zip" inputmode="numeric" autocomplete="postal-code" />
+        <input id="atk-02-barrier-zip" name="zip" inputmode="numeric" autocomplete="off" />
       </div>
       <p class="status-msg" data-atk-02-barrier-status aria-live="polite"></p>
       <div class="form-actions">
@@ -74,18 +78,18 @@ const presenter = {
   </StationPanel>
 
   <StationPanel slot="fixed" stationId={station.id} type="fix" heading="A specific, recoverable payment error">
-    <form class="station-form" data-atk-02-fixed-form novalidate>
+    <form method="dialog" class="station-form" data-atk-02-fixed-form novalidate>
       <div class="form-group">
         <label for="atk-02-fixed-zip">Billing ZIP code</label>
         <input
           id="atk-02-fixed-zip"
           name="zip"
           inputmode="numeric"
-          autocomplete="postal-code"
+          autocomplete="off"
           aria-describedby="atk-02-fixed-zip-hint atk-02-fixed-zip-error"
         />
         <span id="atk-02-fixed-zip-hint" class="field-hint">Enter the 5-digit ZIP shown with this card.</span>
-        <p id="atk-02-fixed-zip-error" class="error-alert" role="alert"></p>
+        <p id="atk-02-fixed-zip-error" class="error-alert" role="alert" aria-atomic="true"></p>
       </div>
       <div data-atk-02-fixed-complete class="success-box" hidden>
         <h3 id="atk-02-fixed-complete-heading" tabindex="-1">Payment details updated</h3>
@@ -97,13 +101,12 @@ const presenter = {
       </div>
     </form>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="02"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
 
     const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
     const barrierForm = barrierPanel?.querySelector('[data-atk-02-barrier-form]');
@@ -139,8 +142,7 @@ const presenter = {
       const value = fixedInput?.value.trim() || '';
       if (value !== '60614') {
         fixedInput?.setAttribute('aria-invalid', 'true');
-        // Writing into the live alert announces it. Focus stays put: moving it
-        // here would make assistive technology read the same text twice.
+        // Update the live alert while keeping focus in place.
         if (fixedError) {
           fixedError.textContent = /^\d{5}$/.test(value)
             ? 'Billing ZIP code: Enter 60614 for this fictional card. Your value was kept so you can fix it.'
@@ -167,5 +169,9 @@ const presenter = {
       if (fixedComplete) fixedComplete.hidden = true;
       fixedPanel.querySelector('.panel-heading')?.focus();
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

@@ -1,10 +1,22 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '05');
-if (!station) throw new Error('Station 05 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
+
+const appointment = {
+  name: 'Sam Lee',
+  date: '2026-08-19',
+  dateLabel: 'August 19, 2026',
+  time: '10:30',
+  timeLabel: '10:30 AM',
+};
 
 const advocate = {
   happened: 'While the visitor fills out an appointment, an automatic availability update opens an interruption and moves focus away from the form.',
@@ -15,9 +27,10 @@ const advocate = {
 
 const builder = {
   criterionNotes: {
-    '2.2.2': 'Auto-updating information needs a way to pause, stop, hide, or control the update unless it is essential.',
-    '2.4.3': 'Focus order must preserve meaning and operation instead of jumping to an unrelated interruption.',
-    '3.2.5': 'At Level AAA, changes of context occur only on request or through a mechanism that turns them off.',
+    '2.4.3': 'When sequential focus order affects meaning or use, keep the order logical and operable. Fixed keeps focus on Check availability while updating the result.',
+    '3.2.2': 'Warn people before they use a field if editing it will automatically change context. The Barrier jumps to the interruption after a field edit. Fixed waits for an explicit button press.',
+    '3.2.5': 'At Level AAA, major context changes such as an unexpected focus jump need a user request or a way to turn them off.',
+    '4.1.3': 'Expose a result to assistive technology without moving focus. Fixed writes availability into a polite live region. Verify the announcement with a screen reader.',
   },
   moves: [
     'Replace the automatic refresh with an explicit Check availability button.',
@@ -28,7 +41,7 @@ const builder = {
   tests: [
     'Keyboard: enter every field and confirm no focus change occurs until a control is activated.',
     'Assistive technology: check that availability is announced once without opening a dialog.',
-    'State: switch views or reset while an update is pending and confirm no timer or message leaks.',
+    'State: while an update is pending, move from Barrier to Fixed in Compare and confirm focus stays in Fixed. Repeat with a view change and a reset.',
   ],
   boundary: 'This local example does not contact a scheduling service. Real asynchronous errors and stale availability still need complete handling.',
 };
@@ -52,8 +65,8 @@ const presenter = {
   station={station}
   description="Compare a focus-stealing automatic update with a user-requested appointment check."
   task={{
-    goal: 'Book an appointment for Sam Lee.',
-    use: 'August 19, 2026 at 10:30 AM.',
+    goal: `Book a practice appointment for ${appointment.name}.`,
+    use: `Use the sample date and time of ${appointment.dateLabel} at ${appointment.timeLabel}.`,
     done: 'The page confirms the fictional appointment.',
   }}
   {advocate}
@@ -61,10 +74,10 @@ const presenter = {
   {presenter}
 >
   <StationPanel slot="barrier" stationId={station.id} type="barrier" heading="An update that interrupts the form">
-    <form class="station-form" data-atk-05-barrier-form data-atk-interrupt-delay="1200" novalidate>
+    <form method="dialog" class="station-form" data-atk-05-barrier-form data-atk-interrupt-delay="1200" novalidate>
       <div class="form-group">
         <label for="atk-05-barrier-name">Name</label>
-        <input id="atk-05-barrier-name" name="name" autocomplete="name" />
+        <input id="atk-05-barrier-name" name="name" autocomplete="off" />
       </div>
       <div class="form-group">
         <label for="atk-05-barrier-date">Date</label>
@@ -74,7 +87,7 @@ const presenter = {
         <label for="atk-05-barrier-time">Time</label>
         <select id="atk-05-barrier-time" name="time">
           <option value="">Choose a time</option>
-          <option value="10:30">10:30 AM</option>
+          <option value={appointment.time}>{appointment.timeLabel}</option>
           <option value="14:00">2:00 PM</option>
         </select>
       </div>
@@ -98,23 +111,27 @@ const presenter = {
   </StationPanel>
 
   <StationPanel slot="fixed" stationId={station.id} type="fix" heading="An update requested by the visitor">
-    <form class="station-form" data-atk-05-fixed-form novalidate>
+    <form method="dialog" class="station-form" data-atk-05-fixed-form novalidate>
       <div class="form-group">
         <label for="atk-05-fixed-name">Name</label>
-        <input id="atk-05-fixed-name" name="name" autocomplete="name" />
+        <input id="atk-05-fixed-name" name="name" autocomplete="off" required aria-describedby="atk-05-fixed-name-error" />
+        <p class="error-alert" id="atk-05-fixed-name-error"></p>
       </div>
       <div class="form-group">
         <label for="atk-05-fixed-date">Date</label>
-        <input id="atk-05-fixed-date" name="date" type="date" />
+        <input id="atk-05-fixed-date" name="date" type="date" required aria-describedby="atk-05-fixed-date-error" />
+        <p class="error-alert" id="atk-05-fixed-date-error"></p>
       </div>
       <div class="form-group">
         <label for="atk-05-fixed-time">Time</label>
-        <select id="atk-05-fixed-time" name="time">
+        <select id="atk-05-fixed-time" name="time" required aria-describedby="atk-05-fixed-time-error">
           <option value="">Choose a time</option>
-          <option value="10:30">10:30 AM</option>
+          <option value={appointment.time}>{appointment.timeLabel}</option>
           <option value="14:00">2:00 PM</option>
         </select>
+        <p class="error-alert" id="atk-05-fixed-time-error"></p>
       </div>
+      <p class="visually-hidden" data-atk-05-fixed-errors role="alert" aria-atomic="true"></p>
       <p class="status-msg" data-atk-05-fixed-status aria-live="polite"></p>
       <div class="form-actions">
         <button class="btn btn--secondary" type="button" data-atk-05-check>Check availability</button>
@@ -123,51 +140,58 @@ const presenter = {
       </div>
     </form>
   </StationPanel>
-</StationFrame>
 
-<script is:inline>
+  <Fragment slot="station-script">
+<script is:inline define:vars={{ appointment }}>
   (() => {
     const root = document.querySelector('[data-atk-station="05"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
 
-    const valid = (form) => (
-      form?.querySelector('[name="name"]')?.value.trim() === 'Sam Lee'
-      && form?.querySelector('[name="date"]')?.value === '2026-08-19'
-      && form?.querySelector('[name="time"]')?.value === '10:30'
-    );
+    const matchesSample = (form, field) => form.elements.namedItem(field).value.trim() === appointment[field];
+    const availabilityFields = ['date', 'time'];
+    const bookingFields = ['name', ...availabilityFields];
+    const booked = `Appointment booked for ${appointment.name}.`;
 
     const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
     const barrierForm = barrierPanel?.querySelector('[data-atk-05-barrier-form]');
     const barrierStatus = barrierPanel?.querySelector('[data-atk-05-barrier-status]');
     const interrupt = barrierPanel?.querySelector('[data-atk-05-interrupt]');
     const closeInterrupt = barrierPanel?.querySelector('[data-atk-05-close-interrupt]');
+    const barrierFields = Array.from(barrierForm?.querySelectorAll('input, select') ?? []);
     let interruptTimer = null;
-    let interruptStarted = false;
+    let interruptShown = false;
     let returnFocus = null;
 
     const cancelInterrupt = () => {
       window.clearTimeout(interruptTimer);
       interruptTimer = null;
       if (interrupt) interrupt.hidden = true;
+      returnFocus = null;
     };
     const dismissInterrupt = () => {
+      const field = returnFocus;
       cancelInterrupt();
-      returnFocus?.focus();
+      field?.focus();
     };
-    const scheduleInterrupt = (event) => {
-      if (interruptStarted) return;
-      interruptStarted = true;
-      returnFocus = event.target;
+    const scheduleInterrupt = () => {
+      if (interruptShown || interruptTimer !== null) return;
       const delay = Number.parseInt(barrierForm?.dataset.atkInterruptDelay || '1200', 10);
       interruptTimer = window.setTimeout(() => {
-        if (!interrupt || barrierPanel?.hidden) return;
+        interruptTimer = null;
+        const active = document.activeElement;
+        // The interruption teaches focus loss within this task, including in Compare.
+        if (!interrupt || barrierPanel?.hidden || !barrierFields.includes(active)) return;
+        returnFocus = active;
+        interruptShown = true;
         interrupt.hidden = false;
         closeInterrupt?.focus();
       }, delay);
     };
-    barrierForm?.querySelectorAll('input, select').forEach((control) => {
+    barrierFields.forEach((control) => {
       control.addEventListener('input', scheduleInterrupt);
+    });
+    barrierForm?.addEventListener('input', () => {
+      if (barrierStatus) barrierStatus.textContent = '';
     });
     closeInterrupt?.addEventListener('click', dismissInterrupt);
     interrupt?.addEventListener('keydown', (event) => {
@@ -176,23 +200,21 @@ const presenter = {
     barrierPanel?.addEventListener('atk:panel-visibility', (event) => {
       if (!event.detail.visible) {
         cancelInterrupt();
-        interruptStarted = false;
-        returnFocus = null;
+        interruptShown = false;
       }
     });
     barrierForm?.addEventListener('submit', (event) => {
       event.preventDefault();
       cancelInterrupt();
       if (barrierStatus) {
-        barrierStatus.textContent = valid(barrierForm)
-          ? 'Appointment booked for Sam Lee.'
-          : 'Enter Sam Lee, August 19, 2026, and 10:30 AM.';
+        barrierStatus.textContent = bookingFields.every((field) => matchesSample(barrierForm, field))
+          ? booked
+          : `Enter ${appointment.name}, ${appointment.dateLabel}, and ${appointment.timeLabel}.`;
       }
     });
     barrierPanel?.querySelector('[data-atk-05-barrier-reset]')?.addEventListener('click', () => {
       cancelInterrupt();
-      interruptStarted = false;
-      returnFocus = null;
+      interruptShown = false;
       barrierForm?.reset();
       if (barrierStatus) barrierStatus.textContent = '';
       barrierPanel.querySelector('.panel-heading')?.focus();
@@ -201,21 +223,55 @@ const presenter = {
     const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
     const fixedForm = fixedPanel?.querySelector('[data-atk-05-fixed-form]');
     const fixedStatus = fixedPanel?.querySelector('[data-atk-05-fixed-status]');
+    const fixedAlert = fixedPanel?.querySelector('[data-atk-05-fixed-errors]');
+    const fieldMessages = {
+      name: `Name: Enter ${appointment.name}.`,
+      date: `Date: Enter ${appointment.dateLabel}.`,
+      time: `Time: Choose ${appointment.timeLabel}.`,
+    };
+    const setFixedError = (field, message) => {
+      const control = fixedForm.elements.namedItem(field);
+      const error = fixedForm.querySelector(`#atk-05-fixed-${field}-error`);
+      if (message) control.setAttribute('aria-invalid', 'true');
+      else control.removeAttribute('aria-invalid');
+      error.textContent = message;
+    };
+    const validateFixed = (fields) => {
+      const errors = [];
+      for (const field of fields) {
+        const message = matchesSample(fixedForm, field) ? '' : fieldMessages[field];
+        setFixedError(field, message);
+        if (message) errors.push(message);
+      }
+      if (fixedAlert) fixedAlert.textContent = errors.join(' ');
+      return errors.length === 0;
+    };
     fixedPanel?.querySelector('[data-atk-05-check]')?.addEventListener('click', () => {
-      if (fixedStatus) fixedStatus.textContent = '10:30 AM is available. Your focus stayed on Check availability.';
+      const valid = validateFixed(availabilityFields);
+      if (fixedStatus) fixedStatus.textContent = valid ? `${appointment.timeLabel} is available.` : '';
     });
     fixedForm?.addEventListener('submit', (event) => {
       event.preventDefault();
-      if (fixedStatus) {
-        fixedStatus.textContent = valid(fixedForm)
-          ? 'Appointment booked for Sam Lee.'
-          : 'Enter Sam Lee, August 19, 2026, and 10:30 AM.';
-      }
+      const valid = validateFixed(bookingFields);
+      if (fixedStatus) fixedStatus.textContent = valid ? booked : '';
+    });
+    fixedForm?.addEventListener('input', (event) => {
+      const field = event.target.name;
+      if (!bookingFields.includes(field)) return;
+      setFixedError(field, '');
+      if (fixedAlert) fixedAlert.textContent = '';
+      if (fixedStatus) fixedStatus.textContent = '';
     });
     fixedPanel?.querySelector('[data-atk-05-fixed-reset]')?.addEventListener('click', () => {
       fixedForm?.reset();
+      bookingFields.forEach((field) => setFixedError(field, ''));
+      if (fixedAlert) fixedAlert.textContent = '';
       if (fixedStatus) fixedStatus.textContent = '';
       fixedPanel.querySelector('.panel-heading')?.focus();
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

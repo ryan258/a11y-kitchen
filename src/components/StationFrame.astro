@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ChangedPanels from './ChangedPanels.astro';
 import ViewSwitch from './ViewSwitch.astro';
+import { builtStations } from '../data/stations.js';
 
 type Station = (typeof import('../data/stations.js').stations)[number];
 
@@ -45,6 +46,9 @@ interface Props {
 }
 
 const { station, description, task, advocate, builder, presenter } = Astro.props;
+const stationIndex = builtStations.findIndex((candidate) => candidate.id === station.id);
+const previous = builtStations[stationIndex - 1];
+const next = builtStations[stationIndex + 1];
 
 for (const criterion of station.criteria) {
   if (!builder.criterionNotes[criterion.id]) {
@@ -71,11 +75,17 @@ if (presenter.steps.length !== 4 || presenter.lines.length !== 3) {
       </div>
     </div>
 
-    <ViewSwitch stationId={station.id} />
+    <p class="safety-note" data-atk-static-lesson>
+      The interactive demo needs JavaScript. You can read the lesson under What changed.
+    </p>
 
-    <div class="station-panels-layout">
-      <slot name="barrier" />
-      <slot name="fixed" />
+    <div data-atk-demo hidden>
+      <ViewSwitch stationId={station.id} />
+
+      <div class="station-panels-layout">
+        <slot name="barrier" />
+        <slot name="fixed" />
+      </div>
     </div>
 
     <ChangedPanels stationId={station.id}>
@@ -91,14 +101,15 @@ if (presenter.steps.length !== 4 || presenter.lines.length !== 3) {
         <h3 class="mode-panel-title">Builder perspective: implementation and tests</h3>
 
         <div class="wcag-list">
-          <h4>Verified WCAG 2.2 criteria</h4>
+          <h4>Related WCAG 2.2 criteria</h4>
           <ul>
             {station.criteria.map((criterion) => (
               <li>
                 <strong>
                   <a href={criterion.source}>
                     {criterion.id} {criterion.title} (Level {criterion.level})
-                  </a>:
+                  </a>
+                  {criterion.applicability === 'conditional' && ' · Conditional application'}
                 </strong>{' '}
                 {builder.criterionNotes[criterion.id]}
               </li>
@@ -124,7 +135,7 @@ if (presenter.steps.length !== 4 || presenter.lines.length !== 3) {
       </div>
 
       <div slot="presenter">
-        <h3 class="mode-panel-title">Presenter run sheet (2–3 minutes)</h3>
+        <h3 class="mode-panel-title">Presenter run sheet</h3>
         <ol class="presenter-steps">
           {presenter.steps.map((step) => (
             <li><strong>{step.label} ({step.time}):</strong> {step.text}</li>
@@ -137,5 +148,15 @@ if (presenter.steps.length !== 4 || presenter.lines.length !== 3) {
         </div>
       </div>
     </ChangedPanels>
+
+    <nav class="station-navigation" aria-label="Station navigation">
+      <ul>
+        <li><a href="/#stations-rail-heading">All stations</a></li>
+        {previous && <li><a href={`/stations/${previous.slug}/`}>Previous station · {previous.title}</a></li>}
+        {next && <li><a href={`/stations/${next.slug}/`}>Next station · {next.title}</a></li>}
+      </ul>
+    </nav>
   </div>
+
+  <Fragment slot="page-script"><slot name="station-script" /></Fragment>
 </Base>

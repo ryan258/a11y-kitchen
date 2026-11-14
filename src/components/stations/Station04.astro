@@ -1,10 +1,14 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '04');
-if (!station) throw new Error('Station 04 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
   happened: 'The account menu appears only while a pointer hovers over one small area, then disappears as the pointer moves toward Settings.',
@@ -15,8 +19,8 @@ const advocate = {
 
 const builder = {
   criterionNotes: {
-    '1.4.13': 'Hover or focus content must be dismissible, hoverable, and persistent unless an exception applies.',
-    '2.1.1': 'Every function must work from a keyboard, except a function whose path truly depends on pointer movement.',
+    '1.4.13': 'People must be able to move the pointer from a hover trigger onto the content it opened. The Barrier gap breaks that path. The Fixed menu opens by button activation, so its visibility is independent of hover.',
+    '2.1.1': 'The Settings function needs a keyboard path. The host backup supplies that path in Barrier. The Fixed menu lets the visitor use the disclosure itself with a keyboard.',
   },
   moves: [
     'Use a button with aria-expanded and aria-controls as the menu trigger.',
@@ -94,13 +98,12 @@ const presenter = {
       <button class="btn btn--secondary" type="button" data-atk-04-fixed-reset>Reset Fixed</button>
     </div>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="04"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
 
     const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
     const barrierStatus = barrierPanel?.querySelector('[data-atk-04-barrier-status]');
@@ -147,5 +150,9 @@ const presenter = {
       if (fixedStatus) fixedStatus.textContent = '';
       fixedPanel.querySelector('.panel-heading')?.focus();
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

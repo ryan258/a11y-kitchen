@@ -20,7 +20,7 @@
  * @property {'built' | 'not-built'} status
  */
 
-const verifiedOn = '2026-08-08';
+const verifiedOn = '2026-11-12';
 
 const criterion = (id, title, level, anchor, applicability = 'confirmed') => ({
   id,
@@ -43,7 +43,7 @@ const registry = {
   ),
   '1.4.1': criterion('1.4.1', 'Use of Color', 'A', 'use-of-color'),
   '1.4.13': criterion('1.4.13', 'Content on Hover or Focus', 'AA', 'content-on-hover-or-focus'),
-  '2.1.1': criterion('2.1.1', 'Keyboard', 'A', 'keyboard'),
+  '2.1.1': criterion('2.1.1', 'Keyboard', 'A', 'keyboard', 'conditional'),
   '2.1.2': criterion('2.1.2', 'No Keyboard Trap', 'A', 'no-keyboard-trap', 'conditional'),
   '2.2.1': criterion('2.2.1', 'Timing Adjustable', 'A', 'timing-adjustable'),
   '2.2.2': criterion('2.2.2', 'Pause, Stop, Hide', 'A', 'pause-stop-hide'),
@@ -51,6 +51,7 @@ const registry = {
   '2.4.7': criterion('2.4.7', 'Focus Visible', 'AA', 'focus-visible', 'conditional'),
   '2.5.8': criterion('2.5.8', 'Target Size (Minimum)', 'AA', 'target-size-minimum'),
   '3.1.5': criterion('3.1.5', 'Reading Level', 'AAA', 'reading-level'),
+  '3.2.2': criterion('3.2.2', 'On Input', 'A', 'on-input'),
   '3.2.5': criterion('3.2.5', 'Change on Request', 'AAA', 'change-on-request'),
   '3.3.1': criterion('3.3.1', 'Error Identification', 'A', 'error-identification'),
   '3.3.2': criterion('3.3.2', 'Labels or Instructions', 'A', 'labels-or-instructions'),
@@ -64,6 +65,7 @@ const registry = {
   ),
   '3.3.7': criterion('3.3.7', 'Redundant Entry', 'A', 'redundant-entry'),
   '4.1.2': criterion('4.1.2', 'Name, Role, Value', 'A', 'name-role-value'),
+  '4.1.3': criterion('4.1.3', 'Status Messages', 'AA', 'status-messages'),
 };
 
 const criteria = (...ids) => ids.map((id) => ({ ...registry[id] }));
@@ -77,7 +79,7 @@ export const stations = [
     category: 'Time limits and error recovery',
     task: 'Cancel a membership',
     barrierPattern: 'Session timer, placeholder labels, destructive errors',
-    criteria: criteria('2.2.1', '3.3.1', '3.3.2', '3.3.3', '3.3.4', '3.3.7'),
+    criteria: criteria('2.2.1', '2.2.2', '3.3.1', '3.3.2', '3.3.3', '3.3.4', '3.3.7'),
     status: 'built',
   },
   {
@@ -117,7 +119,7 @@ export const stations = [
     category: 'Focus and context control',
     task: 'Book an appointment',
     barrierPattern: 'Automatic update that interrupts the task and moves focus',
-    criteria: criteria('2.2.2', '2.4.3', '3.2.5'),
+    criteria: criteria('2.4.3', '3.2.2', '3.2.5', '4.1.3'),
     status: 'built',
   },
   {
@@ -191,3 +193,5 @@ export const stations = [
     status: 'built',
   },
 ];
+
+export const builtStations = stations.filter((station) => station.status === 'built');

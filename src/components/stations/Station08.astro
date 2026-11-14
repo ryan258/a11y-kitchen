@@ -1,10 +1,14 @@
 ---
 import StationFrame from '../StationFrame.astro';
 import StationPanel from '../StationPanel.astro';
-import { stations } from '../../data/stations.js';
 
-const station = stations.find((candidate) => candidate.id === '08');
-if (!station) throw new Error('Station 08 metadata is missing.');
+type Station = (typeof import('../../data/stations.js').stations)[number];
+
+interface Props {
+  station: Station;
+}
+
+const { station } = Astro.props;
 
 const advocate = {
   happened: 'The product replay moves through ticket choices without drawing a visible focus marker. Safe host controls and a text readout remain visible so the lesson itself is usable.',
@@ -24,18 +28,18 @@ const builder = {
   ],
   snippet: ':focus-visible {\n  outline: 3px solid var(--focus-ring);\n  outline-offset: 2px;\n}',
   tests: [
-    'Keyboard: Tab and Shift+Tab through every ticket option and action without using a pointer.',
+    'Tab to the ticket group and use the arrow keys to move through its options. Tab to Buy ticket and use Shift+Tab to move back. Check that you can see which control has focus at every step.',
     'Visual: verify the indicator remains visible in default, zoomed, and forced-color views.',
     'Contrast: measure the indicator against the colors directly beside it, not only the page background.',
   ],
-  boundary: 'The barrier is an inspection replay, not an interactive invisible-focus defect. The fixed panel is the production interaction to adapt.',
+  boundary: 'The Barrier replay illustrates missing focus without removing the host controls’ indicators. The Fixed panel shows the interactive pattern to adapt.',
 };
 
 const presenter = {
   steps: [
     { label: 'Set-up', time: '20s', text: 'Explain that an actual invisible keyboard path would violate the site floor, so the barrier is a safe product replay.' },
     { label: 'Barrier run', time: '35s', text: 'Use Next product focus and watch the safety readout change while the product mock shows no marker.' },
-    { label: 'Fixed run', time: '40s', text: 'Tab through the real ticket radios, choose Balcony, and buy the fictional ticket.' },
+    { label: 'Fixed run', time: '40s', text: 'Tab to the ticket group, use the arrow keys to choose Balcony, then Tab to Buy ticket.' },
     { label: 'Debrief', time: '25s', text: 'Connect a visible location marker to accurate, confident keyboard choices.' },
   ],
   lines: [
@@ -75,7 +79,7 @@ const presenter = {
   </StationPanel>
 
   <StationPanel slot="fixed" stationId={station.id} type="fix" heading="Ticket choices with visible focus">
-    <form class="station-form choice-form" data-atk-08-fixed-form>
+    <form method="dialog" class="station-form choice-form" data-atk-08-fixed-form>
       <fieldset>
         <legend>Choose a ticket</legend>
         <label><input type="radio" name="ticket" value="Standard" /> Standard · $20</label>
@@ -89,13 +93,12 @@ const presenter = {
       </div>
     </form>
   </StationPanel>
-</StationFrame>
 
+  <Fragment slot="station-script">
 <script is:inline>
   (() => {
     const root = document.querySelector('[data-atk-station="08"]');
     if (!root || root.dataset.atkDemoBound === 'true') return;
-    root.dataset.atkDemoBound = 'true';
     const choices = ['Standard', 'Balcony', 'Premium'];
 
     const barrierPanel = root.querySelector('[data-atk-panel="barrier"]');
@@ -107,6 +110,7 @@ const presenter = {
     };
     barrierPanel?.querySelector('[data-atk-08-next]')?.addEventListener('click', () => {
       current = (current + 1) % choices.length;
+      if (barrierStatus) barrierStatus.textContent = '';
       updateReadout();
     });
     barrierPanel?.querySelector('[data-atk-08-buy-current]')?.addEventListener('click', () => {
@@ -126,6 +130,10 @@ const presenter = {
     const fixedPanel = root.querySelector('[data-atk-panel="fixed"]');
     const fixedForm = fixedPanel?.querySelector('[data-atk-08-fixed-form]');
     const fixedStatus = fixedPanel?.querySelector('[data-atk-08-fixed-status]');
+    const clearFixedStatus = () => {
+      if (fixedStatus) fixedStatus.textContent = '';
+    };
+    fixedForm?.addEventListener('change', clearFixedStatus);
     fixedForm?.addEventListener('submit', (event) => {
       event.preventDefault();
       const selected = fixedForm.querySelector('input[name="ticket"]:checked');
@@ -137,8 +145,12 @@ const presenter = {
     });
     fixedPanel?.querySelector('[data-atk-08-fixed-reset]')?.addEventListener('click', () => {
       fixedForm?.reset();
-      if (fixedStatus) fixedStatus.textContent = '';
+      clearFixedStatus();
       fixedPanel.querySelector('.panel-heading')?.focus();
     });
+
+    root.dataset.atkDemoBound = 'true';
   })();
 </script>
+  </Fragment>
+</StationFrame>

@@ -11,14 +11,15 @@ const {
   description = 'A public static teaching site comparing broken and fixed interfaces across roles.',
 } = Astro.props;
 const pathname = Astro.url.pathname;
-const stationsCurrent = pathname === '/' || pathname.startsWith('/stations/');
+const stationSection = pathname.startsWith('/stations/');
 ---
 
 <!doctype html>
-<html lang="en" data-atk-mode="builder">
+<html lang="en" data-atk-mode="advocate">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="form-action 'none'" />
     <title>{title} · A11y Test Kitchen</title>
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
@@ -36,7 +37,12 @@ const stationsCurrent = pathname === '/' || pathname.startsWith('/stations/');
 
         <nav aria-label="Main navigation">
           <ul class="nav-links">
-            <li><a href="/" class="nav-link" aria-current={stationsCurrent ? 'page' : undefined}>Stations</a></li>
+            <li>
+              <a href="/" class="nav-link" aria-current={pathname === '/' ? 'page' : undefined} data-section-current={stationSection ? 'true' : undefined}>Stations</a>
+            </li>
+            <li>
+              <a href="/teachers/" class="nav-link" aria-current={pathname === '/teachers/' ? 'page' : undefined}>Teaching guide</a>
+            </li>
             <li>
               <a
                 href="/about/"
@@ -47,22 +53,22 @@ const stationsCurrent = pathname === '/' || pathname.startsWith('/stations/');
           </ul>
         </nav>
 
-        <div class="mode-switch">
-          <span class="visually-hidden" id="atk-mode-label">Choose explanation audience:</span>
+        <div class="mode-switch" data-atk-mode-switch hidden>
+          <span class="visually-hidden" id="atk-mode-label">Choose explanation audience</span>
           <div class="mode-switch-group" role="group" aria-labelledby="atk-mode-label">
             <button
               type="button"
               class="mode-btn"
               data-mode="advocate"
               data-atk-mode-button="advocate"
-              aria-pressed="false"
+              aria-pressed="true"
             >Advocate</button>
             <button
               type="button"
               class="mode-btn"
               data-mode="builder"
               data-atk-mode-button="builder"
-              aria-pressed="true"
+              aria-pressed="false"
             >Builder</button>
             <button
               type="button"
@@ -97,8 +103,6 @@ const stationsCurrent = pathname === '/' || pathname.startsWith('/stations/');
         const modes = new Set(['advocate', 'builder', 'presenter']);
         const root = document.documentElement;
         if (root.dataset.atkModeBound === 'true') return;
-        root.dataset.atkModeBound = 'true';
-
         const buttons = Array.from(document.querySelectorAll('[data-atk-mode-button]'));
 
         const savedMode = () => {
@@ -136,7 +140,11 @@ const stationsCurrent = pathname === '/' || pathname.startsWith('/stations/');
         });
 
         applyMode(savedMode());
+        const modeSwitch = document.querySelector('[data-atk-mode-switch]');
+        if (modeSwitch) modeSwitch.hidden = false;
+        root.dataset.atkModeBound = 'true';
       })();
     </script>
+    <slot name="page-script" />
   </body>
 </html>
