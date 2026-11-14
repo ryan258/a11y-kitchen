@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { builtStations } from '../data/stations.js';
+
+const firstLessons = builtStations.filter(({ id }) => id === '09' || id === '12');
+---
+
+<Base title="Teaching guide" description="A short classroom plan for teaching interface accessibility with A11y Test Kitchen.">
+  <article class="about-article teacher-guide">
+    <header class="about-header">
+      <h1 class="about-title">Teaching with A11y Test Kitchen</h1>
+      <p class="about-lead">A short first lesson for fifth grade and other first-time groups.</p>
+    </header>
+
+    <section class="about-section">
+      <h2>Before class</h2>
+      <p>Choose <strong>Advocate</strong> for the plain-language explanation. On shared devices, check the mode on each browser. Open the station and make sure the back row can read the demo. Use your browser’s Print command for a copy of this guide.</p>
+      <p>Invite students to drive or observe. Everyone can keep their usual controls and assistive technology.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>Try one station together</h2>
+      <ul>
+        {firstLessons.map((station) => (
+          <li><a href={`/stations/${station.slug}/`}>Station {station.id} · {station.title}</a></li>
+        ))}
+      </ul>
+      <p>Try the Barrier once, then do the same task in Fixed. In Station 09, inspect the name of the delete button. In Station 12, look at the size and spacing of the options. Demonstrate Station 01 yourself if you use it. Its timer deliberately clears the example input.</p>
+    </section>
+
+    <section class="about-section">
+      <h2>Ask the group</h2>
+      <p>Ask “What did the page make harder? What did the designer change? Where else would that change help?” Let students explain, point, draw, or write their answers.</p>
+      <p><a href="/#stations-rail-heading">Browse all stations</a></p>
+    </section>
+  </article>
+</Base>
