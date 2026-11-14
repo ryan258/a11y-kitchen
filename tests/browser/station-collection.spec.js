@@ -79,7 +79,8 @@ test('station 02: vague retry and field-specific recovery both complete', async 
   const submit = page.locator('[data-atk-02-fixed-form]').getByRole('button', { name: 'Update payment' });
   await submit.click();
   await expect(error).toContainText('Enter exactly five digits');
-  // role="alert" announces on its own; focusing it too would read it twice.
+  await expect(error).toHaveAttribute('role', 'alert');
+  await expect(error).toHaveAttribute('aria-atomic', 'true');
   await expect(error).not.toBeFocused();
   await expect(error).not.toHaveAttribute('tabindex');
   await expect(submit).toBeFocused();
@@ -104,6 +105,7 @@ test('station 02: vague retry and field-specific recovery both complete', async 
 
 test('station 03: both versions reach the same return result and reset', async ({ page }) => {
   await page.goto('/stations/reading-wall/');
+  const originalPolicy = await page.locator('.reading-wall p').allTextContents();
   await page.locator('[data-atk-panel="barrier"] input[value="online"]').check();
   await page.locator('[data-atk-panel="barrier"]').getByRole('button', { name: 'Continue' }).click();
   await expect(page.locator('[data-atk-panel="barrier"] [data-atk-choice-status]')).toContainText('ATK-302');
@@ -112,10 +114,17 @@ test('station 03: both versions reach the same return result and reset', async (
   await expect(page.locator('[data-atk-panel="barrier"] [data-atk-choice-status]')).toBeEmpty();
   await expect(page.locator('#atk-03-barrier-heading')).toBeFocused();
   await page.getByRole('radio', { name: 'Try the fix' }).check();
+  const policy = page.locator('[data-atk-03-policy]');
+  await policy.locator('summary').click();
+  await expect(policy).toHaveAttribute('open', '');
+  await expect(policy.locator('p')).toHaveText(originalPolicy);
   await page.locator('[data-atk-panel="fixed"] input[value="online"]').check();
   await page.locator('[data-atk-panel="fixed"]').getByRole('button', { name: 'Continue' }).click();
   await expect(page.locator('[data-atk-panel="fixed"] [data-atk-choice-status]')).toContainText('ATK-302');
+  await page.locator('[data-atk-panel="fixed"] input[value="warranty"]').check();
+  await expect(page.locator('[data-atk-panel="fixed"] [data-atk-choice-status]')).toBeEmpty();
   await page.locator('[data-atk-panel="fixed"]').getByRole('button', { name: 'Reset Fixed' }).click();
+  await expect(policy).not.toHaveAttribute('open', '');
   await expect(page.locator('[data-atk-panel="fixed"] input:checked')).toHaveCount(0);
   await expect(page.locator('[data-atk-panel="fixed"] [data-atk-choice-status]')).toBeEmpty();
   await expect(page.locator('#atk-03-fixed-heading')).toBeFocused();
@@ -123,7 +132,19 @@ test('station 03: both versions reach the same return result and reset', async (
 
 test('station 04: backup works and fixed menu supports Escape with focus return', async ({ page }) => {
   await page.goto('/stations/disappearing-menu/');
-  await page.getByRole('button', { name: 'Open Settings with safe backup' }).click();
+  const backup = page.getByRole('button', { name: 'Open Settings with safe backup' });
+  const hoverMenu = page.locator('.hover-only-menu');
+  const hoverSettings = hoverMenu.getByRole('button', { name: 'Settings' });
+  await expect(hoverMenu).toBeHidden();
+  await page.locator('.hover-only-trigger').hover();
+  await expect(hoverMenu).toBeVisible();
+  await hoverSettings.focus();
+  await page.locator('#atk-04-barrier-heading').hover();
+  await expect(hoverSettings).toBeFocused();
+  await expect(hoverMenu).toBeVisible();
+  await backup.focus();
+  await expect(hoverMenu).toBeHidden();
+  await backup.click();
   await expect(page.locator('[data-atk-04-barrier-status]')).toHaveText('Settings opened.');
   await page.getByRole('button', { name: 'Reset Barrier' }).click();
   await expect(page.locator('[data-atk-04-barrier-status]')).toBeEmpty();
@@ -160,38 +181,80 @@ test('station 04: backup works and fixed menu supports Escape with focus return'
   await expect(page.locator('#atk-04-fixed-heading')).toBeFocused();
 });
 
-test('station 05: automatic interrupt is escapable and fixed update keeps focus', async ({ page }) => {
+test('station 05: automatic interrupt stays in its task and fixed update keeps focus', async ({ page }) => {
+  await page.clock.install();
   await page.goto('/stations/interruption/');
+  await page.getByRole('radio', { name: 'Compare side by side' }).check();
   const barrierForm = page.locator('[data-atk-05-barrier-form]');
-  await barrierForm.evaluate((form) => { form.dataset.atkInterruptDelay = '100'; });
+  await barrierForm.evaluate((form) => { form.dataset.atkInterruptDelay = '12000'; });
   const name = page.locator('#atk-05-barrier-name');
+  const date = page.locator('#atk-05-barrier-date');
+  const fixedName = page.locator('#atk-05-fixed-name');
+  const interrupt = page.locator('[data-atk-05-interrupt]');
+  await name.fill('Sam');
+  await fixedName.focus();
+  await page.clock.fastForward(12_000);
+  await expect(interrupt).toBeHidden();
+  await expect(fixedName).toBeFocused();
+
   await name.fill('Sam Lee');
-  await expect(page.locator('[data-atk-05-interrupt]')).toBeVisible();
+  await date.focus();
+  await page.clock.fastForward(12_000);
+  await expect(interrupt).toBeVisible();
   await expect(page.locator('[data-atk-05-close-interrupt]')).toBeFocused();
   await page.keyboard.press('Escape');
-  await expect(page.locator('[data-atk-05-interrupt]')).toBeHidden();
-  await expect(name).toBeFocused();
+  await expect(interrupt).toBeHidden();
+  await expect(date).toBeFocused();
 
   await barrierForm.getByRole('button', { name: 'Reset Barrier' }).click();
   await expect(name).toBeEmpty();
   await expect(page.locator('[data-atk-05-interrupt]')).toBeHidden();
   await expect(page.locator('[data-atk-05-barrier-status]')).toBeEmpty();
   await expect(page.locator('#atk-05-barrier-heading')).toBeFocused();
-  await name.fill('Sam Lee');
-  await expect(page.locator('[data-atk-05-interrupt]')).toBeVisible();
-  await page.keyboard.press('Escape');
 
+  await page.setViewportSize({ width: 640, height: 900 });
+  await fixedName.fill('Sam Lee');
+  await name.fill('Sam Lee');
+  await page.clock.fastForward(12_000);
+  await expect(interrupt).toBeVisible();
+  await page.getByRole('button', { name: 'Reset Fixed' }).click();
+  await expect(fixedName).toBeEmpty();
+  await expect(page.locator('#atk-05-fixed-heading')).toBeFocused();
+  await expect(interrupt).toBeVisible();
+  await barrierForm.getByRole('button', { name: 'Reset Barrier' }).click();
+  await expect(interrupt).toBeHidden();
+
+  await name.fill('Sam Lee');
   await page.getByRole('radio', { name: 'Try the fix' }).check();
+  await page.clock.fastForward(12_000);
+  await expect(interrupt).toBeHidden();
+
   const check = page.locator('[data-atk-05-check]');
-  await page.locator('#atk-05-fixed-name').fill('Sam Lee');
+  const book = page.locator('[data-atk-05-fixed-form]').getByRole('button', { name: 'Book appointment' });
+  const fixedStatus = page.locator('[data-atk-05-fixed-status]');
+  const time = page.locator('#atk-05-fixed-time');
   await page.locator('#atk-05-fixed-date').fill('2026-08-19');
-  await page.locator('#atk-05-fixed-time').selectOption('10:30');
+  await time.selectOption('14:00');
   await check.focus();
   await check.click();
+  await expect(time).toHaveAttribute('aria-invalid', 'true');
+  await expect(fixedName).not.toHaveAttribute('aria-invalid');
+  await expect(page.locator('#atk-05-fixed-time-error')).toHaveText('Time: Choose 10:30 AM.');
+  await expect(fixedStatus).toBeEmpty();
+  await time.selectOption('10:30');
+  await check.click();
   await expect(check).toBeFocused();
-  await expect(page.locator('[data-atk-05-fixed-status]')).toContainText('10:30 AM is available');
-  await page.locator('[data-atk-05-fixed-form]').getByRole('button', { name: 'Book appointment' }).click();
-  await expect(page.locator('[data-atk-05-fixed-status]')).toContainText('Appointment booked');
+  await expect(time).not.toHaveAttribute('aria-invalid');
+  await expect(fixedStatus).toContainText('10:30 AM is available');
+  await book.click();
+  await expect(fixedName).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#atk-05-fixed-name-error')).toHaveText('Name: Enter Sam Lee.');
+  await expect(fixedStatus).toBeEmpty();
+  await fixedName.fill('Sam Lee');
+  await book.click();
+  await expect(fixedStatus).toContainText('Appointment booked');
+  await time.selectOption('14:00');
+  await expect(fixedStatus).toBeEmpty();
   await page.getByRole('button', { name: 'Reset Fixed' }).click();
   await expect(page.locator('#atk-05-fixed-name')).toBeEmpty();
   await expect(page.locator('#atk-05-fixed-date')).toBeEmpty();
@@ -260,6 +323,11 @@ test('station 07: safety Escape releases the cycle and fixed dialog has a close 
   await expect(barrierOpen).toBeFocused();
 
   await barrierOpen.click();
+  const barrierMode = page.getByRole('radio', { name: 'Try the barrier' });
+  await barrierMode.focus();
+  await expect(barrierDialog).toBeVisible();
+  await expect(barrierMode).toBeFocused();
+
   await page.getByRole('button', { name: 'Reset Barrier' }).click();
   await expect(barrierDialog).toBeHidden();
   await expect(page.locator('[data-atk-07-barrier-status]')).toBeEmpty();
@@ -280,6 +348,11 @@ test('station 07: safety Escape releases the cycle and fixed dialog has a close 
   await expect(fixedDialog).toBeVisible();
   await expect(fixedDialog.getByRole('button')).toHaveCount(1);
   await fixedDialog.getByRole('button', { name: 'Close promotion' }).click();
+  await expect(fixedDialog).toBeHidden();
+  await expect(fixedOpen).toBeFocused();
+  await fixedOpen.click();
+  await expect(fixedDialog).toBeVisible();
+  await page.keyboard.press('Escape');
   await expect(fixedDialog).toBeHidden();
   await expect(fixedOpen).toBeFocused();
   await page.getByRole('button', { name: 'Reset Fixed' }).click();
@@ -303,6 +376,8 @@ test('station 08: replay and fixed controls both select Balcony', async ({ page 
   await page.getByRole('radio', { name: 'Balcony · $30' }).check();
   await page.getByRole('button', { name: 'Buy ticket' }).click();
   await expect(page.locator('[data-atk-08-fixed-status]')).toContainText('Balcony ticket purchased');
+  await page.getByRole('radio', { name: 'Standard · $20' }).check();
+  await expect(page.locator('[data-atk-08-fixed-status]')).toBeEmpty();
   await page.getByRole('button', { name: 'Reset Fixed' }).click();
   await expect(page.locator('[data-atk-08-fixed-form] input:checked')).toHaveCount(0);
   await expect(page.locator('[data-atk-08-fixed-status]')).toBeEmpty();
@@ -349,6 +424,8 @@ test('station 10: both versions identify the same failed order', async ({ page }
   await page.locator('[data-atk-10-fixed-form] input[value="ATK-511"]').check();
   await page.locator('[data-atk-10-fixed-form]').getByRole('button', { name: 'Check order' }).click();
   await expect(page.locator('[data-atk-10-fixed-form] [data-atk-10-status]')).toContainText('Correct');
+  await page.locator('[data-atk-10-fixed-form] input[value="ATK-510"]').check();
+  await expect(page.locator('[data-atk-10-fixed-form] [data-atk-10-status]')).toBeEmpty();
   await page.locator('[data-atk-10-fixed-form]').getByRole('button', { name: 'Reset Fixed' }).click();
   await expect(page.locator('[data-atk-10-fixed-form] input:checked')).toHaveCount(0);
   await expect(page.locator('[data-atk-10-fixed-form] [data-atk-10-status]')).toBeEmpty();
@@ -374,6 +451,8 @@ test('station 11: fixed media has captions and transcript and both tasks reset',
   await page.locator('[data-atk-11-form]').nth(1).locator('input[value="done"]').check();
   await page.locator('[data-atk-11-form]').nth(1).getByRole('button', { name: 'Check answer' }).click();
   await expect(page.locator('#panel-fix-11 [data-atk-11-status]')).toContainText('Correct');
+  await page.locator('#panel-fix-11 input[value="card"]').check();
+  await expect(page.locator('#panel-fix-11 [data-atk-11-status]')).toBeEmpty();
   await page.locator('#panel-fix-11').getByRole('button', { name: 'Reset Fixed' }).click();
   await expect(transcript).not.toHaveAttribute('open', '');
   await expect(page.locator('#panel-fix-11 input:checked')).toHaveCount(0);
@@ -404,6 +483,10 @@ test('station 12: rendered target geometry and selection match the station brief
   await large.nth(1).click();
   await expect(large.nth(1)).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#panel-fix-12 [data-atk-12-status]')).toHaveText('Selected option B.');
+  await large.nth(1).click();
+  await expect(large.nth(1)).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#panel-fix-12 [data-atk-12-status]')).toContainText('No option selected');
+  await large.nth(1).click();
   await page.locator('#panel-fix-12').getByRole('button', { name: 'Reset Fixed' }).click();
   await expect(large.nth(1)).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('#panel-fix-12 [data-atk-12-status]')).toBeEmpty();

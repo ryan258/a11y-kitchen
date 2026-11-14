@@ -80,7 +80,7 @@ export const intentionalFailures = [
     manualCheck: 'unexpected-focus-movement',
     expectedResult: 'A timed availability update opens and moves focus to its close control.',
     rationale: 'The lesson isolates an automatic interruption and context change.',
-    safetyBoundary: 'Escape and a visible close button return focus; hiding or resetting the panel cancels the timer.',
+    safetyBoundary: 'The update opens only while a Barrier field has focus. Escape and a visible close button return focus to that field. Hiding or resetting the panel cancels the timer.',
     fixedResolution: '[data-atk-05-check] requests the update without moving focus.',
   }),
   manual({
@@ -102,7 +102,7 @@ export const intentionalFailures = [
     manualCheck: 'bounded-focus-cycle',
     expectedResult: 'Tab cycles between promo controls and there is no visible product close control.',
     rationale: 'The lesson approximates a keyboard trap without creating a literal one.',
-    safetyBoundary: 'Standard Escape always closes, browser Back is untouched, and reset cannot be disabled.',
+    safetyBoundary: 'Escape closes from inside. The host Reset sits beside Open promo and closes the overlay. View changes also close it.',
     fixedResolution: '[data-atk-07-fixed-dialog] is a native dialog with a named close button and Escape.',
   }),
   manual({
@@ -124,6 +124,7 @@ export const intentionalFailures = [
     wcagCriterion: '4.1.2',
     toolRule: 'button-name',
     expectedImpact: 'critical',
+    expectedMessage: /Element does not have inner text that is visible to screen readers/i,
     manualCheck: 'computed-accessible-name',
     expectedResult: 'The delete button has no computed accessible name.',
     rationale: 'The barrier isolates an icon-only control with no name.',

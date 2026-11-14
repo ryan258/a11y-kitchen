@@ -64,42 +64,87 @@ test('view: panel state survives changes and focus cannot remain hidden', async 
   await expect(barrierInput).toHaveValue('482731');
 });
 
-test('barrier: first submit destroys the values and second submit accepts', async ({ page }) => {
+test('barrier: first submit destroys the values and a complete retry succeeds', async ({ page }) => {
   const member = page.locator('#atk-01-barrier-member-number');
   const reason = page.locator('#atk-01-barrier-reason');
   const status = page.locator('[data-atk-barrier-status]');
+  const submit = page.locator('[data-atk-barrier-form]').getByRole('button', { name: 'Cancel membership' });
 
   await member.fill('482731');
   await reason.fill('Moving away');
-  await page.locator('[data-atk-barrier-form]').getByRole('button', { name: 'Cancel membership' }).click();
+  await submit.click();
   await expect(member).toHaveValue('');
   await expect(reason).toHaveValue('');
   await expect(status).toHaveText('Invalid input.');
 
+  await submit.click();
+  await expect(status).toHaveText('Invalid input.');
   await member.fill('482731');
+  await submit.click();
+  await expect(status).toHaveText('Invalid input.');
+  await expect(member).toHaveValue('482731');
+
   await reason.fill('Moving away');
-  await page.locator('[data-atk-barrier-form]').getByRole('button', { name: 'Cancel membership' }).click();
+  await submit.click();
   await expect(status).toHaveText('Membership canceled.');
   await expect(page.locator('[data-atk-barrier-timer]')).toHaveText('Timer stopped.');
 });
 
-test('barrier: the countdown starts once and expiry clears both fields', async ({ page }) => {
+test('barrier: the countdown starts once and expiry requires reset', async ({ page }) => {
+  await page.clock.install();
   const form = page.locator('[data-atk-barrier-form]');
   const member = page.locator('#atk-01-barrier-member-number');
   const reason = page.locator('#atk-01-barrier-reason');
+  const countdown = page.locator('#atk-01-barrier-countdown');
+  const toggle = page.locator('[data-atk-barrier-toggle-countdown]');
+  const timer = page.locator('[data-atk-barrier-timer]');
 
   await expect(form).toHaveAttribute('data-atk-duration-seconds', '30');
-  await form.evaluate((element) => { element.dataset.atkDurationSeconds = '1'; });
+  await form.evaluate((element) => { element.dataset.atkDurationSeconds = '10'; });
   await member.fill('482731');
   await reason.fill('Moving away');
-  await page.waitForTimeout(1400);
+  const initialReadout = await timer.textContent();
+
+  await page.getByRole('button', { name: 'Hide countdown' }).press('Enter');
+  await expect(countdown).toBeHidden();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(toggle).toBeFocused();
+  await expect(member).toHaveValue('482731');
+  await expect(reason).toHaveValue('Moving away');
+
+  await page.clock.runFor(1000);
+  await page.getByRole('button', { name: 'Show countdown' }).press('Enter');
+  await expect(countdown).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(toggle).toBeFocused();
+  await expect(timer).not.toHaveText(initialReadout);
+  await page.getByRole('button', { name: 'Hide countdown' }).press('Enter');
+  await page.clock.runFor(10_000);
 
   await expect(member).toHaveValue('');
   await expect(reason).toHaveValue('');
   await expect(page.locator('[data-atk-barrier-status]')).toHaveText(
     'Session terminated. Please re-initiate.',
   );
-  await expect(page.locator('[data-atk-barrier-timer]')).toHaveText('Time expired.');
+  await expect(countdown).toBeHidden();
+  await page.getByRole('button', { name: 'Show countdown' }).click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(countdown).toBeVisible();
+  await expect(timer).toHaveText('Time expired.');
+  await member.fill('482731');
+  await reason.fill('Moving away');
+  await form.getByRole('button', { name: 'Cancel membership' }).click();
+  await expect(page.locator('[data-atk-barrier-status]')).toHaveText(
+    'Session terminated. Please re-initiate.',
+  );
+  await expect(timer).toHaveText('Time expired.');
+  await page.getByRole('button', { name: 'Hide countdown' }).click();
+  await form.getByRole('button', { name: 'Reset Barrier' }).click();
+  await expect(member).toBeEmpty();
+  await expect(reason).toBeEmpty();
+  await expect(countdown).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(timer).toHaveText('Time left: 10 seconds.');
 });
 
 test('barrier: hiding pauses the timer and reset clears timer, message, and attempts', async ({ page }) => {
@@ -146,7 +191,7 @@ test('barrier: hiding pauses the timer and reset clears timer, message, and atte
   await expect(status).toHaveText('Invalid input.');
 });
 
-test('fixed: validation names the field, keeps its value, and announces once', async ({ page }) => {
+test('fixed: validation names the field and keeps its value and focus', async ({ page }) => {
   await page.getByRole('radio', { name: 'Try the fix' }).check();
   const member = page.locator('#atk-01-fixed-member-number');
   const error = page.locator('#atk-01-fixed-member-error');
@@ -157,7 +202,8 @@ test('fixed: validation names the field, keeps its value, and announces once', a
     'Member number: Enter exactly six digits. Your value was kept so you can fix it.',
   );
   await expect(error).toHaveAttribute('role', 'alert');
-  // role="alert" announces on its own; focusing it too would read it twice.
+  // Speech output is checked separately with assistive technology.
+  await expect(error).toHaveAttribute('aria-atomic', 'true');
   await expect(error).not.toBeFocused();
   await expect(error).not.toHaveAttribute('tabindex');
   await expect(submit).toBeFocused();
@@ -206,11 +252,22 @@ test('reset: each panel resets independently without changing the selected view'
   await page.getByRole('radio', { name: 'Compare side by side' }).check();
   const barrierMember = page.locator('#atk-01-barrier-member-number');
   const fixedMember = page.locator('#atk-01-fixed-member-number');
+  const fixedReason = page.locator('#atk-01-fixed-reason');
+  const reviewMember = page.locator('[data-atk-fixed-review-member]');
+  const reviewReason = page.locator('[data-atk-fixed-review-reason]');
   await barrierMember.fill('111111');
   await fixedMember.fill('482731');
+  await page.locator('[data-atk-fixed-form="1"]').getByRole('button', { name: 'Continue' }).click();
+  await fixedReason.fill('Moving away');
+  await page.getByRole('button', { name: 'Review cancellation' }).click();
+  await expect(reviewMember).toHaveText('482731');
+  await expect(reviewReason).toHaveText('Moving away');
 
   await page.locator('[data-atk-fixed-reset]:visible').click();
   await expect(fixedMember).toHaveValue('');
+  await expect(fixedReason).toHaveValue('');
+  await expect(reviewMember).toBeEmpty();
+  await expect(reviewReason).toBeEmpty();
   await expect(barrierMember).toHaveValue('111111');
   await expect(page.getByRole('radio', { name: 'Compare side by side' })).toBeChecked();
   await expect(page.locator('#atk-01-fixed-heading')).toBeFocused();
