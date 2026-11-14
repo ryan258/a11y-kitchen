@@ -2,7 +2,7 @@
 
 Status: AUDITING — implementation and deterministic evidence complete; cognitive review pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/memory-tax/`
 
 ## Contract
@@ -27,8 +27,9 @@ message without hiding the provided code.
 
 ## Criteria review
 
-- **3.3.7 Redundant Entry (A):** Confirmed for information provided to the user earlier in the same
-  process. A real security exception would require separate review.
+- **3.3.7 Redundant Entry (A):** The exercise supplies a fictional code earlier in the same
+  process. The Fixed control populates the entry. For a real flow, check whether re-entry is
+  essential, required for security, or whether the earlier information is no longer valid.
 
 ## Deterministic evidence
 

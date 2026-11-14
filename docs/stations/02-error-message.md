@@ -2,7 +2,7 @@
 
 Status: AUDITING — implementation and deterministic evidence complete; manual release matrix pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/error-message/`
 
 ## Contract
@@ -21,18 +21,21 @@ and attempt count. Keyboard, Escape, Back, and the view control remain native.
 
 ## Fixed behavior
 
-The five-digit ZIP is preserved after an error. The `role="alert"` message announces without taking
-focus, names Billing ZIP code,
-describes the length problem or fictional-card mismatch, and gives the correction. `60614` completes
-the task. Reset restores the empty form.
+The entered ZIP is preserved after an error. The existing `role="alert"` region identifies
+Billing ZIP code, distinguishes the length or format problem from a fictional-card mismatch, and
+offers a correction while focus stays on the active control. `60614` completes the task.
+Reset restores the empty form.
 
 ## Criteria review
 
 - **3.3.1 Error Identification (A):** Confirmed; the fixed error identifies the field and problem.
-- **3.3.3 Error Suggestion (AA):** Confirmed; the known format and demo value are supplied.
+- **3.3.3 Error Suggestion (AA):** Fixed offers the known format and sample value for the detected
+  error. In a production flow, account for the exception when a suggestion would jeopardize
+  security or the purpose of the content.
 
 ## Deterministic evidence
 
-The collection browser suite covers the generic first and second submits, preserved invalid value,
-announced-but-unfocused alert, valid completion, both resets, all views, and all audience panels. The exception ledger
-records the manual error-quality comparison because axe does not judge whether prose is actionable.
+The collection browser suite checks the generic first and second submits, the retained invalid value,
+alert text and focus, valid completion, both resets, views, and audience panels. The release review
+checks first and repeated alerts with assistive technology and compares the error prose for
+actionability.

@@ -30,5 +30,6 @@ System font fallbacks remain in `src/styles/global.css` if a local asset cannot 
 - Canonical Google Fonts source: `https://github.com/google/fonts/tree/main/ofl/spacemono`
 
 The WOFF2 files are unmodified Latin subsets served by Google Fonts. Their exact upstream license
-notices remain beside the binaries. The runtime build contains no Google Fonts stylesheet or remote
-font URL.
+notices remain beside the binaries and are served with the build at
+`/licenses/Outfit-OFL.txt` and `/licenses/Space-Mono-OFL.txt`. Font requests use the same
+origin as the page.

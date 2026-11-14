@@ -1,7 +1,7 @@
 # A11y Test Kitchen Station Authoring Guide
 
 Status: Active for the implemented twelve-station contract
-Last updated: 2026-08-08
+Last updated: 2026-11-12
 Authority: Repeatable station planning, content, interaction, and handoff format
 
 Use this guide to turn one backlog item into an implementation-ready station brief. It operationalizes `specs/PROJECT.md` and `docs/PRODUCTION-BIBLE.md`; it does not redefine either document.
@@ -242,7 +242,7 @@ Follow the authoritative voice profiles in `docs/PRODUCTION-BIBLE.md`.
 [One manager/client/executive action.]
 ```
 
-No code. Target 90-150 words.
+Zero code. Aim for about 75–150 words when that fits the lesson.
 
 ### Builder template
 
@@ -266,7 +266,8 @@ No code. Target 90-150 words.
 [What this example does not prove.]
 ```
 
-Target 180-320 words plus one focused snippet.
+Use one focused snippet and enough prose to cover the criteria, moves, verification, and boundary.
+Most examples take about 110–220 words.
 
 ### Presenter template
 
@@ -289,7 +290,8 @@ Target 180-320 words plus one focused snippet.
 3. [...]
 ```
 
-Target two to three minutes. Do not pressure a participant to race the barrier.
+Plan roughly two minutes. Keep each step's time as an estimate and allow participants to pause,
+observe, or use their usual input supports.
 
 ## Part 6 — WCAG verification record
 

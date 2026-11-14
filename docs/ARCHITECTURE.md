@@ -1,7 +1,7 @@
 # A11y Test Kitchen Architecture
 
 Status: Implemented for the full twelve-station collection; manual release matrix pending
-Last updated: 2026-08-09
+Last updated: 2026-11-12
 Authority: Technical boundaries, component ownership, state contracts, and implementation shape
 
 ## Purpose
@@ -80,6 +80,9 @@ flowchart TD
 │   ├── pages/
 │   │   ├── about.astro
 │   │   ├── index.astro
+│   │   ├── teachers.astro
+│   │   ├── licenses/
+│   │   │   └── ...static notice resources
 │   │   └── stations/
 │   │       └── [slug].astro
 │   └── styles/
@@ -90,8 +93,9 @@ flowchart TD
     └── fixtures/
 ```
 
-No placeholder station routes exist. `[slug].astro` prerenders all twelve stations, and only after
-mapping each built metadata record to a complete component.
+The rail can show an unbuilt slot without a destination. `[slug].astro` prerenders built records
+only and passes the canonical record to its station component. All twelve current records are
+built. The home, About, and teacher guide bring the collection to fifteen HTML routes.
 
 ## Runtime and build contract
 
@@ -104,19 +108,20 @@ Accepted DEC-005 establishes this runtime and build contract:
 - no integration for React, Vue, Svelte, MDX, a CMS, or server output;
 - production verification runs against `dist/`, not only the development server.
 
-The project states `output: 'static'` explicitly and tests that every expected route exists in the
-built artifact; it does not rely on a framework default to communicate the release contract.
+The verifier checks expected routes in the built artifact. Deploy or preview the contents of
+`dist/` at an HTTP(S) origin root for root-relative navigation and assets. The static license
+resources accompany the fonts and authored content in the same artifact.
 
 ## Component ownership
 
 | Surface | Owns | Must not own |
 |---|---|---|
-| `Base.astro` | Document shell, skip link, masthead, mode buttons, main target, footer, global mode initialization | Station state or barrier behavior |
+| `Base.astro` | Document shell, skip link, masthead, mode buttons, main target, footer, global mode initialization, and in-body script slot | Station state or barrier behavior |
 | `StationTicket.astro` | One rail item, built/unbuilt state, station metadata presentation | Station availability logic outside its props |
 | `StateChip.astro` | Barrier/Fixed word + shape + tokenized color | Arbitrary statuses or its own script |
 | `ViewSwitch.astro` | Native radio display modes and panel visibility contract from DEC-006 | Copies of either panel or station-specific form logic |
 | `ChangedPanels.astro` | Advocate/Builder/Presenter slots and active-mode visibility | Persistence or duplicated global mode listeners |
-| `StationFrame.astro` | Seven-section composition, role content, criterion links, and view wiring | Lesson-specific state or barrier behavior |
+| `StationFrame.astro` | Seven-section composition, role content, applicability labels, script forwarding, static fallback, and view wiring | Lesson-specific state or barrier behavior |
 | `StationPanel.astro` | Stable panel root, state chip, hidden disclosure, and reset slot | A station state machine |
 | Station component/route | Barrier/fixed markup, local state machine, resets, and lesson-specific content | Global navigation or another station's behavior |
 | `stations.js` | Station metadata and rail status | Long-form station copy or executable behavior |
@@ -141,7 +146,7 @@ built artifact; it does not rely on a framework default to communicate the relea
       title: "Timing Adjustable",
       level: "A",
       source: "https://www.w3.org/TR/WCAG22/#timing-adjustable",
-      titleVerifiedOn: "2026-08-08",
+      titleVerifiedOn: "2026-11-12",
       applicability: "confirmed"
     }
   ]
@@ -153,8 +158,8 @@ Contract rules:
 - `id` is a zero-padded string and unique.
 - `slug` is stable, unique, lowercase kebab-case, and is the route segment.
 - `status` is one of `not-built` or `built`; do not add “in progress” to the public rail.
-- `built` means the complete route exists and its deterministic station gate passes, so the rail may
-  link to it as “Ready to try.” It is an availability state, not a WCAG or release-verification claim.
+- `built` is the availability state for a complete route and links the rail to it as “Ready to try.”
+  Track WCAG evidence and release verification in the release evidence index.
 - Manual support-matrix and publication readiness remain separate evidence states; every station brief
   stays `AUDITING` until its named checks are recorded.
 - Criterion title verification and applicability review are separate fields.
@@ -169,11 +174,14 @@ The header renders three native `button` elements in a labelled group:
 - Builder
 - Presenter
 
-Exactly one button has `aria-pressed="true"`. The rest have `aria-pressed="false"`. Every mode panel has a stable mode marker such as `data-atk-mode-panel="builder"`.
+When the script initializes the mode control, exactly one button has `aria-pressed="true"`. The
+rest have `aria-pressed="false"`. Every mode panel has a stable mode marker such as
+`data-atk-mode-panel="builder"`.
 
 ### Initialization
 
-1. Start with `builder` as the server-rendered/default mode.
+1. Server-render the Advocate summary as the readable lesson. Interactive controls start hidden
+   and are exposed after their controllers initialize.
 2. In one inline script owned by `Base.astro`, read `localStorage.getItem("atk-mode")` inside `try/catch` and set a validated mode on the document root as early as practical.
 3. Accept only `advocate`, `builder`, or `presenter`; otherwise use `builder`.
 4. Bind controls and panel visibility after the relevant DOM exists—either place the script after the layout slot or use one `DOMContentLoaded` initializer.
@@ -189,6 +197,7 @@ Astro renders an `is:inline` script each time the component containing it is ren
 
 - the global mode script appears only in `Base.astro`;
 - `ChangedPanels.astro` contains no initialization script;
+- station scripts pass through the frame into the layout's script slot inside the document body;
 - the initializer is idempotent and marks the document root after binding listeners;
 - tests fail if a mode button produces duplicate event handling.
 
@@ -215,6 +224,8 @@ Implementation rules:
 ## Station interaction contract
 
 Each station route owns a small state machine. State is in memory only and is never stored across routes.
+The interactive area stays hidden until both the station and view controls have bound their events.
+The task and Advocate explanation provide a static reading path while scripts are unavailable.
 
 ### Required state categories
 
@@ -232,7 +243,8 @@ Each panel reset:
 
 1. cancels its timers and pending callbacks;
 2. clears transient messages, attempts, and completion state;
-3. restores the documented initial values and step;
+3. restores the documented initial values and step, including closed disclosures and cleared
+   review-only copies of entered values;
 4. returns focus to the panel's stable start heading or first task control;
 5. changes no state in the other panel, mode control, or view control.
 
@@ -316,18 +328,26 @@ Rules:
 - Placeholder text never substitutes for a label in fixed panels.
 - Error text identifies the field, describes the issue, and suggests a correction when known.
 - Status messages use the appropriate live-region or alert behavior without unnecessary focus movement.
+- Active, empty error regions remain exposed to assistive technology before their content changes.
+- Authored field boundaries and focus indicators meet 3:1 contrast where needed to identify the
+  control or its state.
 - Code snippets in Builder panels are escaped and presented as text, never executed.
 - External links identify their destination in meaningful link text.
 
 ## Privacy and network contract
 
-- Forms use fictional data and do not transmit it.
-- Page loads and demonstration interactions make no automatic third-party request. Outbound WCAG
-  reference links navigate away only when a visitor chooses them.
+- Forms use fictional data and keep answers in the page. Demo forms use `method="dialog"` outside
+  a dialog to prevent native submission, and the document sets `form-action 'none'` as a second
+  guard. The browser receives no invitation to autofill a real name, postal code, or one-time code.
+- Page loads and demonstration interactions must make zero automatic third-party requests.
+  Static verification covers declarations in emitted HTML and CSS. Browser tests observe actual
+  requests during the page loads and interactions they exercise. Outbound WCAG reference links
+  navigate away when a visitor chooses them.
 - No analytics, tracking pixels, cookies, or telemetry.
 - Outfit, Space Mono, and Station 11 media are local assets. System fallback fonts preserve
   readability if a font asset fails to load.
 - No localStorage key other than `atk-mode` without an accepted requirement.
+- Hosting logs are controlled by the site operator. The exhibit implements no tracking of its own.
 - No public AI call, API key, or generated-on-request content.
 
 ## Verification boundaries
@@ -336,6 +356,8 @@ The architecture is not accepted because the build passes. Evidence must cover:
 
 - static route generation;
 - component/state contracts;
+- no native form submission when scripts are unavailable, and a readable lesson fallback;
+- declared resource and runtime network boundaries;
 - duplicate IDs in every exposed view;
 - keyboard behavior and escape paths;
 - mode storage failure;
@@ -344,7 +366,8 @@ The architecture is not accepted because the build passes. Evidence must cover:
 - exact intentional-failure results;
 - real assistive-technology smoke tests for each new interaction pattern.
 
-See `docs/ACCESSIBILITY-TEST-PLAN.md` for procedures and `docs/REQUIREMENTS-TRACEABILITY.md` for mappings.
+See [test procedures](ACCESSIBILITY-TEST-PLAN.md), [requirements traceability](REQUIREMENTS-TRACEABILITY.md),
+and the [current release evidence](evidence/README.md).
 
 ## Normative and implementation references
 

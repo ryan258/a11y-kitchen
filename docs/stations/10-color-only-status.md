@@ -2,7 +2,7 @@
 
 Status: AUDITING — implementation and deterministic evidence complete; forced-colors review pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/color-only-status/`
 
 ## Contract
@@ -20,12 +20,15 @@ failure.
 
 ## Fixed behavior
 
-Each row adds `Complete` with a circle or `Failed` with a diamond while retaining color. The status is
-part of the row’s accessible text and remains meaningful in monochrome and forced colors.
+Each row adds `Complete` with a circle or `Failed` with a diamond while retaining color. The status
+word is part of the associated radio label. Try identifying the failed order in monochrome and forced
+colors to verify that the status remains visible.
 
 ## Criteria review
 
-- **1.4.1 Use of Color (A):** Confirmed; color is the only row-level visual distinction in the barrier.
+- **1.4.1 Use of Color (A)** requires a visible alternative when color alone conveys status. The
+  Fixed status word provides that alternative. The extra shape is a design choice for redundancy.
+  [W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html)
 
 ## Deterministic evidence
 

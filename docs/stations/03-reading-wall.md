@@ -2,13 +2,14 @@
 
 Status: AUDITING — implementation and deterministic evidence complete; manual reading review pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/reading-wall/`
 
 ## Contract
 
-- **Task:** Start a return for unopened order `ATK-302`, delivered 12 days ago.
-- **Supplied rule:** The return window is 30 days.
+- **Task:** Start a return for unopened, unused order `ATK-302` in its original packaging,
+  delivered 12 days ago.
+- **Supplied rule:** Start the online return within 30 days of recorded delivery.
 - **Success:** The online return starts locally.
 - **Named barrier:** A simple action is embedded in dense policy language.
 - **Starting state:** No return pathway selected and no status message.
@@ -21,9 +22,10 @@ selection and status. No reading exercise can trap or time the visitor.
 
 ## Fixed behavior
 
-The action appears first in three short steps. Full policy details remain available in a native
-`details` disclosure. The fixed choices use familiar words and preserve the same policy, facts, and
-result as the barrier.
+The action appears first. Both versions use the same deadline, item conditions, and choice of
+return path. The manufacturer handles defects under its warranty; the final-sale exception
+process applies to items marked non-returnable. The same complete policy appears in a native
+`details` disclosure in Fixed. Reset closes the disclosure and clears the selection and status.
 
 ## Criteria review
 
@@ -32,6 +34,6 @@ result as the barrier.
 
 ## Deterministic evidence
 
-Browser coverage completes the same return in both panels and checks independent reset. The exception
-ledger names the reading comparison as manual because formulas and automation do not prove meaning or
-comprehension. A human editorial and audience review remains in the release matrix.
+Browser coverage completes the same return in both panels and checks independent reset, including
+the disclosure. Review deadline, eligibility, exceptions, and comprehension in the human editorial
+and audience check.

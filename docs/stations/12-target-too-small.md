@@ -2,7 +2,7 @@
 
 Status: AUDITING — implementation and rendered geometry evidence complete; touch matrix pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/target-too-small/`
 
 ## Contract
@@ -20,15 +20,23 @@ native button role, pressed state, and global keyboard focus ring. Reset clears 
 
 ## Fixed behavior
 
-The same three controls render at 44 by 44 CSS pixels with eight-pixel gaps. The size is a product
-choice above the criterion minimum, not a claim that WCAG always requires 44 pixels.
+The same three controls render at 44 by 44 CSS pixels with eight-pixel gaps. This gives touch users
+more room than the Level AA minimum and matches the size threshold of
+[2.5.5 Target Size (Enhanced)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html)
+at Level AAA, which has its own exceptions.
 
 ## Criteria review
 
-- **2.5.8 Target Size (Minimum) (AA):** Confirmed. The 20-pixel, 2-pixel-gap barrier does not meet the
-  24-pixel minimum or spacing exception; other listed exceptions still require case-specific review.
+- **2.5.8 Target Size (Minimum) (AA)** requires 24 by 24 CSS pixels or an applicable exception. In the
+  isolated Barrier, a 20-pixel target plus a 2-pixel gap places adjacent centers 22 CSS pixels apart.
+  The 24-pixel-diameter circles centered on those targets overlap by 2 CSS pixels, so the spacing
+  exception does not apply. For a real page, also check whether the function has an equivalent
+  control on the same page that meets the criterion. Compare offers the larger controls alongside
+  the teaching example.
+  [W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html)
 
 ## Deterministic evidence
 
-Playwright measures the barrier at 20 by 20 with a 2-pixel gap and the fix at 44 by 44. It also checks
-pressed state, success text, reset, keyboard access, and narrow-layout reflow. Real touch testing remains.
+The station’s Playwright assertions measure the Barrier at 20 by 20 CSS pixels with a 2-pixel gap and
+the Fixed controls at 44 by 44. They check the pressed state, success text, and reset. Real touch
+testing remains.

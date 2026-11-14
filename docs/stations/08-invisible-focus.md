@@ -2,7 +2,7 @@
 
 Status: AUDITING — safe inspection pattern implemented; visual matrix pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/invisible-focus/`
 Decision: DEC-010
 
@@ -22,15 +22,18 @@ completes the task. All real buttons retain the global three-pixel focus ring.
 
 ## Fixed behavior
 
-The fixed panel uses native ticket radios in DOM order. Focus is visible on every label and action,
-and Balcony can be selected and purchased with the keyboard. Reset clears selection and status.
+The fixed panel uses native ticket radios in DOM order. Tab to the ticket group, use the arrow keys
+to choose Balcony, then Tab to Buy ticket. Observe the focus indicator on the active radio or button.
+Reset clears selection and status.
 
 ## Criteria review
 
-- **2.4.7 Focus Visible (AA):** Conditional for the static barrier replay and confirmed for the fixed
-  interaction. The host page never creates an actually invisible focus path.
+- **2.4.7 Focus Visible (AA)** requires a mode with visible keyboard focus. The static replay
+  illustrates the loss of a visible indicator. Test the live controls by checking whether the
+  active keyboard focus indicator stays visible until focus moves.
+  [W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html)
 
 ## Deterministic evidence
 
-Browser checks advance the replay, complete Balcony in both panels, and scan the fixed view clean.
-Manual contrast, zoom, forced-colors, magnification, and platform focus checks remain.
+Browser assertions exercise replay navigation, ticket selection, and reset focus. The test plan
+retains manual checks for visible focus, contrast, zoom, forced colors, and magnification.

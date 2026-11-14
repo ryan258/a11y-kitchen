@@ -1,8 +1,8 @@
 # Station 11 — The caption gap
 
-Status: AUDITING — original media, captions, transcript, and deterministic evidence complete; human accuracy review pending
+Status: AUDITING — media structure checked; human playback and caption review pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/caption-gap/`
 
 ## Contract
@@ -25,12 +25,20 @@ spoken and meaningful visual information. Reset pauses and rewinds the clip and 
 
 ## Criteria review
 
-- **1.2.2 Captions (Prerecorded) (A):** Confirmed for the spoken synchronized media.
-- **1.2.3 Audio Description or Media Alternative (Prerecorded) (A):** Conditional; narration contains
-  all meaningful visual information, and the fixed transcript supplies the full equivalent sequence.
+- **1.2.2 Captions (Prerecorded) (A)** requires synchronized captions for prerecorded audio in
+  synchronized media, except when the media is clearly labeled as an alternative to equivalent text.
+  In Fixed, try completing the task with audio muted and captions on. The nearby transcript is a
+  separate way to complete the task.
+  [W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html)
+- **1.2.3 Audio Description or Media Alternative (Prerecorded) (A)** allows audio description or a
+  complete text alternative covering the meaningful audio and visuals. Narration can already convey
+  the important visual information, as this clip is designed to do. Verify that against the final
+  video.
+  [W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/audio-description-or-media-alternative-prerecorded.html)
 
 ## Deterministic evidence
 
-Build checks require the MP4, captions track, and transcript. Browser checks verify the barrier omits
-both alternatives, the fixed panel contains them, the answer completes, and reset handles media state.
-See `docs/MEDIA-PROVENANCE.md` for source and generation evidence.
+Build checks match the narration script, caption cues, transcript, and emitted caption track. Browser
+assertions check the presence of the Fixed track and transcript, answer completion, and selection and
+transcript reset. Verify muted caption playback, cue accuracy, transcript equivalence, and playback
+reset manually. [Media provenance](../MEDIA-PROVENANCE.md)

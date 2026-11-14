@@ -2,7 +2,7 @@
 
 Status: AUDITING — implementation and exact axe exception complete; AT smoke test pending
 Owner: Ryan
-Last reviewed: 2026-08-08
+Last reviewed: 2026-11-12
 Route: `/stations/unlabelled-icon/`
 
 ## Contract
@@ -25,8 +25,14 @@ and reset match the barrier so the accessible name is the meaningful difference.
 
 ## Criteria review
 
-- **1.1.1 Non-text Content (A):** Confirmed for the icon control’s equivalent text purpose.
-- **4.1.2 Name, Role, Value (A):** Confirmed for the button’s computed accessible name.
+- **1.1.1 Non-text Content (A)** requires a name that describes an icon control’s purpose. Inspect
+  the Fixed control to see `Delete Notes.txt` as its name.
+  [W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html)
+- **4.1.2 Name, Role, Value (A)** also requires a programmatically determinable role. Both controls
+  have a native button role. The named Fixed button
+  isolates the difference in the computed accessible name. For controls with settable states or
+  values, also check that assistive technology can set them and receive change notifications.
+  [W3C guidance](https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html)
 
 ## Deterministic evidence
 

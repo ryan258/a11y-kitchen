@@ -15,7 +15,7 @@ GOAL LINE: Written
 SPEC DRAFT: Done
 ROADMAP: Done (/roadmap.md)
 PLANNING PACK: Accepted as the reference-slice implementation baseline
-CODE: Deterministic v1 candidate implemented; manual release matrix pending
+CODE: V1 candidate implemented; current release evidence in docs/evidence/README.md
 SOURCE SEARCH: No matching shell or Station 01 found under /Users/ryanjohnson/Projects on 2026-08-08
 WORKING BASELINE: Greenfield, accepted in DEC-004
 SPEC IN REPO: Yes (/specs/PROJECT.md)
@@ -54,7 +54,9 @@ One switch in the header. Three modes. It changes the explanation panel on every
 | **Builder** | Developers, solutions architects | WCAG success criteria, the code moves, a snippet, how to test |
 | **Presenter** | Someone running a live demo | A timed run sheet and three lines that land |
 
-The mode is saved in `localStorage` under the key `atk-mode`. It persists across pages. The default is `builder`.
+The mode is saved in `localStorage` under the key `atk-mode`. It persists across pages when storage
+is available. Builder is the interactive default. With scripts unavailable, the page shows the
+Advocate lesson summary and holds back interactive controls.
 
 ---
 
@@ -67,6 +69,8 @@ The mode is saved in `localStorage` under the key `atk-mode`. It persists across
 - No CSS framework. No Tailwind. One hand-written stylesheet: `src/styles/global.css`.
 - Outfit and Space Mono are self-hosted WOFF2 assets referenced by `global.css`; fonts make no
   third-party runtime request.
+- Page loads and lesson interactions make zero automatic third-party requests. The build includes
+  the code, content, and font notices and is served at an HTTP(S) origin root.
 - No build-time data fetching. No CMS. No database.
 - Node 22.12 or newer within Node 22, as established by DEC-005 and retained by DEC-017.
 
@@ -82,9 +86,12 @@ The host site must remain safe and usable even though it displays deliberately b
 - Every page passes keyboard-only operation.
 - Every page works at 200% browser zoom with no horizontal scroll.
 - Every interactive element has a visible focus ring.
+- Authored field boundaries are distinguishable at 3:1 contrast where the boundary identifies
+  the field.
 - `prefers-reduced-motion` is respected.
 - Color never carries meaning alone.
-- Body copy reads at roughly a sixth-grade level.
+- Plain-language body copy targets roughly a sixth-grade reading level. Builder uses the
+  domain vocabulary needed to explain a criterion and its implementation.
 - A skip link is first in tab order on every page.
 
 ### Broken examples are quarantined
@@ -93,6 +100,8 @@ The host site must remain safe and usable even though it displays deliberately b
 - Barrier panels are still reachable and escapable by keyboard. Broken is not the same as trapped.
 - Never trap focus, disable the browser Back action, or block Escape.
 - An intentional failure never authorizes an unrelated failure elsewhere on the page.
+- All demo answers stay in the page, including when initialization fails. The station task and
+  Advocate summary remain readable while interactive controls are unavailable.
 
 ---
 
@@ -142,9 +151,12 @@ a11y-test-kitchen/
 │   └── pages/
 │       ├── index.astro
 │       ├── about.astro
+│       ├── teachers.astro
+│       ├── licenses/
+│       │   └── ...static notice resources
 │       └── stations/
 │           └── [slug].astro
-└── preview/                ← optional no-install static output
+└── dist/                   ← generated static output
 ```
 
 `src/` is the only hand-edited product source under accepted DEC-003. If a no-install preview becomes necessary, generate it from a verified static build; do not maintain a second product tree.
@@ -217,16 +229,19 @@ Both panels on every station have a reset control that returns them to their doc
 ### Barrier panel — Station 01
 
 - WHEN a visitor focuses any barrier field for the first time, the system SHALL start a 30-second countdown.
-- WHEN the countdown reaches zero, the system SHALL clear every barrier field and display “Session terminated. Please re-initiate.”
-- WHEN a visitor submits the barrier form the first time, the system SHALL clear every field and display only “Invalid input.”
-- WHEN a visitor submits the barrier form the second time, the system SHALL accept it.
+- WHEN a visitor hides the countdown display, the system SHALL keep the timer and the entered values active. Reset Barrier SHALL restore the visible countdown to its initial state.
+- WHEN the countdown reaches zero, the system SHALL clear every barrier field, display “Session terminated. Please re-initiate.” and point to Reset Barrier for a new attempt.
+- WHEN a visitor submits the barrier form for the first time before expiry, the system SHALL clear every field and display only “Invalid input.”
+- WHEN a visitor submits a retry before expiry with a six-digit member number and a nonblank reason, the system SHALL accept it.
+- IF a retry is incomplete, THEN the system SHALL preserve its values and continue displaying the generic error.
+- IF the session has expired, THEN the system SHALL require Reset Barrier before a new attempt can advance.
 - WHILE the barrier panel is displayed, the system SHALL keep every control reachable and escapable by keyboard.
 
 ### Fixed panel — Station 01
 
 - WHEN a visitor advances a step, the system SHALL move focus to the new step heading.
 - IF the member number is not exactly six digits, THEN the system SHALL show an error that names the field, states what is wrong, and preserves the typed value.
-- WHEN an error appears, the system SHALL announce it with `role="alert"` and SHALL NOT move focus to it, because an alert that also receives focus is announced twice.
+- WHEN an error appears, the system SHALL update an existing exposed `role="alert"` region and keep focus on the visitor's current control. The assistive-technology check verifies the announcement.
 - WHEN a visitor presses `Go back`, the system SHALL return to the previous step with all prior answers intact.
 - WHILE the fixed panel is displayed, the system SHALL apply no time limit of any kind.
 - WHEN a visitor reaches step 3, the system SHALL show a review of every answer before anything is final.
@@ -235,9 +250,17 @@ Both panels on every station have a reset control that returns them to their doc
 
 - WHEN any page loads, the system SHALL place a skip link first in tab order.
 - WHEN any interactive element receives keyboard focus, the system SHALL render a visible focus indicator with at least 3:1 contrast against its background.
+- WHEN a Fixed input depends on an authored boundary to identify it, the boundary SHALL have at least 3:1 contrast against adjacent colors.
 - IF `prefers-reduced-motion: reduce` is set, THEN the system SHALL disable all transitions and animations.
 - WHEN any page is viewed at 200% zoom on a 1280px viewport, the system SHALL produce no horizontal scrolling.
 - WHEN a state is communicated by color, the system SHALL also communicate it with a text label and a shape.
+- IF scripts are unavailable or a station controller fails to initialize, THEN the demo SHALL send
+  no form data and SHALL offer its readable task and Advocate summary.
+
+### Classroom entry
+
+- WHEN a facilitator opens **Teaching guide**, the site SHALL offer a short path through Stations
+  09 and 12, an Advocate instruction, a choice to observe, and a teacher-led boundary for Station 01.
 
 ---
 
@@ -264,11 +287,11 @@ Build in this order. Cognitive load comes first because it is an underserved are
 
 | # | Station | Task | Barrier pattern | Criteria to verify |
 |---|---|---|---|---|
-| 01 | The cancellation form | Cancel a membership | Session timer, placeholder labels, destructive errors | 2.2.1, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.7 |
+| 01 | The cancellation form | Cancel a membership | Session timer, placeholder labels, destructive errors | 2.2.1, 2.2.2 (countdown control), 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.7 |
 | 02 | The error message | Fix a rejected payment | “Invalid input.” with no recovery path | 3.3.1, 3.3.3 |
-| 03 | The reading wall | Follow return instructions | Grade-16 legalese for a grade-6 task | 3.1.5 |
+| 03 | The reading wall | Follow return instructions | Dense policy language compared with equivalent plain-language instructions | 3.1.5 |
 | 04 | The disappearing menu | Reach a settings page | Hover-only menu that vanishes on the way to it | 1.4.13, 2.1.1 |
-| 05 | The interruption | Book an appointment | Auto-refresh and modals that steal focus mid-task | 2.2.2, 2.4.3, 3.2.5 |
+| 05 | The interruption | Book an appointment | Field entry schedules a focus-stealing interruption | 2.4.3, 3.2.2, 3.2.5, 4.1.3 (Fixed status) |
 | 06 | The memory tax | Transfer money | Confirmation code shown once, on a screen the visitor must leave | 3.3.7 |
 | 07 | The keyboard trap | Close a promo overlay | Focus cycles inside the overlay; host Escape remains available | 2.1.2 |
 | 08 | The invisible focus | Buy a ticket without a mouse | Static product replay omits a focus marker; real host controls remain visible | 2.4.7 |

@@ -1,7 +1,7 @@
 # Station 11 Media Provenance
 
 Status: Source and generation path recorded; final human caption review pending
-Last updated: 2026-08-08
+Last updated: 2026-11-12
 
 ## Shipped artifacts
 
@@ -36,9 +36,11 @@ npm run media:station-11
 ```
 
 Requirements are Node/npm, network access for the pinned authoring package, and FFmpeg with `libx264`
-and AAC support. The public site does not need those tools. After regeneration, a human must retime or
-reconfirm `station-11-captions.vtt`; the audio duration and sentence gaps can change across engines or
-versions even when the script is unchanged.
+and AAC support. These are authoring dependencies. The script regenerates the MP4 and poster.
+`npm run verify:content` compares the narration text, VTT cues, and transcript and checks cue ordering.
+`npm run verify:build` checks that the built caption track matches the source. After regeneration,
+review and retime the captions as needed. The audio duration and sentence gaps can change across
+engines or versions even when the script is unchanged.
 
 ## Current timing record
 

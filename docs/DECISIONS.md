@@ -1,7 +1,7 @@
 # A11y Test Kitchen Decision Log
 
 Status: Active implementation log
-Last updated: 2026-08-09
+Last updated: 2026-11-12
 Authority: Explicit project decisions and proposed amendments
 
 This log prevents consequential choices from being hidden in implementation. Ryan's 2026-08-08 request to develop the project authorized the documented reference-slice baseline. The later request to review that slice and finish the project authorized implementation of the recommended Station 07 safety pattern and the static-inspection option for Station 08. Ryan's 2026-08-09 request to bring the current changes to a solid v1 authorized the dependency and release-hardening decision in DEC-017. Those choices are accepted only in their narrow forms below; the host-site safety floor remains authoritative.
@@ -32,7 +32,7 @@ This log prevents consequential choices from being hidden in implementation. Rya
 | DEC-009 | Use an escapable focus cycle for Station 07 | `ACCEPTED` | Station 07 brief |
 | DEC-010 | Use a static product-focus replay for Station 08 | `ACCEPTED` | Station 08 brief |
 | DEC-011 | Adopt an initial browser and assistive-technology support matrix | `ACCEPTED` | Foundation audit |
-| DEC-012 | Choose a static hosting provider | `DEFERRED` | Audited MVP |
+| DEC-012 | Choose a static hosting provider | `DEFERRED` | Full release review and owner decision |
 | DEC-013 | Treat the project as standalone within Ryan's wider work | `ACCEPTED` | Bible approval |
 | DEC-014 | Measure Station 01 before estimating later station duration | `ACCEPTED` | Station 01 review |
 | DEC-015 | Use Playwright plus axe-core as browser/a11y automation | `ACCEPTED` | Test tooling task |
@@ -200,7 +200,12 @@ The lesson is “keyboard trap,” but the site floor and WCAG non-interference 
 
 ### Decision
 
-The barrier cycles Tab and Shift+Tab between two promo controls and omits a visible product close control. A prominently documented standard Escape action always closes the overlay and returns focus to its opener. Reset and view changes also close it. Browser Back is never intercepted. The presenter states that the exhibit is a safe approximation and that a harmful production trap removes the release.
+The barrier cycles Tab and Shift+Tab between two promo controls and omits a visible product close
+control. Escape while focus is inside the promo closes it and returns focus to its opener. Reset
+Barrier sits beside the opener and closes the promo. View changes also close it. Moving focus
+outside the promo leaves the layout stable so an outside control can receive a complete pointer
+click. Browser Back remains available. The presenter names the available exits and describes the
+lesson as a bounded approximation.
 
 ### Consequences
 
@@ -254,11 +259,13 @@ Add Windows + NVDA before public release if a Windows environment is available. 
 
 **Status:** `DEFERRED`
 **Owner:** Ryan
-**Trigger:** Stations 01-03 pass the MVP gate
+**Trigger:** Current whole-site release evidence is reviewed and Ryan approves the hosting decision
 
 ### Decision boundary
 
-Choose a host that serves the static build without adding required client scripts, analytics, cookies, authentication, or server features. Hosting must adapt to the architecture; the architecture does not expand to fit a host.
+Choose a host that serves the complete static build at an HTTP(S) origin root, with its notices
+and assets, and without adding required client scripts, analytics, cookies, authentication, or
+server features. Review the host's request logging separately from the exhibit's behavior.
 
 ## DEC-013 — Connection to other work
 

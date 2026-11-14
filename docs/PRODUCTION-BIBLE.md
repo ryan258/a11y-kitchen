@@ -1,7 +1,7 @@
 # A11y Test Kitchen Production Bible
 
 Status: Accepted as the reference-slice implementation baseline
-Last updated: 2026-08-08
+Last updated: 2026-11-12
 Authority: Project identity, audience voice, emotional intent, and craft rules
 
 This is the stable creative and editorial reference for A11y Test Kitchen. `specs/PROJECT.md` owns product requirements. `roadmap.md` owns delivery order. This bible explains what the project must feel like and what must never drift while those requirements are implemented.
@@ -89,7 +89,7 @@ Every station also follows these production rules:
 3. **Who is hit hardest:** Specific groups or circumstances, without claiming a universal disability experience
 4. **Decision:** One action a manager, buyer, or sponsor can support
 
-Target length: 90-150 words. Zero code.
+Usually 75–150 words, with zero code. Keep the four parts useful and short enough to scan.
 
 ### Builder
 
@@ -103,13 +103,14 @@ Target length: 90-150 words. Zero code.
 
 #### Builder panel contract
 
-1. **Criteria:** Verified number, exact title, and level; applicability reviewed for this task
+1. **Criteria:** Verified number, exact title, and level, with conditional applicability identified
 2. **Code moves:** Two to four precise implementation changes
 3. **Snippet:** The smallest self-contained example that demonstrates the correct pattern
 4. **How to test:** Keyboard, browser, automated, and assistive-technology checks relevant to the station
 5. **Boundary:** What the snippet does not prove
 
-Target length: 180-320 words plus one focused code block.
+Use the shortest explanation that covers the criterion, code moves, tests, and boundary. A focused
+example commonly takes 110–220 words plus one code block.
 
 ### Presenter
 
@@ -129,7 +130,8 @@ Target length: 180-320 words plus one focused code block.
 4. **Debrief:** 20-40 seconds; connect the interface decision to human impact and the fix
 5. **Three lines that land:** Three short, speakable conclusions
 
-Target length: A two- to three-minute run sheet. Never exceed five minutes without an explicit event need.
+Plan roughly two minutes. Give each step its own estimate and leave room for participants to pause,
+observe, or use their usual input supports. Five minutes is the upper limit unless the event needs more.
 
 ## Craft Rules
 
